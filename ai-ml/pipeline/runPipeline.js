@@ -9,6 +9,8 @@ import { techStandardEvaluator } from "../evaluators/techStandardEvaluator.js";
 import gapAnalyzer from "../utils/gapAnalyzer.js";
 import { classifyResume } from "../utils/resumeClassifier.js";
 import { aggregateResults } from "./aggregator.js";
+import { validateEvaluatorResult } from "./evaluatorContract.js";
+
 
 export async function runPipeline({
   resumeData,
@@ -18,9 +20,11 @@ export async function runPipeline({
   // ADD — safe wrapper for all evaluator calls
   async function safeEval(name, fn, fallback = { score: 0, error: true }) {
     try {
-      return await fn();
+      const result = await fn();
+      // Use the Zod contract to validate the output shape
+      return validateEvaluatorResult({ ...result, name: result.name || name });
     } catch (err) {
-      console.error(`[runPipeline] Evaluator "${name}" failed:`, err);
+      console.error(`[runPipeline] Evaluator "${name}" contract violation or failure:`, err.message);
       return { ...fallback, name };
     }
   }
