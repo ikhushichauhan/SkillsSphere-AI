@@ -71,7 +71,18 @@ export default function gapAnalyzer({
     categorizedSuggestions.optimization.push(`Convert passive phrases into active ones using power verbs like ${verbs.slice(0, 2).join(" or ")}.`);
   }
 
-  // 4. 🏛️ Domain Specialization
+  // 4. 🏛️ Domain Specialization — always surface missing tech keywords
+  const domainMissing = techStandard?.details?.domainMissing || {};
+  const topMissingKeywords = Object.values(domainMissing)
+    .flat()
+    .slice(0, 5);
+
+  if (topMissingKeywords.length > 0) {
+    categorizedSuggestions.strategic.push(
+      `Strengthen your technical breadth by adding keywords like: ${topMissingKeywords.join(", ")} to your resume.`
+    );
+  }
+
   if (techStandard?.score < 60) {
     const techSuggestions = techStandard.details?.suggestions || techStandard.suggestions || [];
     techSuggestions.forEach(s => categorizedSuggestions.strategic.push(s));

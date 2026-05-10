@@ -8,6 +8,7 @@ import { normalizeSkillArray } from "../utils/skillNormalizer.js";
 export const techStandardEvaluator = ({ resumeText = "" }) => {
   const lowerText = resumeText.toLowerCase();
   const domainMatches = {};
+  const domainMissing = {};
 
   Object.keys(techKeywords).forEach(domain => {
     // Normalize domain keywords to match our canonical forms
@@ -19,6 +20,7 @@ export const techStandardEvaluator = ({ resumeText = "" }) => {
       (skill === 'csharp' && lowerText.includes('c#'))
     );
     domainMatches[domain] = matches;
+    domainMissing[domain] = normDomainKeywords.filter(skill => !matches.includes(skill));
   });
 
   const feedback = [];
@@ -60,6 +62,7 @@ export const techStandardEvaluator = ({ resumeText = "" }) => {
       : "The technical profile appears narrow; consider highlighting more cross-stack tools.",
     details: {
       domainMatches,
+      domainMissing,
       feedback,
       suggestions
     },

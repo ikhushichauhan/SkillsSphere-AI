@@ -43,10 +43,24 @@ const AnalysisResult = ({ result, file, onReset }) => {
   const atsData = result.atsOptimization || {};
   const checklist = [
     { label: "Experience Section", status: atsData.details?.sectionResults?.experience, reason: "Missing clear experience headers or work history" },
+    { label: "Education Section", status: atsData.details?.sectionResults?.education, reason: "Missing education section or degree information" },
     { label: "Skills Section", status: atsData.details?.sectionResults?.skills, reason: "No extractable skills section found" },
+    { label: "Summary / Objective", status: atsData.details?.sectionResults?.summary, reason: "Missing summary, profile, or objective section" },
     { label: "Contact: Email", status: atsData.details?.contactResults?.email, reason: "Missing valid email address" },
+    { label: "Contact: Phone", status: atsData.details?.contactResults?.phone, reason: "Missing phone number" },
     { label: "Contact: LinkedIn", status: atsData.details?.contactResults?.linkedin, reason: "Missing LinkedIn profile link" },
+    { label: "Contact: GitHub", status: atsData.details?.contactResults?.github, reason: "Missing GitHub profile link" },
+    { label: "Portfolio Link", status: atsData.details?.contactResults?.portfolio, reason: "Missing portfolio or personal website link" },
   ];
+
+  // --- Missing Tech Keywords (from techStandard evaluator) ---
+  const techData = result.techStandard?.details?.domainMissing || {};
+  const missingTechKeywords = Object.entries(techData)
+    .filter(([, keywords]) => keywords.length > 0)
+    .flatMap(([domain, keywords]) =>
+      keywords.slice(0, 3).map(kw => ({ keyword: kw, domain }))
+    )
+    .slice(0, 12);
 
   // --- Action Words ---
   const actionWords = result.readabilityMatch?.relevantVerbs || ["Spearheaded", "Orchestrated", "Transformed", "Optimized", "Architected", "Launched", "Pioneered", "Revitalized"];
@@ -130,20 +144,17 @@ const AnalysisResult = ({ result, file, onReset }) => {
             </div>
             <h3 className="font-bold text-text-main">ATS Readiness</h3>
           </div>
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-3">
             {checklist.map((item, i) => (
-              <div key={i} className="flex flex-col p-3 bg-dark-bg/40 rounded-xl border border-border/50">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-text-muted">{item.label}</span>
-                  {item.status ? (
-                    <CheckCircle2 className="w-4 h-4 text-secondary" />
-                  ) : (
-                    <AlertCircle className="w-4 h-4 text-red-400" />
-                  )}
-                </div>
-                {!item.status && (
-                  <span className="text-[10px] text-red-400 mt-1.5">{item.reason}</span>
+              <div key={i} className="flex items-center gap-2">
+                {item.status ? (
+                  <CheckCircle2 className="w-4 h-4 text-secondary flex-shrink-0" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
                 )}
+                <span className={`text-xs font-medium ${item.status ? "text-text-muted" : "text-red-400"}`}>
+                  {item.label}
+                </span>
               </div>
             ))}
           </div>
@@ -244,6 +255,26 @@ const AnalysisResult = ({ result, file, onReset }) => {
                   </div>
                 )}
               </div>
+
+              {/* Missing Tech Standard Keywords */}
+              {missingTechKeywords.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-2">
+                    Add These Keywords to Boost Score
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {missingTechKeywords.map((item, i) => (
+                      <span
+                        key={i}
+                        className="px-2.5 py-1 bg-yellow-400/5 border border-yellow-400/20 text-yellow-400 text-[10px] font-bold rounded-lg capitalize transition-colors hover:bg-yellow-400/10"
+                        title={item.domain}
+                      >
+                        {item.keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
            </div>
 
            {/* Preview */}
