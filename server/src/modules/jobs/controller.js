@@ -96,11 +96,24 @@ export const createJobPosting = asyncHandler(async (req, res) => {
  * @access  Private (Recruiters only)
  */
 export const getRecruiterJobs = asyncHandler(async (req, res) => {
-  const jobs = await JobPosting.find({ recruiter: req.user._id })
-    .sort({ createdAt: -1 });
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
+  const skip = (page - 1) * limit;
+
+  const [jobs, totalCount] = await Promise.all([
+    JobPosting.find({ recruiter: req.user._id })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    JobPosting.countDocuments({ recruiter: req.user._id })
+  ]);
 
   res.status(200).json({
     success: true,
+    count: jobs.length,
+    totalCount,
+    totalPages: Math.ceil(totalCount / limit),
+    currentPage: page,
     jobs,
   });
 });
@@ -159,18 +172,25 @@ export const deleteJobPosting = asyncHandler(async (req, res) => {
  */
 export const getJobs = asyncHandler(async (req, res) => {
   const { minSalary, maxSalary, designation, postedWithin } = req.query;
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
 
-  const jobs = await getAllJobs({
+  const result = await getAllJobs({
     minSalary,
     maxSalary,
     designation,
     postedWithin,
+    page,
+    limit
   });
 
   res.status(200).json({
     success: true,
-    count: jobs.length,
-    jobs,
+    count: result.jobs.length,
+    totalCount: result.totalCount,
+    totalPages: result.totalPages,
+    currentPage: result.currentPage,
+    jobs: result.jobs,
   });
 });
 
