@@ -69,8 +69,9 @@ export function normalizePipelineResult(result = {}) {
     classification:
       result.classification && typeof result.classification === "object"
         ? result.classification
-        : null,
-    isJDProvided: !!result.isJDProvided
+        : result.classification || null,
+    isJDProvided: !!result.isJDProvided,
+    mode: result.mode || "match",
   };
 }
 

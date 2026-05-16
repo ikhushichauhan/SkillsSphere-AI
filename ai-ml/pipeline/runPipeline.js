@@ -13,6 +13,7 @@ import { aggregateResults } from "./aggregator.js";
 import { validateEvaluatorResult } from "./evaluatorContract.js";
 import { extractSkillsFromText } from "../utils/skillNormalizer.js";
 import techKeywords from "../config/keywords.js";
+import { getBenchmarkForRole } from "../config/benchmarks.js";
 
 
 export async function runPipeline({
@@ -64,11 +65,20 @@ export async function runPipeline({
 
   const isJDProvided = !!(jobDescription && jobDescription.trim().length > 0);
   
-  // 🔥 AUTO-EXTRACT: If only JD text is provided, extract the skill array for evaluators
+  // 🔥 AUTO-EXTRACT / BENCHMARK: 
   let finalJobSkills = jobSkills;
+  let finalJobDescription = jobDescription;
+  let mode = isJDProvided ? "match" : "benchmark";
+
   if (isJDProvided && (!jobSkills || jobSkills.length === 0)) {
     const allKeywords = Object.values(techKeywords).flat();
     finalJobSkills = extractSkillsFromText(jobDescription, allKeywords);
+  } else if (!isJDProvided) {
+    // Determine benchmark based on classification (or default to full stack)
+    // Classification happens later, so we use a pre-classification or default
+    const detectedField = resumeData.classification?.field || "full stack developer";
+    finalJobSkills = getBenchmarkForRole(detectedField);
+    finalJobDescription = `A standard role for ${detectedField} requiring skills like ${finalJobSkills.join(", ")}.`;
   }
   const evaluations = [];
 
@@ -87,48 +97,30 @@ export async function runPipeline({
     techStandard
   ] = await Promise.all([
     // 🟢 Skill Match
-    isJDProvided
-      ? safeEval("skillMatch", () =>
-          skillEvaluator({
-            resumeSkills: resumeData.skills || [],
-            jobSkills: finalJobSkills,
-          }),
-        )
-      : Promise.resolve({
-          score: null,
-          name: "skillMatch",
-          message: "No job description provided",
-        }),
+    safeEval("skillMatch", () =>
+      skillEvaluator({
+        resumeSkills: resumeData.skills || [],
+        jobSkills: finalJobSkills,
+      }),
+    ),
 
     // 🟡 Keyword Match
-    isJDProvided
-      ? safeEval("keywordMatch", () =>
-          keywordEvaluator({
-            resumeText,
-            jobDescription,
-            resumeSkills: resumeData.skills || [],
-            jobSkills: finalJobSkills,
-          }),
-        )
-      : Promise.resolve({
-          score: null,
-          name: "keywordMatch",
-          message: "No job description provided",
-        }),
+    safeEval("keywordMatch", () =>
+      keywordEvaluator({
+        resumeText,
+        jobDescription: finalJobDescription,
+        resumeSkills: resumeData.skills || [],
+        jobSkills: finalJobSkills,
+      }),
+    ),
 
     // 🔵 Experience Match
-    isJDProvided
-      ? safeEval("experienceMatch", () =>
-          experienceEvaluator({
-            candidateExperienceText: parseExperience(resumeData.experience),
-            jobDescription,
-          }),
-        )
-      : Promise.resolve({
-          score: null,
-          name: "experienceMatch",
-          message: "No job description provided",
-        }),
+    safeEval("experienceMatch", () =>
+      experienceEvaluator({
+        candidateExperienceText: parseExperience(resumeData.experience),
+        jobDescription: finalJobDescription,
+      }),
+    ),
 
     // 🌀 Semantic Match
     (async () => {
@@ -258,5 +250,6 @@ export async function runPipeline({
     gapAnalysis,
     classification,
     isJDProvided,
+    mode,
   };
 }

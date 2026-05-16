@@ -135,6 +135,11 @@ const resumeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: null,
     },
+    mode: {
+      type: String,
+      enum: ["match", "benchmark"],
+      default: "match",
+    },
   },
   {
     timestamps: true,

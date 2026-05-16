@@ -98,17 +98,30 @@ const AnalysisResult = ({ result, file, onReset }) => {
             {result.classification && (
               <div className="mt-4 space-y-2">
                 <div className={`inline-block px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-dark-bg border border-border shadow-sm ${getScoreColor(score)}`}>
-                  {result.classification.level}
+                  {typeof result.classification === 'object' ? result.classification.level : result.classification}
                 </div>
-                <p className="text-[10px] text-text-muted font-bold px-2 leading-relaxed italic">
-                  {result.classification.label}
-                </p>
+                {typeof result.classification === 'object' && result.classification.label && (
+                  <p className="text-[10px] text-text-muted font-bold px-2 leading-relaxed italic">
+                    {result.classification.label}
+                  </p>
+                )}
               </div>
             )}
 
             <p className="text-xs text-text-muted mt-4 font-bold max-w-[150px]">
-              {isJDProvided ? "Optimized for Job Description" : "General Quality Baseline"}
+              {result.mode === "benchmark" 
+                ? "Market Readiness Benchmark" 
+                : isJDProvided 
+                ? "Optimized for Job Description" 
+                : "General Quality Baseline"}
             </p>
+
+            {result.mode === "benchmark" && (
+              <div className="mt-4 flex items-center gap-1.5 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full">
+                <Sparkles size={10} className="text-primary" />
+                <span className="text-[8px] font-black uppercase tracking-widest text-primary">Benchmark Active</span>
+              </div>
+            )}
 
           </div>
         </div>
@@ -207,6 +220,7 @@ const AnalysisResult = ({ result, file, onReset }) => {
       <SkillGapVenn 
         skillMatch={result.skillMatch} 
         isJDProvided={isJDProvided} 
+        mode={result.mode}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
