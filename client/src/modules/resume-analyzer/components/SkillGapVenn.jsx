@@ -1,8 +1,8 @@
 import React from "react";
 import { User, Briefcase, Zap, AlertCircle, CheckCircle2 } from "lucide-react";
 
-const SkillGapVenn = ({ skillMatch = {}, isJDProvided = false }) => {
-  if (!isJDProvided) return null;
+const SkillGapVenn = ({ skillMatch = {}, isJDProvided = false, mode = "match" }) => {
+  if (!isJDProvided && mode !== "benchmark") return null;
 
   const { matchedSkills = [], missingSkills = [], extraSkills = [] } = skillMatch.details || {};
   const matchedCount = matchedSkills.length;
@@ -46,14 +46,9 @@ const SkillGapVenn = ({ skillMatch = {}, isJDProvided = false }) => {
             />
             <text x="100" y="50" className="text-[10px] font-black uppercase fill-slate-400">Your Resume</text>
             
-            {/* Job Circle */}
-            <circle 
-              cx="240" cy="120" r="100" 
-              fill="url(#jobGrad)" 
-              stroke="#10b981" 
-              strokeWidth="2" 
-            />
-            <text x="245" y="50" className="text-[10px] font-black uppercase fill-emerald-500">Job Description</text>
+            <text x="245" y="50" className={`text-[10px] font-black uppercase ${mode === 'benchmark' ? 'fill-blue-500' : 'fill-emerald-500'}`}>
+              {mode === 'benchmark' ? 'Market Standard' : 'Job Description'}
+            </text>
 
             {/* Overlap Text */}
             <text x="200" y="130" textAnchor="middle" className="text-2xl font-black fill-white shadow-lg">

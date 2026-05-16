@@ -129,6 +129,7 @@ export const analyzeResume = async (req, res) => {
       ...safePipeline,
       jobSkills,
       jobDescription,
+      mode: pipelineResult.mode || "match",
       file: {
         originalName: file.originalname,
         storedName: file.filename,
@@ -147,6 +148,7 @@ export const analyzeResume = async (req, res) => {
       missingSkills: safePipeline.skillMatch?.missingSkills || [],
       suggestions: safePipeline.gapAnalysis?.suggestions || [],
       breakdown: safePipeline.breakdown || {},
+      mode: pipelineResult.mode || "match",
     });
 
     // Clean up: Limit history to last 10 versions to prevent bloat (Optimized with direct deletion)
