@@ -4,6 +4,26 @@ import Button from "../../../shared/landing/Button";
 const Hero = () => {
   return (
     <section className="relative min-h-[92vh] flex items-center px-4 pt-32 pb-20 overflow-visible animate-slide-up sm:pt-28 sm:pb-14">
+      {/* Light mode gradient orbs */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full opacity-0 dark:opacity-0"
+          style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, rgba(79,70,229,0.08) 40%, transparent 70%)', filter: 'blur(60px)' }}
+        />
+        <div className="absolute top-1/2 -right-40 w-[500px] h-[500px] rounded-full opacity-0 dark:opacity-0"
+          style={{ background: 'radial-gradient(circle, rgba(5,150,105,0.15) 0%, rgba(16,185,129,0.06) 40%, transparent 70%)', filter: 'blur(60px)' }}
+        />
+        {/* Only show in light mode */}
+        <style>{`
+          html:not(.dark) .hero-orb-purple { opacity: 1 !important; }
+          html:not(.dark) .hero-orb-green  { opacity: 1 !important; }
+        `}</style>
+        <div className="hero-orb-purple absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, rgba(79,70,229,0.08) 40%, transparent 70%)', filter: 'blur(60px)', opacity: 0 }}
+        />
+        <div className="hero-orb-green absolute top-1/2 -right-40 w-[500px] h-[500px] rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(5,150,105,0.15) 0%, rgba(16,185,129,0.06) 40%, transparent 70%)', filter: 'blur(60px)', opacity: 0 }}
+        />
+      </div>
       <div className="container grid grid-cols-[minmax(0,0.82fr)_minmax(540px,1.18fr)] items-center gap-12 max-[1050px]:grid-cols-1 max-[1050px]:gap-10">
         <div className="max-w-2xl relative max-[1050px]:text-center max-[1050px]:mx-auto">
           {/* decorative radial glow behind heading for reliable halo */}
