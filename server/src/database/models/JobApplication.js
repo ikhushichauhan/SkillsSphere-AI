@@ -54,6 +54,27 @@ const jobApplicationSchema = new mongoose.Schema(
       default: "",
     },
 
+    aiMatchScore: {
+      type: Number,
+      default: null,
+      min: 0,
+      max: 100,
+    },
+
+    matchCategory: {
+      type: String,
+      enum: ["Excellent Match", "Moderate Match", "Growth Potential", "Weak Alignment", null],
+      default: null,
+    },
+
+    matchBreakdown: {
+      atsCompatibility: { type: Number, default: null },
+      skillMatch: { type: Number, default: null },
+      projectStrength: { type: mongoose.Schema.Types.Mixed, default: null },
+      contributionActivity: { type: String, default: null },
+      careerReadiness: { type: String, default: null },
+    },
+
     statusHistory: [
       {
         status: {

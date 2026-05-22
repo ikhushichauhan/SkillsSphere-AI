@@ -10,7 +10,8 @@ import {
   ExternalLink, 
   MessageSquare,
   ChevronRight,
-  Filter
+  Filter,
+  Sparkles
 } from 'lucide-react';
 import Navbar from '../../../shared/landing/Navbar';
 import { Button, LoadingState, ErrorState, EmptyState, StatusUpdateModal, StatusTimeline } from '../../../shared/components';
@@ -22,6 +23,13 @@ const statusStyles = {
   shortlisted: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
   rejected: "bg-red-500/10 text-red-400 border-red-500/20",
   withdrawn: "bg-slate-700/30 text-slate-400 border-slate-700/50",
+};
+
+const matchCategoryStyles = {
+  "Excellent Match": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  "Moderate Match": "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  "Growth Potential": "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+  "Weak Alignment": "bg-red-500/10 text-red-400 border-red-500/20",
 };
 
 const RecruiterApplicantsPage = () => {
@@ -160,6 +168,17 @@ const RecruiterApplicantsPage = () => {
                     </div>
 
                     <div className="flex items-center gap-4 shrink-0">
+                      {app.aiMatchScore !== undefined && app.aiMatchScore !== null && (
+                        <div className="flex flex-col items-end mr-2">
+                          <span className="text-xl font-bold text-white flex items-center gap-1">
+                            <Sparkles size={16} className="text-emerald-400" />
+                            {app.aiMatchScore}%
+                          </span>
+                          <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border mt-1 ${matchCategoryStyles[app.matchCategory] || "text-slate-400 border-white/10"}`}>
+                            {app.matchCategory || "Evaluated"}
+                          </span>
+                        </div>
+                      )}
                       <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border ${statusStyles[app.status]}`}>
                         {app.status}
                       </span>
@@ -211,6 +230,62 @@ const RecruiterApplicantsPage = () => {
                             </div>
                           </div>
                         </div>
+
+                        {app.matchBreakdown && (
+                          <div className="space-y-3 pt-6 border-t border-white/5">
+                            <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                              <Sparkles size={16} /> AI Match Breakdown
+                            </h4>
+                            <div className="p-4 bg-slate-900/80 border border-white/5 rounded-2xl space-y-4">
+                              <div>
+                                <div className="flex justify-between items-center mb-1.5">
+                                  <span className="text-sm text-slate-400">ATS Compatibility</span>
+                                  <span className="text-sm font-bold text-slate-200">{app.matchBreakdown.atsCompatibility || 0}%</span>
+                                </div>
+                                <div className="w-full bg-slate-800 rounded-full h-1.5">
+                                  <div className="bg-emerald-500 h-1.5 rounded-full transition-all duration-1000" style={{ width: `${app.matchBreakdown.atsCompatibility || 0}%` }}></div>
+                                </div>
+                              </div>
+
+                              <div>
+                                <div className="flex justify-between items-center mb-1.5">
+                                  <span className="text-sm text-slate-400">Skill Match</span>
+                                  <span className="text-sm font-bold text-slate-200">{app.matchBreakdown.skillMatch || 0}%</span>
+                                </div>
+                                <div className="w-full bg-slate-800 rounded-full h-1.5">
+                                  <div className="bg-blue-500 h-1.5 rounded-full transition-all duration-1000" style={{ width: `${app.matchBreakdown.skillMatch || 0}%` }}></div>
+                                </div>
+                              </div>
+
+                              <div>
+                                <div className="flex justify-between items-center mb-1.5">
+                                  <span className="text-sm text-slate-400">Project Strength</span>
+                                  <span className="text-sm font-bold text-slate-200">{app.matchBreakdown.projectStrength || 0}%</span>
+                                </div>
+                                <div className="w-full bg-slate-800 rounded-full h-1.5">
+                                  <div className="bg-purple-500 h-1.5 rounded-full transition-all duration-1000" style={{ width: `${app.matchBreakdown.projectStrength || 0}%` }}></div>
+                                </div>
+                              </div>
+
+                              <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                                <span className="text-sm text-slate-400">Contribution Activity</span>
+                                <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
+                                  app.matchBreakdown.contributionActivity === 'High' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
+                                  app.matchBreakdown.contributionActivity === 'Medium' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 
+                                  'bg-slate-800 text-slate-400 border-white/10'
+                                }`}>{app.matchBreakdown.contributionActivity || 'Low'}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-slate-400">Career Readiness</span>
+                                <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
+                                  app.matchBreakdown.careerReadiness === 'High' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
+                                  app.matchBreakdown.careerReadiness === 'Medium' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 
+                                  'bg-slate-800 text-slate-400 border-white/10'
+                                }`}>{app.matchBreakdown.careerReadiness || 'Low'}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
 
                         <div className="pt-4 flex gap-3">
                           <Button 

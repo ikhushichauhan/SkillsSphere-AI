@@ -6,6 +6,7 @@ import matchingService from "../matching/service.js";
 import { generateRecommendations } from "../../../../ai-ml/pipeline/recommendationEngine.js";
 import AppError from "../../utils/AppError.js";
 import { getIO } from "../../utils/socketIO.js";
+import recruiterIntelligenceService from "../recruiterIntelligence/service.js";
 
 /**
  * Create a new job posting
@@ -387,6 +388,12 @@ export const applyToJob = async (jobId, applicantId, options = {}) => {
       existing.coverNote = options.coverNote?.trim() || "";
       existing.statusHistory.push({ status: "pending", comment: "Application re-submitted after withdrawal" });
       await existing.save();
+
+      // Re-evaluate candidate match asynchronously
+      recruiterIntelligenceService.evaluateCandidateMatch(existing._id).catch(err => {
+        console.error("Failed to evaluate candidate match on re-apply:", err);
+      });
+
       return existing;
     }
     throw new AppError("You have already applied to this job", 409);
@@ -399,6 +406,11 @@ export const applyToJob = async (jobId, applicantId, options = {}) => {
     resumeLink: options.resumeLink.trim(),
     coverNote: options.coverNote?.trim() || "",
     statusHistory: [{ status: "pending", comment: "Application submitted" }],
+  });
+
+  // Evaluate candidate match asynchronously
+  recruiterIntelligenceService.evaluateCandidateMatch(application._id).catch(err => {
+    console.error("Failed to evaluate candidate match:", err);
   });
 
   return application;
