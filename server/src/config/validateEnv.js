@@ -1,6 +1,5 @@
 const requiredVars = [
   { name: "JWT_SECRET", description: "Secret key for signing JWT tokens" },
-  { name: "MONGO_URI", altName: "MONGODB_URI", description: "MongoDB connection string" },
 ];
 
 export const validateEnv = () => {

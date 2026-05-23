@@ -5,7 +5,8 @@ dotenv.config({ override: true });
 
 import http from "http";
 import { Server } from "socket.io";
-import connectDB from "./src/database/db.js";
+import connectDB, { isConnected } from "./src/database/db.js";
+import requireDB from "./src/middleware/requireDB.js";
 import authRoutes from "./src/modules/auth/routes.js";
 import resumeRoutes from "./src/modules/resumes/routes.js";
 import jobRoutes from "./src/modules/jobs/routes.js";
@@ -79,11 +80,11 @@ app.use((req, res, next) => {
 });
 
 await connectRedis();
-await connectDB();
+connectDB();
 logEvaluatorConfig();
 
 app.get("/health", (req, res) => {
-  res.json({ status: "OK" });
+  res.json({ status: "OK", db: isConnected ? "connected" : "disconnected" });
 });
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -109,19 +110,19 @@ app.post("/api/chat", (req, res) => {
   }
 });
 
-app.use("/api/auth", authRoutes);
-app.use("/api/resume", resumeRoutes);
-app.use("/api/jobs", jobRoutes);
-app.use("/api/roadmap", roadmapRoutes);
-app.use("/api/matching", matchingRoutes);
-app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/cover-letters", coverLetterRoutes);
-app.use("/api/classrooms", classroomRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/interviews", interviewRoutes);
-app.use("/api/files", fileRoutes);
-app.use("/api/notifications", notificationRoutes);
-app.use("/api/analytics", analyticsRoutes);
+app.use("/api/auth", requireDB, authRoutes);
+app.use("/api/resume", requireDB, resumeRoutes);
+app.use("/api/jobs", requireDB, jobRoutes);
+app.use("/api/roadmap", requireDB, roadmapRoutes);
+app.use("/api/matching", requireDB, matchingRoutes);
+app.use("/api/dashboard", requireDB, dashboardRoutes);
+app.use("/api/cover-letters", requireDB, coverLetterRoutes);
+app.use("/api/classrooms", requireDB, classroomRoutes);
+app.use("/api/users", requireDB, userRoutes);
+app.use("/api/interviews", requireDB, interviewRoutes);
+app.use("/api/files", requireDB, fileRoutes);
+app.use("/api/notifications", requireDB, notificationRoutes);
+app.use("/api/analytics", requireDB, analyticsRoutes);
 
 initClassroomSockets(io);
 initNotificationSockets(io);
