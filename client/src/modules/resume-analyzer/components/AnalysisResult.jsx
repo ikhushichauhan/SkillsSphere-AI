@@ -20,6 +20,9 @@ import Button from "../../../shared/landing/Button";
 import SkillGapVenn from "./SkillGapVenn";
 import CoverLetterModal from "../../../shared/components/CoverLetterModal";
 import { generateCoverLetter } from "../services/resumeService";
+import html2pdf from "html2pdf.js";
+import AnalysisReportPDF from "./AnalysisReportPDF";
+import { useToast } from "../../../shared/components";
 
 const AnalysisResult = ({ result, file, jobDescription, onReset }) => {
   const score = result?.score || 0;
@@ -33,6 +36,9 @@ const AnalysisResult = ({ result, file, jobDescription, onReset }) => {
   const [clModalOpen, setClModalOpen] = useState(false);
   const [clText, setClText] = useState("");
   const [clError, setClError] = useState("");
+
+  const { success, error: showError } = useToast();
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
 
   useEffect(() => {
     if (
@@ -77,6 +83,36 @@ const AnalysisResult = ({ result, file, jobDescription, onReset }) => {
 
   // --- Action Words ---
   const actionWords = result.readabilityMatch?.relevantVerbs || ["Spearheaded", "Orchestrated", "Transformed", "Optimized", "Architected", "Launched", "Pioneered", "Revitalized"];
+
+  const handleExportPDF = async () => {
+    setIsExportingPDF(true);
+    try {
+      const element = document.getElementById("analysis-report-pdf");
+      if (!element) {
+        throw new Error("Report element not found in DOM.");
+      }
+
+      const fileNameClean = file?.name 
+        ? file.name.replace(/\.[^/.]+$/, "") 
+        : "resume";
+
+      const opt = {
+        margin: [0.4, 0.4, 0.4, 0.4],
+        filename: `${fileNameClean}_analysis_report.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollX: 0, scrollY: 0 },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
+      };
+
+      await html2pdf().set(opt).from(element).save();
+      success("Report exported to PDF successfully.");
+    } catch (err) {
+      console.error("PDF Export Error:", err);
+      showError(err.message || "Failed to export PDF report.");
+    } finally {
+      setIsExportingPDF(false);
+    }
+  };
 
   const handleGenerateCoverLetter = async () => {
     try {
@@ -441,6 +477,33 @@ const AnalysisResult = ({ result, file, jobDescription, onReset }) => {
           )}
         </div>
 
+        {/* Export PDF Report Button */}
+        <div className="flex flex-col items-center gap-2">
+          <button 
+            onClick={handleExportPDF} 
+            disabled={isExportingPDF}
+            className={`group flex items-center justify-center gap-3 px-6 py-4 rounded-2xl border transition-all shadow-xl
+              ${isExportingPDF 
+                ? 'bg-surface/50 border-border cursor-not-allowed' 
+                : 'bg-secondary/10 border-secondary/30 hover:border-secondary hover:bg-secondary/20 hover:-translate-y-1'
+              }`}
+          >
+            {isExportingPDF ? (
+              <Loader2 className="w-6 h-6 text-secondary animate-spin" />
+            ) : (
+              <Download className="w-6 h-6 text-secondary group-hover:scale-110 transition-transform" />
+            )}
+            <div className="text-left">
+              <span className="block text-sm font-bold text-text-main group-hover:text-secondary transition-colors">
+                {isExportingPDF ? "Exporting PDF..." : "Export PDF Report"}
+              </span>
+              <span className="block text-[10px] uppercase tracking-widest text-text-muted mt-0.5">
+                Download Feedback
+              </span>
+            </div>
+          </button>
+        </div>
+
         {/* New Scan Button */}
         <button onClick={onReset} className="group flex flex-col items-center gap-3 mt-1">
           <div className="p-4 bg-surface border border-border rounded-2xl group-hover:border-primary/50 group-hover:bg-primary/5 transition-all shadow-xl">
@@ -456,6 +519,17 @@ const AnalysisResult = ({ result, file, jobDescription, onReset }) => {
         initialText={clText} 
         onRegenerate={handleRegenerate}
       />
+
+      {/* Off-screen PDF Template Container */}
+      <div className="absolute top-0 left-0 w-px h-px overflow-hidden pointer-events-none bg-transparent">
+        <div 
+          id="analysis-report-pdf" 
+          className="w-[800px] bg-white text-slate-800"
+          style={{ width: "800px", backgroundColor: "#ffffff" }}
+        >
+          <AnalysisReportPDF result={result} fileName={file?.name} />
+        </div>
+      </div>
     </div>
   );
 };
