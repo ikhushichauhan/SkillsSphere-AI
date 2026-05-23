@@ -46,26 +46,33 @@ export const evaluateMatches = async (user, resume, preFilteredJobs = null) => {
   rankedJobs.sort((a, b) => b.overlapCount - a.overlapCount);
   openJobs = rankedJobs.slice(0, 20).map(item => item.job);
 
-  // 3. Evaluate each pre-filtered job using the AI/ML pipeline in parallel
+  // 3. Evaluate each pre-filtered job using the AI/ML pipeline in batches
   console.time(`Matching evaluation for ${openJobs.length} jobs`);
-  const recommendations = await Promise.all(
-    openJobs.map(async (job) => {
-      const pipelineResult = await runPipeline({
-        resumeData: resume,
-        jobSkills: job.skills,
-        jobDescription: job.description,
-      });
+  const recommendations = [];
+  const BATCH_SIZE = 5;
 
-      return {
-        job: job._id,
-        score: pipelineResult.score,
-        breakdown: pipelineResult.breakdown,
-        skillMatch: pipelineResult.skillMatch,
-        keywordMatch: pipelineResult.keywordMatch,
-        experienceMatch: pipelineResult.experienceMatch,
-      };
-    })
-  );
+  for (let i = 0; i < openJobs.length; i += BATCH_SIZE) {
+    const batch = openJobs.slice(i, i + BATCH_SIZE);
+    const batchResults = await Promise.all(
+      batch.map(async (job) => {
+        const pipelineResult = await runPipeline({
+          resumeData: resume,
+          jobSkills: job.skills,
+          jobDescription: job.description,
+        });
+
+        return {
+          job: job._id,
+          score: pipelineResult.score,
+          breakdown: pipelineResult.breakdown,
+          skillMatch: pipelineResult.skillMatch,
+          keywordMatch: pipelineResult.keywordMatch,
+          experienceMatch: pipelineResult.experienceMatch,
+        };
+      })
+    );
+    recommendations.push(...batchResults);
+  }
   console.timeEnd(`Matching evaluation for ${openJobs.length} jobs`);
 
   // 3. Sort by score (highest first)
