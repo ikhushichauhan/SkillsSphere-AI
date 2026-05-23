@@ -72,6 +72,8 @@ export const createNotification = asyncHandler(async (req, res) => {
       "job-update",
       "interview",
       "application",
+      "new_application",
+      "skill_gap_alert",
     ];
     if (!validTypes.includes(type)) {
       validationErrors.type = `Type must be one of: ${validTypes.join(", ")}`;

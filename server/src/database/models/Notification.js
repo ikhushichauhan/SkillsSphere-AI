@@ -34,6 +34,8 @@ const notificationSchema = new mongoose.Schema(
         "job-update",
         "interview",
         "application",
+        "new_application",
+        "skill_gap_alert",
       ],
       default: "info",
       required: [true, "Notification type is required"],
@@ -60,6 +62,15 @@ const notificationSchema = new mongoose.Schema(
         default: null,
       },
       _id: false,
+    },
+
+    /**
+     * Flexible field for cross-module notification context.
+     * Used by jobs (jobId, applicationId, studentId) and matching (jobId, studentId, score).
+     */
+    relatedData: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
     },
   },
   { timestamps: true },

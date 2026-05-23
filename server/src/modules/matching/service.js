@@ -95,7 +95,7 @@ export const evaluateMatches = async (user, resume, preFilteredJobs = null) => {
           // 1. Notify Recruiter (if known)
           if (jobFull.postedBy) {
             const notif = await Notification.create([{
-              recipient: jobFull.postedBy,
+              userId: jobFull.postedBy,
               type: "skill_gap_alert",
               title: "Candidate Skill Gap Alert",
               message: `${user.name || "A candidate"} showed interest but has a skill gap for ${jobFull.title} (Score: ${rec.score}%).`,
@@ -109,7 +109,7 @@ export const evaluateMatches = async (user, resume, preFilteredJobs = null) => {
           const tutor = await User.findOne({ role: "tutor" }).session(session);
           if (tutor) {
             const tutorNotif = await Notification.create([{
-              recipient: tutor._id,
+              userId: tutor._id,
               type: "skill_gap_alert",
               title: "Student Needs Mentoring Intervention",
               message: `${user.name || "A student"} scored ${rec.score}% for ${jobFull.title}. They need guidance to bridge this gap.`,

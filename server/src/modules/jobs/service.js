@@ -441,7 +441,7 @@ export const applyToJob = async (jobId, applicantId, options = {}) => {
     application = appDocs[0];
 
     const notifDocs = await Notification.create([{
-      recipient: job.recruiter,
+      userId: job.recruiter,
       type: "new_application",
       title: "New Job Application",
       message: `A new candidate has applied for ${job.title}.`,
