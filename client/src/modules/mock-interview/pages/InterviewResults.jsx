@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getResults } from "../services/interviewService";
 import InterviewResultsSkeleton from "../components/InterviewResultsSkeleton";
+import { analyzeText } from "../utils/sentiment";
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import {
   Trophy,
   Brain,
@@ -100,6 +102,30 @@ const InterviewResults = () => {
       )
     : 0;
 
+  let totalHesitations = 0;
+  let totalConfidence = 0;
+  let totalTone = 0;
+
+  if (answers.length) {
+    answers.forEach(a => {
+      const analysis = analyzeText(a.transcript || "");
+      totalHesitations += analysis.hesitationCount;
+      totalConfidence += analysis.confidence;
+      totalTone += analysis.tone;
+    });
+  }
+
+  const avgConfidence = answers.length ? Math.round(totalConfidence / answers.length) : 0;
+  const avgTone = answers.length ? Math.round(totalTone / answers.length) : 0;
+
+  const radarData = [
+    { subject: 'Technical', A: avgTechnical, fullMark: 100 },
+    { subject: 'Communication', A: avgCommunication, fullMark: 100 },
+    { subject: 'Relevance', A: avgRelevance, fullMark: 100 },
+    { subject: 'Confidence', A: avgConfidence, fullMark: 100 },
+    { subject: 'Tone', A: avgTone, fullMark: 100 },
+  ];
+
   return (
     <div className="results-container">
       {/* Header */}
@@ -164,6 +190,40 @@ const InterviewResults = () => {
             <Target size={20} style={{ color: "#818cf8" }} />
             <span className="score-item-value">{avgRelevance}%</span>
             <span className="score-item-label">Relevance</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Soft Skills Report */}
+      <div className="soft-skills-card">
+        <h3>
+          <Target size={16} style={{ color: "#10b981", marginRight: 8, display: "inline" }} />
+          Soft Skills & Delivery
+        </h3>
+        <div className="soft-skills-content">
+          <div className="radar-chart-container" style={{ height: 300, width: '100%' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
+                <PolarGrid stroke="rgba(255,255,255,0.1)" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 12 }} />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                <Radar name="Candidate" dataKey="A" stroke="#818cf8" fill="#818cf8" fillOpacity={0.4} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="soft-skills-stats">
+            <div className="stat-pill">
+              <span className="stat-label">Avg Confidence</span>
+              <span className="stat-val">{avgConfidence}%</span>
+            </div>
+            <div className="stat-pill">
+              <span className="stat-label">Avg Tone Positivity</span>
+              <span className="stat-val">{avgTone}%</span>
+            </div>
+            <div className="stat-pill">
+              <span className="stat-label">Total Hesitations</span>
+              <span className="stat-val">{totalHesitations}</span>
+            </div>
           </div>
         </div>
       </div>

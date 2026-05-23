@@ -6,6 +6,8 @@ import { submitAnswer, completeInterview } from "../services/interviewService";
 import { apiRequest } from "../../../services/apiClient";
 import InterviewSessionSkeleton from "../components/InterviewSessionSkeleton";
 import ObserverPanel from "../components/ObserverPanel";
+import RealtimeSentimentIndicator from "../components/RealtimeSentimentIndicator";
+import { analyzeText, debounce } from "../utils/sentiment";
 import {
   Send,
   CheckCircle,
@@ -40,6 +42,13 @@ const InterviewSession = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isLastQuestion, setIsLastQuestion] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [analysis, setAnalysis] = useState(null);
+
+  const debouncedAnalyze = useRef(
+    debounce((text) => {
+      setAnalysis(analyzeText(text));
+    }, 500)
+  ).current;
 
   // Socket & Multi-role state
   const [socket, setSocket] = useState(null);
@@ -196,6 +205,7 @@ const InterviewSession = () => {
 
   const handleAnswerChange = (e) => {
     setAnswer(e.target.value);
+    debouncedAnalyze(e.target.value);
     if (socket && !isObserver) {
       socket.emit("interview-typing", { sessionId, text: e.target.value });
     }
@@ -276,6 +286,10 @@ const InterviewSession = () => {
           {currentQuestion?.questionText || "Loading question..."}
         </h2>
       </div>
+
+      {!showScores && !isObserver && (
+        <RealtimeSentimentIndicator analysis={analysis} />
+      )}
 
       {/* Score Flash */}
       {showScores && lastScores && (
