@@ -630,12 +630,26 @@ export const getJobApplications = async (jobId, recruiterId, statusOrParams, sor
     sortConfig = { createdAt: 1 };
   }
 
-  const applications = await JobApplication.find(query)
-    .populate("applicant", "name email")
-    .populate("resume", "fileName")
-    .sort(sortConfig);
+  const page = Math.max(1, parseInt(filters.page) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(filters.limit) || 20));
+  const skip = (page - 1) * limit;
 
-  return applications;
+  const [applications, totalCount] = await Promise.all([
+    JobApplication.find(query)
+      .populate("applicant", "name email")
+      .populate("resume", "fileName")
+      .sort(sortConfig)
+      .skip(skip)
+      .limit(limit),
+    JobApplication.countDocuments(query)
+  ]);
+
+  return {
+    applications,
+    totalCount,
+    totalPages: Math.ceil(totalCount / limit),
+    currentPage: page
+  };
 };
 
 /**

@@ -96,6 +96,11 @@ const RecruiterApplicantsPage = () => {
   // Smart Preset Tracker
   const [activePreset, setActivePreset] = useState('');
   const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   const handleExportPDF = () => {
     setIsExportDropdownOpen(false);
@@ -115,6 +120,8 @@ const RecruiterApplicantsPage = () => {
         specialization: specialization || undefined,
         contributorOnly: contributorOnly ? 'true' : undefined,
         careerReadiness: careerReadiness || undefined,
+        page,
+        limit: 20
       };
 
       const [jobData, appsData] = await Promise.all([
@@ -123,6 +130,8 @@ const RecruiterApplicantsPage = () => {
       ]);
       setJob(jobData.job);
       setApplicants(appsData.applications || []);
+      setTotalPages(appsData.totalPages || 1);
+      setTotalCount(appsData.totalCount || 0);
     } catch (err) {
       setError(err.message || "Failed to load applicant data.");
     } finally {
@@ -138,7 +147,8 @@ const RecruiterApplicantsPage = () => {
     selectedCategories, 
     specialization, 
     contributorOnly, 
-    careerReadiness
+    careerReadiness,
+    page
   ]);
 
   useEffect(() => {
@@ -219,7 +229,16 @@ const RecruiterApplicantsPage = () => {
     setStatusFilter('');
     setSortBy('matchScore');
     setActivePreset('');
+    setPage(1);
   };
+
+  // Reset page when filters change (except when page itself changes)
+  useEffect(() => {
+    setPage(1);
+  }, [
+    statusFilter, sortBy, minScore, minAtsScore, selectedCategories, 
+    specialization, contributorOnly, careerReadiness
+  ]);
 
   const isAnyFilterActive = 
     statusFilter !== '' ||
@@ -764,6 +783,36 @@ const RecruiterApplicantsPage = () => {
                 })}
               </div>
             )}
+            
+            {/* Pagination Controls */}
+            {!loading && !error && applicants.length > 0 && totalPages > 1 && (
+              <div className="flex items-center justify-between bg-slate-900/40 border border-white/5 rounded-2xl p-4 mt-6">
+                <div className="text-sm text-slate-400 font-medium">
+                  Showing <span className="text-white">{(page - 1) * 20 + 1}</span> to <span className="text-white">{Math.min(page * 20, totalCount)}</span> of <span className="text-white">{totalCount}</span> candidates
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="bg-slate-900 hover:bg-slate-800 border-white/10"
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="bg-slate-900 hover:bg-slate-800 border-white/10"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+            
           </div>
         </div>
       </div>

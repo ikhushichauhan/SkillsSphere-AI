@@ -283,12 +283,19 @@ export const applyToJobPosting = asyncHandler(async (req, res) => {
  * @access  Private (Recruiters only)
  */
 export const getApplications = asyncHandler(async (req, res) => {
-  const applications = await getJobAppsService(req.params.id, req.user._id, req.query);
+  const result = await getJobAppsService(req.params.id, req.user._id, {
+    ...req.query,
+    page: Math.max(1, parseInt(req.query.page) || 1),
+    limit: Math.min(100, Math.max(1, parseInt(req.query.limit) || 20))
+  });
 
   res.status(200).json({
     success: true,
-    count: applications.length,
-    applications,
+    count: result.applications.length,
+    totalCount: result.totalCount,
+    totalPages: result.totalPages,
+    currentPage: result.currentPage,
+    applications: result.applications,
   });
 });
 
