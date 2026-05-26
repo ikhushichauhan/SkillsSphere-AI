@@ -70,6 +70,7 @@ export const getDashboardAnalytics = async (req, res) => {
       return res.status(200).json({
         success: true,
         data: {
+          role,
           roadmapProgress: progress ? progress.overallProgress : 0,
           averageInterviewScore,
           totalInterviews: interviews.length,
@@ -90,6 +91,7 @@ export const getDashboardAnalytics = async (req, res) => {
       return res.status(200).json({
         success: true,
         data: {
+          role,
           averagePlatformScore,
           totalMockInterviewsCompleted: allInterviews.length,
           activeStudents
@@ -109,6 +111,7 @@ export const getDashboardAnalytics = async (req, res) => {
       return res.status(200).json({
         success: true,
         data: {
+          role,
           talentDensity: densityMap,
           totalEliteCandidates: densityMap.reduce((acc, curr) => acc + curr.skilledCandidates, 0)
         }

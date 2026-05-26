@@ -108,7 +108,7 @@ const DashboardPage = () => {
           if (roadmapRes.success) setRoadmap(roadmapRes.data || null);
         }
 
-        const analyticsRes = await getRoleAnalytics();
+        const analyticsRes = await getRoleAnalytics(token);
         if (analyticsRes.success) setAnalytics(analyticsRes.data);
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
@@ -118,13 +118,13 @@ const DashboardPage = () => {
     };
 
     if (user) {
-      if (isStudent || isRecruiter) {
+      if (isStudent || isRecruiter || isTutor) {
         fetchData();
       } else {
         setLoading(false);
       }
     }
-  }, [user, isStudent, isRecruiter, token]);
+  }, [user, isStudent, isRecruiter, isTutor, token]);
 
   const chartData = useMemo(() => {
     return [...history].reverse().map((item) => ({
