@@ -319,7 +319,8 @@ export const getApplications = asyncHandler(async (req, res) => {
  */
 export const exportApplicationsToCSV = asyncHandler(async (req, res) => {
   const { status, sortBy } = req.query || {};
-  const applications = await getJobAppsService(req.params.id, req.user._id, status, sortBy);
+  const result = await getJobAppsService(req.params.id, req.user._id, status, sortBy);
+  const applications = result.applications || result;
 
   // Construct CSV headers
   const headers = [

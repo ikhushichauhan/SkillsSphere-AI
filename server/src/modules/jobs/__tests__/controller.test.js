@@ -52,8 +52,14 @@ describe("Job Controller", () => {
       assert.deepEqual(createArg.salary, body.salary);
       assert.equal(createArg.status, "draft");
       assert.equal(createArg.recruiter, req.user._id);
+      
+      // Since res.status() returns res, we check the first call's first argument
+      if (next.mock.calls.length > 0) {
+        console.error("Next was called with error:", next.mock.calls[0].arguments[0]);
+      }
       assert.equal(res.status.mock.calls.length, 1);
       assert.equal(res.status.mock.calls[0].arguments[0], 201);
+      
       assert.equal(res.json.mock.calls.length, 1);
       assert.equal(res.json.mock.calls[0].arguments[0].success, true);
       assert.deepEqual(res.json.mock.calls[0].arguments[0].job, mockCreatedJob);
@@ -240,9 +246,16 @@ describe("Job Controller", () => {
       
       const mockQuery = {
         populate() { return this; },
-        sort() { return Promise.resolve(mockApplications); }
+        sort() { return this; },
+        skip() { return this; },
+        limit() { return this; },
+        lean() { return this; }
       };
+      // We don't use lean anymore in the updated service, we let the promise resolve:
+      mockQuery.then = function(resolve) { resolve(mockApplications); };
+      
       mock.method(JobApplication, "find", () => mockQuery);
+      mock.method(JobApplication, "countDocuments", () => Promise.resolve(1));
       
       const headers = {};
       let sentContent = "";

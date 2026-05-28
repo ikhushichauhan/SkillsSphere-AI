@@ -60,6 +60,7 @@ test("deleteProfile - cascades deletion to files and relational models", async (
   mock.method(Resume, "deleteMany", async () => ({ deletedCount: 1 }));
 
   mock.method(MatchResult, "deleteMany", async () => ({ deletedCount: 1 }));
+  mock.method(MatchResult, "updateMany", async () => ({ modifiedCount: 1 }));
   mock.method(LearningProgress, "deleteMany", async () => ({ deletedCount: 1 }));
   mock.method(JobApplication, "deleteMany", async () => ({ deletedCount: 1 }));
   mock.method(CoverLetter, "deleteMany", async () => ({ deletedCount: 1 }));
