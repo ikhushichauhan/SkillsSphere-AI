@@ -3,10 +3,15 @@ import test, { afterEach, mock } from "node:test";
 import express from "express";
 import globalErrorHandler from "../../../middleware/errorMiddleware.js";
 import AnalysisHistory from "../../../database/models/AnalysisHistory.js";
+import Resume from "../../../database/models/Resume.js";
 import {
   analyzeResume,
   resetResumeControllerDependencies,
   setResumeControllerDependencies,
+  listResumes,
+  setActiveResume,
+  renameResume,
+  deleteResume,
 } from "../controller.js";
 
 // Mock MongoDB interactions on AnalysisHistory to prevent database buffering timeouts
@@ -20,6 +25,7 @@ mock.method(AnalysisHistory, "find", () => ({
   })
 }));
 mock.method(AnalysisHistory, "deleteMany", async () => ({}));
+mock.method(Resume, "countDocuments", async () => 0);
 
 const parsedResume = {
   name: "Ada Lovelace",
