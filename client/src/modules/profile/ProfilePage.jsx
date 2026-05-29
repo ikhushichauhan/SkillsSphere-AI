@@ -37,11 +37,6 @@ const ROLE_CONFIG = {
   recruiter: { label: "Recruiter", avatar: "from-violet-500 to-purple-600", glow: "rgba(139,92,246,0.4)",   icon: "💼", banner: "from-violet-400 via-purple-500 to-pink-600" },
 };
 
-const TABS = [
-  { id: "info", label: "Profile Info", icon: <User size={15} /> },
-  { id: "account", label: "Account", icon: <Info size={15} /> },
-  { id: "security", label: "Security", icon: <Lock size={15} /> },
-];
 
 const AVATAR_FILE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 const AVATAR_MAX_SIZE = 5 * 1024 * 1024;
@@ -236,7 +231,7 @@ const ProfilePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState("info");
+
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || "",
@@ -404,112 +399,101 @@ const ProfilePage = () => {
       <div className="relative" style={{ zIndex: 2 }}>
         
         {/* ── Cover Banner ── */}
-        <div className="relative w-full h-52 sm:h-44 overflow-hidden">
+        <div className="relative w-full h-44 sm:h-36 overflow-hidden">
           <div className={`absolute inset-0 bg-gradient-to-r ${roleConfig.banner} opacity-90`} />
-          <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/10" />
-          <div className="absolute bottom-0 left-1/4 w-32 h-32 rounded-full bg-white/5" />
+          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10" />
+          <div className="absolute bottom-0 left-1/4 w-24 h-24 rounded-full bg-white/5" />
 
           {/* Animated Glassy Bubbles inside banner */}
-          <div className="absolute w-24 h-24 rounded-full" style={{ top: '10%', left: '8%', background: 'linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08))', border: '1.5px solid rgba(255,255,255,0.3)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 16px rgba(0,0,0,0.1)', backdropFilter: 'blur(8px)' }} />
-          <div className="absolute w-16 h-16 rounded-full" style={{ bottom: '15%', left: '30%', background: 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.06))', border: '1.5px solid rgba(255,255,255,0.25)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 12px rgba(0,0,0,0.08)', backdropFilter: 'blur(6px)' }} />
-          <div className="absolute w-20 h-20 rounded-full" style={{ top: '20%', right: '25%', background: 'linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.07))', border: '1.5px solid rgba(255,255,255,0.28)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.38), 0 4px 14px rgba(0,0,0,0.09)', backdropFilter: 'blur(7px)' }} />
+          <div className="absolute w-20 h-20 rounded-full" style={{ top: '10%', left: '8%', background: 'linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08))', border: '1.5px solid rgba(255,255,255,0.3)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 16px rgba(0,0,0,0.1)', backdropFilter: 'blur(8px)' }} />
+          <div className="absolute w-12 h-12 rounded-full" style={{ bottom: '15%', left: '30%', background: 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.06))', border: '1.5px solid rgba(255,255,255,0.25)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 12px rgba(0,0,0,0.08)', backdropFilter: 'blur(6px)' }} />
+          <div className="absolute w-16 h-16 rounded-full" style={{ top: '15%', right: '25%', background: 'linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.07))', border: '1.5px solid rgba(255,255,255,0.28)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.38), 0 4px 14px rgba(0,0,0,0.09)', backdropFilter: 'blur(7px)' }} />
         </div>
 
         {/* ── Main Layout Grid ── */}
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 -mt-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5 -mt-10">
           
-          {/* Left Sidebar Layout */}
-          <aside className="flex flex-col gap-4">
-            {/* Main Interactive Avatar Block */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm p-5 flex flex-col items-center">
-              <AvatarEditor
-                user={user}
-                roleConfig={roleConfig}
-                onUpload={handleAvatarUpload}
-                onRemove={handleAvatarRemove}
-                uploading={avatarUploading}
-                avatarSrc={avatarSrc}
-              />
-              {avatarError && (
-                <p className="mt-2 text-xs text-red-500 dark:text-red-400" role="alert">
-                  {avatarError}
-                </p>
-              )}
-              
-              <div className="text-center mt-3 w-full">
-                <h1 className="text-lg font-bold text-slate-900 dark:text-white truncate">{user.name}</h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{user.email}</p>
-                <div className="mt-3 flex justify-center">
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-brand-600/20 dark:text-brand-300 dark:border-brand-500/30">
-                    {roleConfig.icon} {roleConfig.label}
-                  </span>
+          {/* Left Sidebar — Single Consolidated Card */}
+          <aside>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
+              {/* Avatar + Identity */}
+              <div className="p-5 flex flex-col items-center">
+                <AvatarEditor
+                  user={user}
+                  roleConfig={roleConfig}
+                  onUpload={handleAvatarUpload}
+                  onRemove={handleAvatarRemove}
+                  uploading={avatarUploading}
+                  isEditing={isEditing}
+                  avatarSrc={avatarSrc}
+                />
+                {avatarError && <p className="mt-2 text-xs text-red-500 dark:text-red-400">{avatarError}</p>}
+                
+                <div className="text-center mt-3 w-full">
+                  <h1 className="text-lg font-bold text-slate-900 dark:text-white truncate">{user.name}</h1>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{user.email}</p>
+                  <div className="mt-2 flex justify-center">
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-brand-600/20 dark:text-brand-300 dark:border-brand-500/30">
+                      {roleConfig.icon} {roleConfig.label}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Core Static Contact Identifiers */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm p-5">
-              <h3 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ background: 'linear-gradient(135deg,#7C3AED,#059669)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
-                Contact Info
-              </h3>
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2.5 text-sm text-slate-600 dark:text-slate-300">
-                  <Mail size={15} className="text-slate-400 flex-shrink-0" />
-                  <span className="truncate">{user.email}</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-600 dark:text-slate-300">
-                  <Shield size={15} className="text-slate-400 flex-shrink-0" />
-                  <span>{user.provider === "google" ? "Google OAuth" : "Email & Password"}</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-sm text-slate-600 dark:text-slate-300">
-                  <Calendar size={15} className="text-slate-400 flex-shrink-0" />
-                  <span>Joined {timeAgo(user.createdAt)}</span>
+              {/* Divider */}
+              <div className="border-t border-slate-100 dark:border-white/5" />
+
+              {/* Contact Info */}
+              <div className="px-5 py-4">
+                <h3 className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ background: 'linear-gradient(135deg,#7C3AED,#059669)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
+                  Contact Info
+                </h3>
+                <div className="flex flex-col gap-2.5">
+                  <div className="flex items-center gap-2.5 text-sm text-slate-600 dark:text-slate-300">
+                    <Mail size={14} className="text-slate-400 flex-shrink-0" />
+                    <span className="truncate">{user.email}</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-sm text-slate-600 dark:text-slate-300">
+                    <Shield size={14} className="text-slate-400 flex-shrink-0" />
+                    <span>{user.provider === "google" ? "Google OAuth" : "Email & Password"}</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-sm text-slate-600 dark:text-slate-300">
+                    <Calendar size={14} className="text-slate-400 flex-shrink-0" />
+                    <span>Joined {timeAgo(user.createdAt)}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Profile Activity Metrics */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm p-5">
-              <h3 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ background: 'linear-gradient(135deg,#7C3AED,#059669)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
-                Activity
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 text-center border border-slate-100 dark:border-white/5">
-                  <div className="text-xl font-bold text-violet-600 dark:text-violet-400">{daysSinceJoined}</div>
-                  <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Days Active</div>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 text-center border border-slate-100 dark:border-white/5">
-                  <div className={`text-sm font-bold ${isVerified ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>{isVerified ? "Active" : "Pending"}</div>
-                  <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Status</div>
+              {/* Divider */}
+              <div className="border-t border-slate-100 dark:border-white/5" />
+
+              {/* Activity Metrics */}
+              <div className="px-5 py-4">
+                <h3 className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ background: 'linear-gradient(135deg,#7C3AED,#059669)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
+                  Activity
+                </h3>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2.5 text-center border border-slate-100 dark:border-white/5">
+                    <div className="text-lg font-bold text-violet-600 dark:text-violet-400">{daysSinceJoined}</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Days Active</div>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2.5 text-center border border-slate-100 dark:border-white/5">
+                    <div className={`text-sm font-bold ${isVerified ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>{isVerified ? "Active" : "Pending"}</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Status</div>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* Restricted Deletion Zone */}
-            <div className="bg-red-50/60 dark:bg-red-950/20 rounded-2xl border border-red-200 dark:border-red-500/20 p-5">
-              <h3 className="text-xs font-bold text-red-500 uppercase tracking-widest mb-3">Danger Zone</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Permanently delete your account.</p>
-              <Button variant="danger" size="sm" leftIcon={<Trash2 size={13} />} onClick={() => setShowDeleteModal(true)}>
-                Delete Account
-              </Button>
             </div>
           </aside>
 
-          {/* Right Column Content Canvas */}
-          <div className="flex flex-col gap-4">
+          {/* Right Column — All Sections Visible */}
+          <div className="flex flex-col gap-5">
             
-            {/* Header Control Panel with Tab Triggers */}
+            {/* Edit Profile Header */}
             <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
-              <div className="flex gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/60 w-full sm:w-auto">
-                {TABS.map(tab => (
-                  <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                    className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200
-                      ${activeTab === tab.id ? "text-white shadow-md font-semibold" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"}`}
-                    style={activeTab === tab.id ? { background: 'linear-gradient(135deg,#7C3AED,#4F46E5,#059669)', boxShadow: '0 4px 14px rgba(124,58,237,0.3)' } : {}}>
-                    {tab.icon} <span>{tab.label}</span>
-                  </button>
-                ))}
-              </div>
+              <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <Sparkles size={16} className="text-violet-500" /> My Profile
+              </h2>
 
               {/* Desktop Mode Action Buttons */}
               <div className="hidden sm:block">
@@ -540,138 +524,113 @@ const ProfilePage = () => {
             {apiError && <p className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1 px-2"><AlertCircle size={12} />{apiError}</p>}
             {saveSuccess && <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 px-2"><BadgeCheck size={12} /> Profile updated!</p>}
 
-            {/* Tab Panel Contexts */}
-            {activeTab === "info" && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm p-6">
-                <h3 className="text-xs font-bold uppercase tracking-widest mb-5" style={{ background: 'linear-gradient(135deg,#7C3AED,#059669)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
-                  Basic Information
-                </h3>
-                {isEditing ? (
-                  <form onSubmit={handleSave} noValidate className="flex flex-col gap-4">
-                    <Input id="name" label="Full Name" placeholder="Enter your full name" value={formData.name} onChange={handleChange} error={errors.name} required leftIcon={<User size={16} />} />
-                    <Input id="email-display" label="Email" type="email" value={user.email} disabled leftIcon={<Mail size={16} />} helperText="Email cannot be changed." />
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-medium text-slate-600 dark:text-gray-300">Role</label>
-                      <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-400 text-sm cursor-not-allowed">
-                        <Shield size={15} /><span>{roleConfig.label}</span>
-                      </div>
+            {/* ═══ Section 1: Basic Information ═══ */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm p-6">
+              <h3 className="text-xs font-bold uppercase tracking-widest mb-5" style={{ background: 'linear-gradient(135deg,#7C3AED,#059669)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
+                Basic Information
+              </h3>
+              {isEditing ? (
+                <form onSubmit={handleSave} noValidate className="flex flex-col gap-4">
+                  <Input id="name" label="Full Name" placeholder="Enter your full name" value={formData.name} onChange={handleChange} error={errors.name} required leftIcon={<User size={16} />} />
+                  <Input id="email-display" label="Email" type="email" value={user.email} disabled leftIcon={<Mail size={16} />} helperText="Email cannot be changed." />
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-slate-600 dark:text-gray-300">Role</label>
+                    <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-400 text-sm cursor-not-allowed">
+                      <Shield size={15} /><span>{roleConfig.label}</span>
                     </div>
-                    {user.role === "recruiter" && (
-                      <>
-                        <Input
-                          id="company"
-                          label="Company Name"
-                          placeholder="Enter company name"
-                          value={formData.company}
-                          onChange={handleChange}
-                          leftIcon={<Briefcase size={16} />}
-                        />
-                        <Input
-                          id="companyWebsite"
-                          label="Company Website"
-                          placeholder="e.g. www.mycompany.com"
-                          value={formData.companyWebsite}
-                          onChange={handleChange}
-                          leftIcon={<Globe size={16} />}
-                          helperText="Link to your company's official website."
-                        />
-                      </>
-                    )}
-                  </form>
-                ) : (
-                  <div className="flex flex-col divide-y divide-slate-100 dark:divide-white/5">
-                    {(() => {
-                      const infoRows = [
-                        { icon: <User size={15} />, label: "Full Name", value: user.name },
-                        { icon: <Mail size={15} />, label: "Email", value: user.email },
-                        { icon: <Shield size={15} />, label: "Role", value: `${roleConfig.icon} ${roleConfig.label}` },
-                        { icon: <BadgeCheck size={15} />, label: "Verification", value: verificationBadge },
-                      ];
-
-                      if (user.role === "recruiter") {
-                        infoRows.push(
-                          {
-                            icon: <Briefcase size={15} />,
-                            label: "Company",
-                            value: user.company || <span className="text-slate-400 italic">Not set</span>
-                          },
-                          {
-                            icon: <Globe size={15} />,
-                            label: "Company Website",
-                            value: user.companyWebsite ? (
-                              <a
-                                href={user.companyWebsite}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1"
-                              >
-                                {user.companyWebsite} <ExternalLink size={12} />
-                              </a>
-                            ) : (
-                              <span className="text-slate-400 italic">Not set</span>
-                            )
-                          }
-                        );
-                      }
-
-                      return infoRows.map((row, i) => (
-                        <div key={i} className="flex items-start gap-3 py-3.5">
-                          <span className="mt-0.5 text-slate-400 dark:text-slate-500 flex-shrink-0">{row.icon}</span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">{row.label}</p>
-                            <div className="text-sm text-slate-700 dark:text-slate-200">{row.value}</div>
-                          </div>
-                        </div>
-                      ));
-                    })()}
                   </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === "account" && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm p-6">
-                <h3 className="text-xs font-bold uppercase tracking-widest mb-5" style={{ background: 'linear-gradient(135deg,#7C3AED,#059669)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
-                  Account Details
-                </h3>
+                  {user.role === "recruiter" && (
+                    <>
+                      <Input id="company" label="Company Name" placeholder="Enter company name" value={formData.company} onChange={handleChange} leftIcon={<Briefcase size={16} />} />
+                      <Input id="companyWebsite" label="Company Website" placeholder="e.g. www.mycompany.com" value={formData.companyWebsite} onChange={handleChange} leftIcon={<Globe size={16} />} helperText="Link to your company's official website." />
+                    </>
+                  )}
+                </form>
+              ) : (
                 <div className="flex flex-col divide-y divide-slate-100 dark:divide-white/5">
-                  {[
-                    { icon: <Calendar size={15} />, label: "Member Since", value: formatDate(user.createdAt) },
-                    { icon: <Clock size={15} />, label: "Last Updated", value: user.updatedAt ? `${formatDate(user.updatedAt)} (${timeAgo(user.updatedAt)})` : "—" },
-                    { icon: <Shield size={15} />, label: "Auth Provider", value: user.provider === "google" ? "🔵 Google OAuth" : "🔑 Email & Password" },
-                    { icon: <User size={15} />, label: "User ID", value: <span className="font-mono text-xs text-slate-400 break-all">{user.id || user._id}</span> },
-                  ].map((row, i) => (
-                    <div key={i} className="flex items-start gap-3 py-3.5">
-                      <span className="mt-0.5 text-slate-400 dark:text-slate-500 flex-shrink-0">{row.icon}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">{row.label}</p>
-                        <div className="text-sm text-slate-700 dark:text-slate-200">{row.value}</div>
+                  {(() => {
+                    const infoRows = [
+                      { icon: <User size={15} />, label: "Full Name", value: user.name },
+                      { icon: <Mail size={15} />, label: "Email", value: user.email },
+                      { icon: <Shield size={15} />, label: "Role", value: `${roleConfig.icon} ${roleConfig.label}` },
+                      { icon: <BadgeCheck size={15} />, label: "Verification", value: verificationBadge },
+                    ];
+                    if (user.role === "recruiter") {
+                      infoRows.push(
+                        { icon: <Briefcase size={15} />, label: "Company", value: user.company || <span className="text-slate-400 italic">Not set</span> },
+                        { icon: <Globe size={15} />, label: "Company Website", value: user.companyWebsite ? (
+                          <a href={user.companyWebsite} target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1">
+                            {user.companyWebsite} <ExternalLink size={12} />
+                          </a>
+                        ) : <span className="text-slate-400 italic">Not set</span> }
+                      );
+                    }
+                    return infoRows.map((row, i) => (
+                      <div key={i} className="flex items-start gap-3 py-3.5">
+                        <span className="mt-0.5 text-slate-400 dark:text-slate-500 flex-shrink-0">{row.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">{row.label}</p>
+                          <div className="text-sm text-slate-700 dark:text-slate-200">{row.value}</div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ));
+                  })()}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
-{activeTab === "security" && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm p-6">
-                <h3 className="text-xs font-bold uppercase tracking-widest mb-5" style={{ background: 'linear-gradient(135deg,#7C3AED,#059669)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
-                  Password & Access
-                </h3>
-                {user.provider === "google" ? (
-                  <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-sm text-blue-700 dark:text-blue-300">
-                    <Info size={16} className="shrink-0 mt-0.5" />
-                    <p>Your account uses Google OAuth. Password management is handled by Google.</p>
+            {/* ═══ Section 2: Account Details ═══ */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm p-6">
+              <h3 className="text-xs font-bold uppercase tracking-widest mb-5" style={{ background: 'linear-gradient(135deg,#7C3AED,#059669)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
+                Account Details
+              </h3>
+              <div className="flex flex-col divide-y divide-slate-100 dark:divide-white/5">
+                {[
+                  { icon: <Calendar size={15} />, label: "Member Since", value: formatDate(user.createdAt) },
+                  { icon: <Clock size={15} />, label: "Last Updated", value: user.updatedAt ? `${formatDate(user.updatedAt)} (${timeAgo(user.updatedAt)})` : "—" },
+                  { icon: <Shield size={15} />, label: "Auth Provider", value: user.provider === "google" ? "🔵 Google OAuth" : "🔑 Email & Password" },
+                  { icon: <User size={15} />, label: "User ID", value: <span className="font-mono text-xs text-slate-400 break-all">{user.id || user._id}</span> },
+                ].map((row, i) => (
+                  <div key={i} className="flex items-start gap-3 py-3.5">
+                    <span className="mt-0.5 text-slate-400 dark:text-slate-500 flex-shrink-0">{row.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">{row.label}</p>
+                      <div className="text-sm text-slate-700 dark:text-slate-200">{row.value}</div>
+                    </div>
                   </div>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    <p className="text-sm text-slate-500 dark:text-slate-400">To change your password, use the forgot password flow.</p>
-                    <Link to="/forgot-password"><Button variant="outline" size="sm" leftIcon={<Lock size={14} />}>Change Password</Button></Link>
-                  </div>
-                )}
+                ))}
               </div>
-            )}
-          </div> {/* Closes Right Column Content Canvas */}
+            </div>
+
+            {/* ═══ Section 3: Security & Access ═══ */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm p-6">
+              <h3 className="text-xs font-bold uppercase tracking-widest mb-5" style={{ background: 'linear-gradient(135deg,#7C3AED,#059669)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
+                Security & Access
+              </h3>
+              {user.provider === "google" ? (
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-sm text-blue-700 dark:text-blue-300">
+                  <Info size={16} className="shrink-0 mt-0.5" />
+                  <p>Your account uses Google OAuth. Password management is handled by Google.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">To change your password, use the forgot password flow.</p>
+                  <Link to="/forgot-password"><Button variant="outline" size="sm" leftIcon={<Lock size={14} />}>Change Password</Button></Link>
+                </div>
+              )}
+            </div>
+
+            {/* ═══ Danger Zone ═══ */}
+            <div className="bg-red-50/60 dark:bg-red-950/20 rounded-2xl border border-red-200 dark:border-red-500/20 p-6">
+              <h3 className="text-xs font-bold text-red-500 uppercase tracking-widest mb-2">Danger Zone</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Permanently delete your account and all associated data. This action cannot be undone.</p>
+              <Button variant="danger" size="sm" leftIcon={<Trash2 size={13} />} onClick={() => setShowDeleteModal(true)}>
+                Delete Account
+              </Button>
+            </div>
+
+          </div> {/* Closes Right Column */}
+
         </div> {/* Closes Main Layout Grid */}
       </div> {/* Closes Content Wrapper */}
 
