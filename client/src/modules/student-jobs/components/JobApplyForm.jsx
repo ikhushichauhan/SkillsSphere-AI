@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { X, Send, Link2, FileText, User, Mail } from "lucide-react";
-import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
-
-
 /**
  * JobApplyForm — Modal form for students to apply to a job.
  *
@@ -12,7 +9,6 @@ import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
  * Optional Cover Note.
  */
 const JobApplyForm = ({ job, user, onSubmit, onClose, isSubmitting }) => {
-  useDocumentTitle("Job Apply Form");
   const [resumeLink, setResumeLink] = useState("");
   const [coverNote, setCoverNote] = useState("");
   const [error, setError] = useState("");

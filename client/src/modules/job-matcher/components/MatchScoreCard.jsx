@@ -1,6 +1,4 @@
-import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 export default function MatchScoreCard({ score }) {
-  useDocumentTitle("Match Score Card");
   return (
     <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-2xl shadow-xl text-white text-center">
 

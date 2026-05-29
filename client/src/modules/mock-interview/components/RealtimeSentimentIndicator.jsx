@@ -1,10 +1,6 @@
 import React from 'react';
 import { Activity, Brain, AlertCircle } from 'lucide-react';
-import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
-
-
 const RealtimeSentimentIndicator = ({ analysis }) => {
-  useDocumentTitle("Realtime Sentiment Indicator");
   if (!analysis) return null;
 
   const { confidence, tone, hesitationCount } = analysis;

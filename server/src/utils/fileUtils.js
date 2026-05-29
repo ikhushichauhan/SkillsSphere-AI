@@ -1,5 +1,9 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Safely deletes a file from the local disk given its relative or absolute path.
@@ -14,7 +18,7 @@ export const safeDeletePhysicalFile = (filePath) => {
   try {
     const absolutePath = path.isAbsolute(filePath)
       ? filePath
-      : path.join(process.cwd(), filePath);
+      : path.join(__dirname, "..", "..", filePath);
     
     if (fs.existsSync(absolutePath)) {
       fs.unlinkSync(absolutePath);
@@ -47,7 +51,7 @@ export const safeDeleteAvatarByUrl = (avatarUrl) => {
     const filename = path.basename(cleanUrl);
     
     // Resolve absolute path assuming default upload directory
-    const filePath = path.join(process.cwd(), "src", "uploads", "avatars", filename);
+    const filePath = path.join(__dirname, "..", "uploads", "avatars", filename);
     return safeDeletePhysicalFile(filePath);
   } catch (err) {
     console.error(`[safeDeleteAvatarByUrl] Failed to delete avatar ${avatarUrl}:`, err.message);

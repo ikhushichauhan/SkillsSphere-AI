@@ -10,11 +10,7 @@ import {
   Layout
 } from "lucide-react";
 import Button from "../../../shared/components/Button";
-import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
-
-
 const VersionComparisonModal = ({ isOpen, onClose, versions }) => {
-  useDocumentTitle("Version Comparison Modal");
   if (!isOpen || !versions || versions.length !== 2) return null;
 
   // versions[0] is the older one based on history array order (newest first)

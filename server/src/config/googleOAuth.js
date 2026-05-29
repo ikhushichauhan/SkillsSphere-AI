@@ -1,3 +1,5 @@
+import { getBackendUrl } from "./env.js";
+
 const DEFAULT_CALLBACK_PATH = "/api/auth/google/callback";
 
 export const getGoogleOAuthConfig = () => {

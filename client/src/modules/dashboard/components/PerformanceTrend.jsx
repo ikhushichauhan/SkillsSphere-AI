@@ -9,11 +9,7 @@ import {
   Tooltip as RechartsTooltip 
 } from "recharts";
 import { BarChart3, Calendar, Activity } from "lucide-react";
-import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
-
-
 const PerformanceTrend = ({ data, historyLength, customTooltip: CustomTooltip }) => {
-  useDocumentTitle("Performance Trend");
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-slate-900/50 overflow-hidden backdrop-blur-md">
       <div className="border-b border-white/5 bg-white/5 px-6 py-4 flex items-center justify-between">

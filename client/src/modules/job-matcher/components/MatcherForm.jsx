@@ -1,9 +1,5 @@
 import { useState } from "react";
-import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
-
-
 export default function MatcherForm({ onSubmit }) {
-  useDocumentTitle("Matcher Form");
   const [type, setType] = useState("existing");
   const [resumeId, setResumeId] = useState("");
   const [file, setFile] = useState(null);

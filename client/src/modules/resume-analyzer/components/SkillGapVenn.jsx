@@ -1,10 +1,6 @@
 import React from "react";
 import { User, Briefcase, Zap, AlertCircle, CheckCircle2 } from "lucide-react";
-import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
-
-
 const SkillGapVenn = ({ skillMatch = {}, isJDProvided = false, mode = "match" }) => {
-  useDocumentTitle("Skill Gap Venn");
   if (!isJDProvided && mode !== "benchmark") return null;
 
   const { matchedSkills = [], missingSkills = [], extraSkills = [] } = skillMatch.details || {};

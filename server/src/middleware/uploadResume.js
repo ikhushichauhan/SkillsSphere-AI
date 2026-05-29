@@ -2,10 +2,14 @@ import multer from "multer";
 import fs from "fs";
 import fsPromises from "fs/promises";
 import path from "path";
+import { fileURLToPath } from "url";
 import { validateResumeBufferSignatureSync } from "../utils/validateFileSignature.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
-const uploadDirectory = path.join(process.cwd(), "src", "uploads");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const uploadDirectory = path.join(__dirname, "..", "uploads");
 
 if (!fs.existsSync(uploadDirectory)) {
   fs.mkdirSync(uploadDirectory, { recursive: true });

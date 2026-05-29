@@ -23,11 +23,7 @@ import { generateCoverLetter } from "../services/resumeService";
 import html2pdf from "html2pdf.js";
 import AnalysisReportPDF from "./AnalysisReportPDF";
 import { useToast } from "../../../shared/components";
-import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
-
-
 const AnalysisResult = ({ result, file, jobDescription, onReset }) => {
-  useDocumentTitle("Analysis Result");
   const score = result?.score || 0;
   const isJDProvided = result.isJDProvided;
   const suggestions = (result.gapAnalysis?.suggestions || []).slice(0, 8);
@@ -168,6 +164,24 @@ const AnalysisResult = ({ result, file, jobDescription, onReset }) => {
           </p>
         </div>
       </div>
+
+      {result.isScannedPdf && (
+        <div className="flex flex-col md:flex-row items-center gap-4 p-5 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl animate-in fade-in slide-in-from-top-2 duration-300">
+          <AlertCircle className="w-8 h-8 text-yellow-400 shrink-0" />
+          <div className="text-center md:text-left space-y-1">
+            <h4 className="text-sm font-bold text-yellow-400">Scanned Resume Warning</h4>
+            <p className="text-xs text-text-muted leading-relaxed">
+              We couldn't read any text from your resume. It appears to be a scanned document or an image. For a much more accurate AI analysis, we highly recommend uploading a text-selectable PDF, DOCX, or TXT format.
+            </p>
+          </div>
+          <button
+            onClick={onReset}
+            className="md:ml-auto px-4 py-2 text-xs font-bold text-yellow-400 border border-yellow-500/30 rounded-xl hover:bg-yellow-500/15 transition-all shrink-0 active:scale-95"
+          >
+            Upload New Resume
+          </button>
+        </div>
+      )}
 
       {/* Main Score & Metrics Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

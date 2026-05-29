@@ -1,6 +1,4 @@
-import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 export default function RecommendedJobsList({ jobs }) {
-  useDocumentTitle("Recommended Jobs List");
   return (
     <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-5 rounded-2xl shadow-xl text-white">
       

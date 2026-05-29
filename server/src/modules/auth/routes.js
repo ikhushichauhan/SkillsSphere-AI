@@ -38,7 +38,7 @@ router.get("/me", protect, getMe);
 
 // Initiate Google OAuth
 router.get("/google", (req, res) => {
-  const envFrontendOrigin = process.env.FRONTEND_URL || "http://localhost:5174";
+  const envFrontendOrigin = getFrontendUrl();
   const refererHeader = req.get("referer");
   let inferredFrontendOrigin = envFrontendOrigin;
 

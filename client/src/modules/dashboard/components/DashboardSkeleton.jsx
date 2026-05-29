@@ -1,8 +1,6 @@
-import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 // Skeleton placeholder for dashboard widgets and analytics
 
 const DashboardSkeleton = () => {
-  useDocumentTitle("Skeleton");
   return (
     <div className="w-full space-y-6 animate-pulse">
       {/* Header Section Skeleton */}

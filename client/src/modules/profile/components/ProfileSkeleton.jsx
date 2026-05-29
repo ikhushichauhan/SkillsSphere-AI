@@ -1,8 +1,6 @@
-import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 // Skeleton placeholder for profile sections
 
 const ProfileSkeleton = () => {
-  useDocumentTitle("Profile Skeleton");
   return (
     <div className="min-h-screen animate-pulse">
       {/* Top Navigation Skeleton */}

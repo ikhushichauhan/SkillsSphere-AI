@@ -2,6 +2,32 @@ import multer from "multer";
 
 const AVATAR_MAX_SIZE = 5 * 1024 * 1024;
 const ALLOWED_AVATAR_TYPES = ["image/jpeg", "image/png", "image/webp"];
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const uploadDirectory = path.join(__dirname, "..", "uploads", "avatars");
+
+if (!fs.existsSync(uploadDirectory)) {
+  fs.mkdirSync(uploadDirectory, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadDirectory),
+  filename: (req, file, cb) => {
+    const extMap = {
+      "image/jpeg": ".jpg",
+      "image/png": ".png",
+      "image/webp": ".webp",
+      "image/gif": ".gif",
+    };
+    const extension = extMap[file.mimetype] || path.extname(file.originalname).toLowerCase() || ".jpg";
+    cb(null, `avatar-${req.user._id}${extension}`);
+  },
+});
 
 const fileFilter = (_req, file, cb) => {
   if (ALLOWED_AVATAR_TYPES.includes(file.mimetype)) {

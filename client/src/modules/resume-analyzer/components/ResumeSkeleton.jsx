@@ -1,8 +1,6 @@
-import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
 // Skeleton placeholder for resume analysis results
 
 const ResumeSkeleton = () => {
-  useDocumentTitle("Resume Skeleton");
   return (
     <div className="w-full space-y-8 animate-pulse">
       {/* AI Intelligence Banner Skeleton */}
