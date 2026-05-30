@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import {
@@ -84,6 +84,7 @@ const MyApplicationsPage = () => {
       setTotalCount(data.totalCount || 0);
     } catch (err) {
       setError(err.message || "Failed to load applications.");
+      toast.error(err.message || "Failed to load applications.");
     } finally {
       setLoading(false);
     }

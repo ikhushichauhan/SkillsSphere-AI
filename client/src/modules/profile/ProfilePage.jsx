@@ -6,7 +6,7 @@ import {
   User, Mail, Shield, Calendar, Clock, Pencil, X, Check,
   ChevronLeft, BadgeCheck, AlertCircle, Trash2, LogOut,
   Info, Lock, Sparkles, Activity, Camera, Upload, MapPin,
-  Briefcase, Globe, ExternalLink
+  Briefcase, Globe, ExternalLink, Settings
 } from "lucide-react";
 import Input from "../../shared/components/Input";
 import Button from "../../shared/components/Button";
@@ -22,6 +22,7 @@ import {
 import LoadingState from "../../shared/components/LoadingState";
 import { getSignedFileUrl } from "../../services/fileService";
 import { useDocumentTitle } from "../../hooks/useDocumentTitle";
+import PreferencesSettings from "./components/PreferencesSettings";
 import { useToast } from "../../shared/components/toast/ToastProvider";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -38,6 +39,12 @@ const ROLE_CONFIG = {
   recruiter: { label: "Recruiter", avatar: "from-violet-500 to-purple-600", glow: "rgba(139,92,246,0.4)",   icon: "💼", banner: "from-violet-400 via-purple-500 to-pink-600" },
 };
 
+const TABS = [
+  { id: "info", label: "Profile Info", icon: <User size={15} /> },
+  { id: "settings", label: "Settings", icon: <Settings size={15} /> },
+  { id: "account", label: "Account", icon: <Info size={15} /> },
+  { id: "security", label: "Security", icon: <Lock size={15} /> },
+];
 
 const AVATAR_FILE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 const AVATAR_MAX_SIZE = 5 * 1024 * 1024;
@@ -580,6 +587,24 @@ const ProfilePage = () => {
               )}
             </div>
 
+            {activeTab === "settings" && (
+              <PreferencesSettings token={token} />
+            )}
+
+{activeTab === "security" && (
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm p-6">
+                <h3 className="text-xs font-bold uppercase tracking-widest mb-5" style={{ background: 'linear-gradient(135deg,#7C3AED,#059669)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
+                  Password & Access
+                </h3>
+                {user.provider === "google" ? (
+                  <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-sm text-blue-700 dark:text-blue-300">
+                    <Info size={16} className="shrink-0 mt-0.5" />
+                    <p>Your account uses Google OAuth. Password management is handled by Google.</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">To change your password, use the forgot password flow.</p>
+                    <Link to="/forgot-password"><Button variant="outline" size="sm" leftIcon={<Lock size={14} />}>Change Password</Button></Link>
             {/* ═══ Section 2: Account Details ═══ */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm p-6">
               <h3 className="text-xs font-bold uppercase tracking-widest mb-5" style={{ background: 'linear-gradient(135deg,#7C3AED,#059669)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>

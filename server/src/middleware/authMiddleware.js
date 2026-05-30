@@ -9,13 +9,12 @@ import { isTokenBlacklisted } from "../utils/tokenBlacklist.js";
  */
 export const protect = asyncHandler(async (req, res, next) => {
   let token;
+  const authorizationHeader = req.headers.authorization;
 
   // 1) Check if token exists in headers
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
+  const bearerMatch = authorizationHeader?.match(/^Bearer\s+([^\s]+)$/);
+  if (bearerMatch) {
+    token = bearerMatch[1];
   }
 
   if (!token) {
