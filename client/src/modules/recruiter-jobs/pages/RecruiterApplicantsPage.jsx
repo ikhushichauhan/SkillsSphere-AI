@@ -20,12 +20,15 @@ import {
   Code,
   ChevronDown,
   Download,
-  AlertTriangle
+  AlertTriangle,
+  LayoutList,
+  KanbanSquare
 } from 'lucide-react';
 import Navbar from '../../../shared/landing/Navbar';
 import Footer from "../../../modules/landing/components/Footer";
 
 import { Button, LoadingState, ErrorState, EmptyState, StatusUpdateModal, StatusTimeline } from '../../../shared/components';
+import ApplicantsKanbanBoard from '../components/ApplicantsKanbanBoard';
 import { getJobApplications, updateApplicationStatus, getJobPostingById, exportJobApplicationsCSV } from '../services/jobPostingService';
 import { exportToCSV, exportToPDF } from '../../../utils/exportUtils';
 import { useDocumentTitle } from "../../../hooks/useDocumentTitle";
@@ -37,7 +40,7 @@ const statusStyles = {
   reviewed: "bg-blue-500/10 text-blue-400 border-blue-500/20",
   shortlisted: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
   rejected: "bg-red-500/10 text-red-400 border-red-500/20",
-  withdrawn: "bg-slate-700/30 text-slate-400 border-slate-700/50",
+  withdrawn: "bg-slate-700/30 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700/50",
 };
 
 const matchCategoryStyles = {
@@ -60,7 +63,7 @@ const getSignalStyle = (signal) => {
   if (signal.includes("Growth")) {
     return "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
   }
-  return "bg-slate-500/10 text-slate-400 border-slate-500/30";
+  return "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/30";
 };
 
 const getSignalIcon = (signal) => {
@@ -116,6 +119,7 @@ const RecruiterApplicantsPage = () => {
   const [selectedApp, setSelectedApp] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [viewMode, setViewMode] = useState("list"); // "list" | "board"
   
   // Filtering and Sorting States
   const [statusFilter, setStatusFilter] = useState('');
@@ -284,10 +288,10 @@ const RecruiterApplicantsPage = () => {
     careerReadiness !== '';
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-[radial-gradient(circle_at_top_left,#0f172a,#020617)] p-4 sm:p-6 pt-24 sm:pt-32 text-gray-900 dark:text-slate-100">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-white flex flex-col">
       <Navbar />
 
-      <div className="mx-auto max-w-7xl w-full space-y-8">
+      <div className="flex-1 pt-24 pb-16 px-4 sm:px-6 mx-auto max-w-7xl w-full space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
@@ -321,17 +325,17 @@ const RecruiterApplicantsPage = () => {
             </button>
             
             {isExportDropdownOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-900/95 p-2 shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/95 p-2 shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
                 <button
                   onClick={handleExportPDF}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white dark:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                   <FileText size={14} />
                   Export List (PDF)
                 </button>
                 <button
                   onClick={handleExportCSV}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white dark:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                   <Filter size={14} />
                   Export Data (CSV)
@@ -357,7 +361,7 @@ const RecruiterApplicantsPage = () => {
                   className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all duration-300 ${
                     isActive 
                       ? 'bg-blue-600/20 text-blue-600 dark:text-blue-300 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.2)]'
-                      : 'bg-gray-100 dark:bg-slate-950/40 text-gray-600 dark:text-slate-300 border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-slate-700 hover:text-gray-900 dark:hover:text-white'
+                      : 'bg-gray-100 dark:bg-slate-950/40 text-gray-600 dark:text-slate-300 border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-slate-300 dark:border-slate-700 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   {p.icon}
@@ -381,7 +385,7 @@ const RecruiterApplicantsPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
           
           {/* Left Column: Smart Filters Sidebar */}
-          <div className="lg:col-span-1 bg-white dark:bg-slate-900/40 border border-gray-200 dark:border-white/5 backdrop-blur-md p-6 rounded-3xl space-y-6 shadow-2xl">
+          <div className="lg:col-span-1 bg-white dark:bg-slate-50 dark:bg-slate-900/40 border border-gray-200 dark:border-white/5 backdrop-blur-md p-6 rounded-3xl space-y-6 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-white/5">
               <span className="font-extrabold tracking-tight text-gray-900 dark:text-white flex items-center gap-2 text-lg">
                 <Sliders size={18} className="text-blue-400" /> Smart Filters
@@ -389,7 +393,7 @@ const RecruiterApplicantsPage = () => {
               {isAnyFilterActive && (
                 <button 
                   onClick={handleResetFilters}
-                  className="text-xs font-medium text-gray-400 dark:text-slate-400 hover:text-red-400 transition-colors flex items-center gap-1"
+                  className="text-xs font-medium text-gray-600 dark:text-gray-400 dark:text-slate-400 hover:text-red-400 transition-colors flex items-center gap-1"
                 >
                   <RefreshCw size={12} /> Reset
                 </button>
@@ -474,9 +478,9 @@ const RecruiterApplicantsPage = () => {
                       type="checkbox"
                       checked={selectedCategories.includes(cat)}
                       onChange={() => handleCategoryToggle(cat)}
-                      className="rounded border-gray-300 dark:border-white/10 text-blue-600 focus:ring-0 focus:ring-offset-0 bg-white dark:bg-slate-950 cursor-pointer w-4 h-4"
+                      className="rounded border-gray-300 dark:border-slate-200 dark:border-white/10 text-blue-600 focus:ring-0 focus:ring-offset-0 bg-white dark:bg-slate-950 cursor-pointer w-4 h-4"
                     />
-                    <span className="text-sm text-gray-600 dark:text-slate-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{cat}</span>
+                    <span className="text-sm text-gray-600 dark:text-slate-300 group-hover:text-gray-900 dark:group-hover:text-slate-900 dark:hover:text-white transition-colors">{cat}</span>
                   </label>
                 ))}
               </div>
@@ -510,7 +514,7 @@ const RecruiterApplicantsPage = () => {
             <div className="pt-2 border-t border-gray-200 dark:border-white/5">
               <label className="flex items-center justify-between cursor-pointer group">
                 <div className="space-y-0.5">
-                  <span className="block text-sm font-semibold text-gray-700 dark:text-slate-200 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                  <span className="block text-sm font-semibold text-gray-700 dark:text-slate-200 group-hover:text-gray-900 dark:group-hover:text-slate-900 dark:hover:text-white transition-colors">
                     OSS Contributors
                   </span>
                   <span className="block text-[11px] text-slate-500 leading-normal">
@@ -524,7 +528,7 @@ const RecruiterApplicantsPage = () => {
                     setActivePreset('');
                     setContributorOnly(e.target.checked);
                   }}
-                  className="rounded border-gray-300 dark:border-white/10 text-blue-600 focus:ring-0 bg-white dark:bg-slate-950 cursor-pointer w-4 h-4"
+                  className="rounded border-gray-300 dark:border-slate-200 dark:border-white/10 text-blue-600 focus:ring-0 bg-white dark:bg-slate-950 cursor-pointer w-4 h-4"
                 />
               </label>
             </div>
@@ -555,23 +559,51 @@ const RecruiterApplicantsPage = () => {
           <div className="lg:col-span-3 space-y-6">
             
             {/* Sort & Quick Meta */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-white dark:bg-slate-900/20 border border-gray-200 dark:border-white/5 rounded-2xl p-4">
-              <div className="text-sm font-semibold text-gray-600 dark:text-slate-300">
-                Showing {applicants.length} applicant{applicants.length !== 1 ? 's' : ''}
+              <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-white dark:bg-slate-900/20 border border-gray-200 dark:border-white/5 rounded-2xl p-4">
+                <div className="text-sm font-semibold text-gray-600 dark:text-slate-300">
+                  Showing {applicants.length} applicant{applicants.length !== 1 ? 's' : ''}
+                </div>
+                
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  {/* View Mode Toggle */}
+                  <div className="flex bg-gray-100 dark:bg-slate-950/40 border border-gray-200 dark:border-white/5 rounded-xl p-1">
+                    <button
+                      onClick={() => setViewMode("list")}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                        viewMode === "list" 
+                          ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm" 
+                          : "text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <LayoutList size={14} /> List
+                    </button>
+                    <button
+                      onClick={() => setViewMode("board")}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                        viewMode === "board" 
+                          ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm" 
+                          : "text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <KanbanSquare size={14} /> Board
+                    </button>
+                  </div>
+
+                  {/* Sort Control */}
+                  <div className="flex items-center gap-2 shrink-0 bg-gray-100 dark:bg-slate-950/40 border border-gray-200 dark:border-white/5 rounded-xl px-3 py-1.5 ml-auto sm:ml-0">
+                    <span className="text-xs font-semibold text-gray-500 dark:text-slate-400">Sort:</span>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="bg-transparent text-xs font-bold text-gray-900 dark:text-white outline-none cursor-pointer pr-4 border-none ring-0 appearance-none"
+                    >
+                      <option value="matchScore" className="bg-white dark:bg-slate-900">AI Match Score</option>
+                      <option value="newest" className="bg-white dark:bg-slate-900">Newest Applied</option>
+                      <option value="oldest" className="bg-white dark:bg-slate-900">Oldest Applied</option>
+                    </select>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0 bg-gray-100 dark:bg-slate-950/40 border border-gray-200 dark:border-white/5 rounded-xl px-3 py-1.5">
-                <span className="text-xs font-semibold text-gray-500 dark:text-slate-400">Sort by:</span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-transparent text-xs font-bold text-gray-900 dark:text-white outline-none cursor-pointer pr-4 border-none ring-0 appearance-none"
-                >
-                  <option value="matchScore" className="bg-white dark:bg-slate-900">AI Match Score</option>
-                  <option value="newest" className="bg-white dark:bg-slate-900">Newest Applied</option>
-                  <option value="oldest" className="bg-white dark:bg-slate-900">Oldest Applied</option>
-                </select>
-              </div>
-            </div>
 
             {/* List Content */}
             {loading ? (
@@ -599,6 +631,24 @@ const RecruiterApplicantsPage = () => {
                   </Button>
                 )}
               </EmptyState>
+            ) : viewMode === "board" ? (
+              <ApplicantsKanbanBoard 
+                applications={applicants} 
+                onStatusChange={async (appId, newStatus) => {
+                  try {
+                    await updateApplicationStatus(appId, newStatus, `Moved to ${newStatus} via Kanban board`, token);
+                    toast.success(`Applicant moved to ${newStatus}`);
+                    fetchData();
+                  } catch (err) {
+                    toast.error("Failed to move applicant");
+                    fetchData(); // refresh to revert optimistic update
+                  }
+                }}
+                onAppClick={(app) => {
+                  setSelectedApp(app);
+                  setIsModalOpen(true);
+                }}
+              />
             ) : (
               <div id="applicants-container" className="grid grid-cols-1 gap-4">
                 {applicants.map((app, index) => {
@@ -610,10 +660,10 @@ const RecruiterApplicantsPage = () => {
                       key={app._id}
                       className={`group border transition-all duration-300 rounded-2xl overflow-hidden relative ${
                         expandedId === app._id 
-                          ? "bg-blue-50 dark:bg-slate-900/80 border-blue-500/30 shadow-2xl" 
+                          ? "bg-blue-50 dark:bg-white dark:bg-slate-900/80 border-blue-500/30 shadow-2xl" 
                           : isTopCandidate
-                            ? "bg-amber-50 dark:bg-slate-900/40 border-amber-500/30 hover:border-amber-400/50 hover:bg-amber-100 dark:hover:bg-slate-900/60 shadow-[0_0_15px_rgba(245,158,11,0.05)]"
-                            : "bg-white dark:bg-slate-900/40 border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10 hover:bg-gray-50 dark:hover:bg-slate-900/60"
+                            ? "bg-amber-50 dark:bg-slate-50 dark:bg-slate-900/40 border-amber-500/30 hover:border-amber-400/50 hover:bg-amber-100 dark:hover:bg-white dark:bg-slate-900/60 shadow-[0_0_15px_rgba(245,158,11,0.05)]"
+                            : "bg-white dark:bg-slate-50 dark:bg-slate-900/40 border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-slate-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white dark:bg-slate-900/60"
                       }`}
                     >
                       {isTopCandidate && (
@@ -630,9 +680,9 @@ const RecruiterApplicantsPage = () => {
                             {rank && (
                               <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 border ${
                                 rank === 1 ? "bg-amber-500/20 text-amber-400 border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]" :
-                                rank === 2 ? "bg-slate-300/20 text-slate-300 border-slate-300/30" :
+                                rank === 2 ? "bg-slate-300/20 text-slate-700 dark:text-slate-300 border-slate-300/30" :
                                 rank === 3 ? "bg-orange-700/20 text-orange-400 border-orange-700/30" :
-                                "bg-slate-800 text-slate-500 border-slate-700"
+                                "bg-white dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700"
                               }`}>
                                 #{rank}
                               </div>
@@ -657,12 +707,12 @@ const RecruiterApplicantsPage = () => {
                           <div className="flex items-center gap-4 shrink-0 justify-between md:justify-end w-full md:w-auto">
                             {app.aiMatchScore !== undefined && app.aiMatchScore !== null && (
                               <div className="flex flex-col items-end mr-2">
-                                <span className="text-xl font-bold text-white flex items-center gap-1">
+                                <span className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-1">
                                   <Sparkles size={16} className="text-emerald-400" />
                                   {app.aiMatchScore}%
                                 </span>
                                 <div className="flex flex-col items-end gap-1 mt-1">
-                                  <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border ${matchCategoryStyles[app.matchCategory] || "text-slate-400 border-white/10"}`}>
+                                  <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border ${matchCategoryStyles[app.matchCategory] || "text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10"}`}>
                                     {app.matchCategory || "Evaluated"}
                                   </span>
                                   {app.aiHiringSignals && app.aiHiringSignals.length > 0 && (
@@ -708,7 +758,7 @@ const RecruiterApplicantsPage = () => {
                                       href={app.resumeLink} 
                                       target="_blank" 
                                       rel="noreferrer"
-                                      className="flex items-center justify-between p-4 bg-slate-900 border border-white/5 rounded-2xl hover:border-blue-500/30 hover:bg-blue-500/5 transition-all group/link"
+                                      className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-white/5 rounded-2xl hover:border-blue-500/30 hover:bg-blue-500/5 transition-all group/link"
                                     >
                                       <div className="flex items-center gap-3">
                                         <div className="p-2 bg-red-500/10 rounded-lg text-red-400">
@@ -719,9 +769,9 @@ const RecruiterApplicantsPage = () => {
                                       <ExternalLink size={18} className="text-slate-600 group-hover/link:text-blue-400 transition-colors" />
                                     </a>
                                   )}
-                                  <div className="p-4 bg-slate-900/50 border border-white/5 rounded-2xl">
+                                  <div className="p-4 bg-white dark:bg-slate-900/50 border border-white/5 rounded-2xl">
                                     <h5 className="text-xs font-bold text-slate-500 uppercase mb-2">Cover Note</h5>
-                                    <p className="text-sm text-slate-300 leading-relaxed italic">
+                                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed italic">
                                       &ldquo;{app.coverNote || 'No cover note provided.'}&rdquo;
                                     </p>
                                   </div>
@@ -749,10 +799,10 @@ const RecruiterApplicantsPage = () => {
                                   <h4 className="text-sm font-bold text-blue-400 uppercase tracking-widest flex items-center gap-2">
                                     <Sparkles size={16} /> AI Recruiter Insights
                                   </h4>
-                                  <div className="p-5 bg-slate-900/50 border border-blue-500/20 rounded-2xl shadow-inner">
+                                  <div className="p-5 bg-white dark:bg-slate-900/50 border border-blue-500/20 rounded-2xl shadow-inner">
                                     <ul className="space-y-2">
                                       {app.aiRecruiterInsights.map((insight, idx) => (
-                                        <li key={idx} className="flex items-start gap-2 text-sm text-slate-300">
+                                        <li key={idx} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
                                           <span className="text-blue-400 mt-0.5">•</span>
                                           <span className="leading-relaxed">{insight}</span>
                                         </li>
@@ -767,10 +817,10 @@ const RecruiterApplicantsPage = () => {
                                   <h4 className="text-sm font-bold text-amber-400 uppercase tracking-widest flex items-center gap-2">
                                     <AlertTriangle size={16} /> AI Weakness Detection
                                   </h4>
-                                  <div className="p-5 bg-slate-900/50 border border-amber-500/20 rounded-2xl shadow-inner">
+                                  <div className="p-5 bg-white dark:bg-slate-900/50 border border-amber-500/20 rounded-2xl shadow-inner">
                                     <ul className="space-y-2">
                                       {app.aiWeaknesses.map((weakness, idx) => (
-                                        <li key={idx} className="flex items-start gap-2 text-sm text-slate-300">
+                                        <li key={idx} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
                                           <span className="text-amber-400 mt-0.5">•</span>
                                           <span className="leading-relaxed">{weakness}</span>
                                         </li>
@@ -785,51 +835,51 @@ const RecruiterApplicantsPage = () => {
                                   <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
                                     <Sparkles size={16} /> AI Match Breakdown
                                   </h4>
-                                  <div className="p-4 bg-slate-900/80 border border-white/5 rounded-2xl space-y-4">
+                                  <div className="p-4 bg-white dark:bg-slate-900/80 border border-white/5 rounded-2xl space-y-4">
                                     <div>
                                       <div className="flex justify-between items-center mb-1.5">
-                                        <span className="text-sm text-slate-400">ATS Compatibility</span>
+                                        <span className="text-sm text-slate-600 dark:text-slate-400">ATS Compatibility</span>
                                         <span className="text-sm font-bold text-slate-200">{app.matchBreakdown.atsCompatibility || 0}%</span>
                                       </div>
-                                      <div className="w-full bg-slate-800 rounded-full h-1.5">
+                                      <div className="w-full bg-white dark:bg-slate-800 rounded-full h-1.5">
                                         <div className="bg-emerald-500 h-1.5 rounded-full transition-all duration-1000" style={{ width: `${app.matchBreakdown.atsCompatibility || 0}%` }} />
                                       </div>
                                     </div>
 
                                     <div>
                                       <div className="flex justify-between items-center mb-1.5">
-                                        <span className="text-sm text-slate-400">Skill Match</span>
+                                        <span className="text-sm text-slate-600 dark:text-slate-400">Skill Match</span>
                                         <span className="text-sm font-bold text-slate-200">{app.matchBreakdown.skillMatch || 0}%</span>
                                       </div>
-                                      <div className="w-full bg-slate-800 rounded-full h-1.5">
+                                      <div className="w-full bg-white dark:bg-slate-800 rounded-full h-1.5">
                                         <div className="bg-blue-500 h-1.5 rounded-full transition-all duration-1000" style={{ width: `${app.matchBreakdown.skillMatch || 0}%` }} />
                                       </div>
                                     </div>
 
                                     <div>
                                       <div className="flex justify-between items-center mb-1.5">
-                                        <span className="text-sm text-slate-400">Project Strength</span>
+                                        <span className="text-sm text-slate-600 dark:text-slate-400">Project Strength</span>
                                         <span className="text-sm font-bold text-slate-200">{app.matchBreakdown.projectStrength || 0}%</span>
                                       </div>
-                                      <div className="w-full bg-slate-800 rounded-full h-1.5">
+                                      <div className="w-full bg-white dark:bg-slate-800 rounded-full h-1.5">
                                         <div className="bg-purple-500 h-1.5 rounded-full transition-all duration-1000" style={{ width: `${app.matchBreakdown.projectStrength || 0}%` }} />
                                       </div>
                                     </div>
 
                                     <div className="flex justify-between items-center pt-2 border-t border-white/5">
-                                      <span className="text-sm text-slate-400">Contribution Activity</span>
+                                      <span className="text-sm text-slate-600 dark:text-slate-400">Contribution Activity</span>
                                       <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
                                         app.matchBreakdown.contributionActivity === 'High' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
                                         app.matchBreakdown.contributionActivity === 'Medium' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 
-                                        'bg-slate-800 text-slate-400 border-white/10'
+                                        'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10'
                                       }`}>{app.matchBreakdown.contributionActivity || 'Low'}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                      <span className="text-sm text-slate-400">Career Readiness</span>
+                                      <span className="text-sm text-slate-600 dark:text-slate-400">Career Readiness</span>
                                       <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
                                         app.matchBreakdown.careerReadiness === 'High' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
                                         app.matchBreakdown.careerReadiness === 'Medium' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 
-                                        'bg-slate-800 text-slate-400 border-white/10'
+                                        'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10'
                                       }`}>{app.matchBreakdown.careerReadiness || 'Low'}</span>
                                     </div>
                                   </div>
@@ -867,9 +917,9 @@ const RecruiterApplicantsPage = () => {
             
             {/* Pagination Controls */}
             {!loading && !error && applicants.length > 0 && totalPages > 1 && (
-              <div className="flex items-center justify-between bg-slate-900/40 border border-white/5 rounded-2xl p-4 mt-6">
-                <div className="text-sm text-slate-400 font-medium">
-                  Showing <span className="text-white">{(page - 1) * 20 + 1}</span> to <span className="text-white">{Math.min(page * 20, totalCount)}</span> of <span className="text-white">{totalCount}</span> candidates
+              <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/40 border border-white/5 rounded-2xl p-4 mt-6">
+                <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                  Showing <span className="text-slate-900 dark:text-white">{(page - 1) * 20 + 1}</span> to <span className="text-slate-900 dark:text-white">{Math.min(page * 20, totalCount)}</span> of <span className="text-slate-900 dark:text-white">{totalCount}</span> candidates
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -877,7 +927,7 @@ const RecruiterApplicantsPage = () => {
                     size="sm"
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="bg-slate-900 hover:bg-slate-800 border-white/10"
+                    className="bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-800 border-slate-200 dark:border-white/10"
                   >
                     Previous
                   </Button>
@@ -886,7 +936,7 @@ const RecruiterApplicantsPage = () => {
                     size="sm"
                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    className="bg-slate-900 hover:bg-slate-800 border-white/10"
+                    className="bg-white dark:bg-slate-900 hover:bg-white dark:bg-slate-800 border-slate-200 dark:border-white/10"
                   >
                     Next
                   </Button>
@@ -906,7 +956,7 @@ const RecruiterApplicantsPage = () => {
         onUpdate={handleUpdateStatus}
       />
           <Footer />
-    </main>
+    </div>
   );
 };
 

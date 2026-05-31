@@ -56,8 +56,23 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
   const isEditMode = Boolean(initialData?._id || initialData?.id);
   const submitButtonText = isEditMode ? "Update Job" : "Post Job";
   const loadingButtonText = isEditMode ? "Updating..." : "Posting...";
-  const [formData, setFormData] = useState({
-    title: initialData.title || "",
+  
+  // Unique draft key based on edit mode so we don't mix new drafts with edits
+  const draftKey = isEditMode ? `job_draft_${initialData._id || initialData.id}` : "job_draft_new";
+
+  const [formData, setFormData] = useState(() => {
+    // Attempt to load from local storage
+    try {
+      const savedDraft = localStorage.getItem(draftKey);
+      if (savedDraft) {
+        return JSON.parse(savedDraft);
+      }
+    } catch (e) {
+      console.error("Failed to load draft:", e);
+    }
+
+    return {
+      title: initialData.title || "",
     description: initialData.description || "",
     skills: arrayToString(initialData.skills),
     requirements: arrayToString(initialData.requirements),
@@ -78,13 +93,23 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
       currency: initialData.salary?.currency || "INR",
       isNegotiable: initialData.salary?.isNegotiable || false,
     },
-  });
+  };
+});
 
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submitLockRef = useRef(false);
   const isFormSubmitting = isLoading || isSubmitting;
+
+  // Auto-save draft whenever formData changes
+  React.useEffect(() => {
+    try {
+      localStorage.setItem(draftKey, JSON.stringify(formData));
+    } catch (e) {
+      console.error("Failed to save draft:", e);
+    }
+  }, [formData, draftKey]);
 
   // Merge local validation errors with backend field errors
   const allErrors = { ...errors, ...fieldErrors };
@@ -205,6 +230,8 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
         throw new Error(response?.message || "Unexpected response from the server. Please try again.");
       }
 
+      // Clear draft on successful submit
+      localStorage.removeItem(draftKey);
       success("Job posted successfully.");
     } catch (error) {
       const message = getSubmitErrorMessage(error);

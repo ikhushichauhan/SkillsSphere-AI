@@ -9,6 +9,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script>
+      (function() {
+        try {
+          var savedTheme = localStorage.getItem("skillssphere.theme");
+          if (!savedTheme) {
+            // Default to light if nothing is saved
+            savedTheme = "light";
+          }
+          if (savedTheme === "dark") {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.add("light");
+          }
+          document.documentElement.dataset.theme = savedTheme;
+        } catch (e) {
+          // Fallback if localStorage is disabled
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

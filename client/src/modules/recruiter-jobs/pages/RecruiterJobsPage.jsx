@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, Briefcase, Search } from "lucide-react";
+import { Plus, Briefcase, Search, ArrowLeft } from "lucide-react";
 import Navbar from "../../../shared/landing/Navbar";
 import Footer from "../../../modules/landing/components/Footer";
 
@@ -165,16 +165,23 @@ const RecruiterJobsPage = () => {
   };
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#0f172a,#020617)] p-3 sm:p-5 pt-20 sm:pt-28 text-slate-100">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-white flex flex-col">
       <Navbar />
 
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 py-8">
+      <div className="flex-1 w-full mx-auto max-w-5xl flex flex-col gap-6 pt-24 pb-16 px-4 sm:px-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white">
+            <Link 
+              to="/dashboard" 
+              className="inline-flex items-center gap-2 text-sm text-blue-500 hover:text-blue-400 mb-4 transition-colors"
+            >
+              <ArrowLeft size={16} />
+              Back to Dashboard
+            </Link>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
               Manage Job Postings
             </h1>
-            <p className="text-slate-400 mt-1">
+            <p className="text-slate-600 dark:text-slate-400 mt-1">
               View and manage your active job listings and recommendations.
             </p>
           </div>
@@ -189,7 +196,7 @@ const RecruiterJobsPage = () => {
           </Link>
         </div>
 
-        <div className="flex flex-col gap-4 rounded-xl border border-white/10 bg-slate-900/60 p-4 shadow-lg shadow-black/10 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 p-4 shadow-lg shadow-black/10 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative w-full sm:max-w-md">
             <Input
               id="search-jobs"
@@ -217,7 +224,7 @@ const RecruiterJobsPage = () => {
                   className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
                     isActive
                       ? "border-blue-400 bg-blue-500/20 text-blue-100"
-                      : "border-slate-700 bg-slate-800/80 text-slate-300 hover:border-slate-500 hover:bg-slate-800"
+                      : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
                   }`}
                 >
                   {filter.label}
@@ -285,7 +292,7 @@ const RecruiterJobsPage = () => {
         )}
       </div>
           <Footer />
-    </main>
+    </div>
   );
 };
 

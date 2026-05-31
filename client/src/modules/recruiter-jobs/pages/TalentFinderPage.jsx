@@ -213,11 +213,11 @@ const TalentFinderPage = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <Link 
-              to="/recruiter/jobs" 
+              to="/dashboard" 
               className="inline-flex items-center gap-2 text-sm text-blue-500 hover:text-blue-400 mb-2 transition-colors"
             >
               <ArrowLeft size={16} />
-              Back to Jobs
+              Back to Dashboard
             </Link>
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white">
               Talent <span className="text-gradient">Finder</span>

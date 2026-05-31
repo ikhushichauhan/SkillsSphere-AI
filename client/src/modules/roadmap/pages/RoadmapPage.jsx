@@ -46,6 +46,12 @@ const RoadmapPage = () => {
       if (response.success) {
         setRoadmap(response.data);
         showSuccess(`Milestone marked as ${nextStatus === "completed" ? "Completed" : "In Progress"}.`);
+        
+        if (response.newBadges && response.newBadges.length > 0) {
+          response.newBadges.forEach(badge => {
+            showSuccess(`🏅 Achievement Unlocked: ${badge}!`);
+          });
+        }
       }
     } catch (err) {
       logger.error("Update failed:", err);
@@ -109,6 +115,15 @@ const RoadmapPage = () => {
               <div>
                 <p className="text-xs font-bold text-text-muted uppercase">Overall Readiness</p>
                 <p className="text-lg font-black">{roadmap.overallProgress === 100 ? "Job Ready!" : "In Progress"}</p>
+                {roadmap.achievements && roadmap.achievements.length > 0 && (
+                  <div className="flex items-center gap-1.5 mt-1.5">
+                    {roadmap.achievements.map((ach, i) => (
+                      <div key={i} title={ach.badge} className="w-6 h-6 rounded-full bg-yellow-400/20 flex items-center justify-center border border-yellow-400/40 shadow-[0_0_10px_rgba(250,204,21,0.3)] cursor-help hover:scale-110 transition-transform">
+                        <Award className="w-3.5 h-3.5 text-yellow-500" />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

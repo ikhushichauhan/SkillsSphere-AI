@@ -196,6 +196,12 @@ initNotificationSockets(io);
 initInterviewSockets(io);
 initRoadmapSockets(io);
 
+// Catch-all 404 handler for API routes
+// This prevents Express from returning HTML on missing routes, which crashes frontend JSON parsers.
+app.use("/api/*", (req, res) => {
+  res.status(404).json({ success: false, message: `API route not found: ${req.method} ${req.originalUrl}` });
+});
+
 app.use(globalErrorHandler);
 
 server.listen(PORT, () => {

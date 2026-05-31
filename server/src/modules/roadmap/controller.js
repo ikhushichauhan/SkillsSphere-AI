@@ -108,6 +108,34 @@ export const updateTopicStatus = asyncHandler(async (req, res) => {
     topic.completedAt = Date.now();
   }
 
+  // --- Achievement Calculation Logic ---
+  let newBadgesEarned = [];
+  if (status === "completed") {
+    const hasBadge = (badgeName) => progress.achievements?.some(a => a.badge === badgeName);
+    
+    // 1. First Milestone Completed
+    const completedTopics = progress.roadmap.filter(t => t.status === "completed");
+    if (completedTopics.length === 1 && !hasBadge("First Milestone Completed")) {
+      progress.achievements.push({ badge: "First Milestone Completed" });
+      newBadgesEarned.push("First Milestone Completed");
+    }
+
+    // 2. Open Source Explorer
+    if (topic.type === "contribution" && !hasBadge("Open Source Explorer")) {
+      progress.achievements.push({ badge: "Open Source Explorer" });
+      newBadgesEarned.push("Open Source Explorer");
+    }
+
+    // 3. Roadmap Champion
+    // overallProgress is calculated in a pre-save hook, but we can do a quick calc here
+    const totalTopics = progress.roadmap.length;
+    if (totalTopics > 0 && completedTopics.length === totalTopics && !hasBadge("Roadmap Champion")) {
+      progress.achievements.push({ badge: "Roadmap Champion" });
+      newBadgesEarned.push("Roadmap Champion");
+    }
+  }
+  // -------------------------------------
+
   await progress.save();
 
   // Create system comment
@@ -131,7 +159,8 @@ export const updateTopicStatus = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: `Topic marked as ${status.replace("_", " ")}`,
-    data: progress
+    data: progress,
+    newBadges: newBadgesEarned
   });
 });
 
@@ -303,6 +332,33 @@ export const verifyTopic = asyncHandler(async (req, res) => {
     topic.verifiedAt = null;
   }
 
+  // --- Achievement Calculation Logic ---
+  let newBadgesEarned = [];
+  if (isVerified) {
+    const hasBadge = (badgeName) => progress.achievements?.some(a => a.badge === badgeName);
+    
+    // 1. First Milestone Completed
+    const completedTopics = progress.roadmap.filter(t => t.status === "completed");
+    if (completedTopics.length === 1 && !hasBadge("First Milestone Completed")) {
+      progress.achievements.push({ badge: "First Milestone Completed" });
+      newBadgesEarned.push("First Milestone Completed");
+    }
+
+    // 2. Open Source Explorer
+    if (topic.type === "contribution" && !hasBadge("Open Source Explorer")) {
+      progress.achievements.push({ badge: "Open Source Explorer" });
+      newBadgesEarned.push("Open Source Explorer");
+    }
+
+    // 3. Roadmap Champion
+    const totalTopics = progress.roadmap.length;
+    if (totalTopics > 0 && completedTopics.length === totalTopics && !hasBadge("Roadmap Champion")) {
+      progress.achievements.push({ badge: "Roadmap Champion" });
+      newBadgesEarned.push("Roadmap Champion");
+    }
+  }
+  // -------------------------------------
+
   await progress.save();
 
   // Create system comment log and send notification
@@ -336,7 +392,8 @@ export const verifyTopic = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: isVerified ? "Milestone verified by tutor" : "Milestone verification removed",
-    data: progress
+    data: progress,
+    newBadges: newBadgesEarned
   });
 });
 

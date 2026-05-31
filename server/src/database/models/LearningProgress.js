@@ -63,6 +63,12 @@ const learningProgressSchema = new mongoose.Schema(
       required: true,
     },
     roadmap: [topicProgressSchema],
+    achievements: [
+      {
+        badge: { type: String, enum: ["First Milestone Completed", "Open Source Explorer", "Roadmap Champion"] },
+        earnedAt: { type: Date, default: Date.now },
+      }
+    ],
     overallProgress: {
       type: Number,
       default: 0,

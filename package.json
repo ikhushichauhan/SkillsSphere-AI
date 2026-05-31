@@ -16,7 +16,9 @@
     "build": "turbo run build",
     "quickstart": "node scripts/quickstart.js",
     "python:setup": "node scripts/python-setup.js",
-    "python:run": "node scripts/python-run.js"
+    "python:run": "node scripts/python-run.js",
+    "install:git-hooks": "node scripts/install-git-hooks.js",
+    "security:check-env": "node scripts/prevent-env-commit.js"
   },
   "dependencies": {
     "gcp-metadata": "^5.3.0",
