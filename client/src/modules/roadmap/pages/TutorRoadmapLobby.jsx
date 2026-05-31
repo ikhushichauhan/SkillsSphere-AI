@@ -5,6 +5,7 @@ import {
   Award, BookOpen, CheckCircle2, Plus, Target, ExternalLink, Video, FileText, Globe, User, ArrowLeft, ArrowRight, MessageSquare
 } from "lucide-react";
 import Navbar from "../../../shared/landing/Navbar";
+import Footer from "../../../modules/landing/components/Footer";
 import { 
   getStudentsRoadmaps, getStudentRoadmap, assignTutorResource, verifyTopic, addTutorMilestone 
 } from "../services/roadmapService";
@@ -142,7 +143,7 @@ export default function TutorRoadmapLobby() {
   return (
     <div className="min-h-screen bg-[#020617] text-white font-sans pt-24">
       <Navbar />
-      <div className="max-w-7xl mx-auto pt-32 pb-20 px-4">
+      <div className="max-w-7xl mx-auto pt-8 pb-20 px-4">
         {/* Header */}
         <div className="mb-12 animate-slide-up">
           <Link 
@@ -516,6 +517,7 @@ export default function TutorRoadmapLobby() {
           currentUser={user}
         />
       )}
+      <Footer />
     </div>
   );
 }
