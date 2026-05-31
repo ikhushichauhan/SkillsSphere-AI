@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Check, X } from "lucide-react";
 import { registerUser } from "../../features/auth/authSlice";
 import { useToast } from "../../shared/components";
@@ -305,12 +305,12 @@ const Register = () => {
         {/* Footer */}
         <p className="text-center mt-4 sm:mt-5 text-slate-600 dark:text-slate-400 text-xs sm:text-sm">
           Already have an account?{" "}
-          <span
-            className="text-blue-400 cursor-pointer hover:underline"
-            onClick={() => navigate("/login")}
+          <Link
+            to="/login"
+            className="text-blue-400 hover:underline"
           >
             Login
-          </span>
+          </Link>
         </p>
       </div>
     </div>

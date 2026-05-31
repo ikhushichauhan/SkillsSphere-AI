@@ -66,9 +66,9 @@ const NotificationsEmptyState = ({ filter }) => {
       <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-300">
         <Bell className="h-7 w-7" />
       </div>
-      <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+      <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
         {copy.title}
-      </h3>
+      </h2>
       <p className="text-slate-600 dark:text-slate-400">{copy.message}</p>
     </div>
   );
