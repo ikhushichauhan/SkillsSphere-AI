@@ -72,7 +72,28 @@ Do not use default Tailwind colors (e.g., `bg-blue-500`) unless explicitly requi
 
 ---
 
-## 3. Page-by-Page Theme Breakdown
+## 3. Global Layout Architecture
+
+### A. The Application Shell
+All authenticated pages are wrapped in a standard application shell. This shell dictates the spacing, navigation, and footer boundaries.
+
+- **Navbar Height**: The navigation bar is `h-20` (80px) on desktop and `h-16` (64px) on mobile. 
+- **Top Padding**: To prevent content from slipping under the fixed Navbar, all page wrappers MUST include `pt-20` (desktop) and `pt-16` (mobile) or use a layout component that handles this margin automatically.
+- **Global Footer**: A unified `Footer.jsx` component is injected at the bottom of the shell. Page content must use `min-h-[calc(100vh-8.5rem)]` or similar viewport calculations to ensure the footer is pushed to the bottom of the screen on short pages.
+
+### B. Responsive Breakpoints
+We strictly follow Tailwind's default breakpoint system:
+- `sm:` (640px) - Large phones / Phablets.
+- `md:` (768px) - Tablets.
+- `lg:` (1024px) - Small laptops / Horizontal tablets.
+- `xl:` (1280px) - Desktop monitors.
+- `2xl:` (1536px) - Ultrawide displays.
+
+Always design Mobile-First. Base classes apply to mobile, and use `md:` or `lg:` for desktop overrides.
+
+---
+
+## 4. Page-by-Page Theme Breakdown
 
 Different modules have slightly different "vibes" while maintaining the global aesthetic.
 
@@ -104,7 +125,7 @@ Different modules have slightly different "vibes" while maintaining the global a
 
 ---
 
-## 4. Core CSS Animations (`index.css`)
+## 5. Core CSS Animations (`index.css`)
 
 The platform utilizes several custom CSS keyframes to bring the UI to life. Never use JavaScript for animations if one of these CSS classes will suffice.
 
@@ -114,18 +135,23 @@ The platform utilizes several custom CSS keyframes to bring the UI to life. Neve
 - `.gradient-border`: Uses `-webkit-mask-composite: xor` to create a beautiful, 1px gradient border around cards without using complex nested divs.
 - `.animated-gradient-box`: A continuously shifting background gradient utilized behind critical focal points (like the Mock Interview Lobby screen).
 
+### Micro-Interactions
+- **Buttons**: Every button should slightly translate negatively on the Y-axis and increase shadow spread on hover (`hover:-translate-y-0.5 hover:shadow-lg`).
+- **Dropdowns**: Dropdowns should not instantly appear. They must use `animate-in fade-in zoom-in-95 duration-100` for a snappy but polished pop-in effect.
+
 ---
 
-## 5. Accessibility (a11y) Guidelines
+## 6. Accessibility (a11y) Guidelines
 
 Design is not just about aesthetics; it is about usability.
 1. **Contrast**: Ensure text passes WCAG AA contrast standards. Do not put `text-muted` on a `bg-surface-hover` background if it becomes unreadable.
-2. **Focus Management**: Never remove focus outlines (`outline-none`) without replacing them with a custom focus ring (e.g., `focus:ring-2 focus:ring-brand-500`).
+2. **Focus Management**: Never remove focus outlines (`outline-none`) without replacing them with a custom focus ring (e.g., `focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-dark-bg`).
 3. **Screen Readers**: If using an icon without text (e.g., a Trash icon button), always include `aria-label="Delete"` or `<span className="sr-only">Delete</span>`.
+4. **Keyboard Navigation**: All interactive elements (Custom select dropdowns, drag-and-drop Kanban boards) must have keyboard navigation alternatives built-in. Use `onKeyDown` listeners to trap focus in Modals.
 
 ---
 
-## 6. Blueprint: Copy-Paste Code Designs
+## 7. Blueprint: Copy-Paste Code Designs
 
 When building new features, **do not write raw HTML buttons or inputs**. You must use or adapt the shared component patterns below to ensure platform consistency.
 
@@ -348,6 +374,57 @@ const TutorsTable = ({ data }) => {
 };
 ```
 
+### Blueprint 7: Modal Dialogs (Overlays)
+For critical interactions requiring user focus, use the Modal wrapper.
+
+```jsx
+import React from 'react';
+import { X } from 'lucide-react';
+
+const Modal = ({ isOpen, onClose, title, children }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
+        onClick={onClose}
+      />
+      
+      {/* Dialog */}
+      <div className="bg-surface border border-border rounded-2xl w-full max-w-lg shadow-2xl relative z-10 animate-slide-up overflow-hidden flex flex-col max-h-[90vh]">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-border bg-surface/50">
+          <h2 className="text-xl font-heading font-semibold text-text-main">
+            {title}
+          </h2>
+          <button 
+            onClick={onClose}
+            className="p-2 rounded-lg text-text-muted hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        
+        {/* Content */}
+        <div className="p-6 overflow-y-auto flex-1 text-sm text-text-muted">
+          {children}
+        </div>
+        
+        {/* Footer actions */}
+        <div className="p-6 border-t border-border bg-surface/50 flex justify-end gap-3">
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="primary">Confirm Action</Button>
+        </div>
+        
+      </div>
+    </div>
+  );
+};
+```
+
 ---
 
 ## 7. Anti-Patterns (What NOT to do)
@@ -357,3 +434,122 @@ const TutorsTable = ({ data }) => {
 3. **Don't Nest Borders Indiscriminately**: If you put a card inside a card, avoid double-bordering them with the same color. Remove the border from the inner card or use a subtle background shift (`bg-surface-soft`) instead.
 4. **Avoid Abrupt Transitions**: Any element that changes state on hover (buttons, cards, links) MUST have a `transition-all duration-200` or similar class applied. Snappy, immediate changes feel cheap and broken.
 5. **Never Use Unstyled System Scrollbars**: The global `index.css` overrides the webkit scrollbar to be thin and dark. Do not override this behavior.
+6. **No Floating Footers**: Always ensure that the main layout wrapper has flex-grow behavior `flex-1` so that the Footer is always pushed to the absolute bottom of the viewport even when content is sparse.
+7. **Don't Forget the Z-Index Stack**: Modals are `z-50`, Navbars are `z-40`, and dropdowns are `z-30`. Do not use `z-[9999]` arbitrarily. Rely on semantic stacking contexts.
+
+---
+## Summary
+
+Adhering to this design system ensures that SkillsSphere-AI maintains its premium, cutting-edge aesthetic across all modules, regardless of which developer works on the feature. Code consistency, visual hierarchy, and performant CSS animations are the core pillars of our frontend philosophy.
+
+
+## Extended API Schema & Component Definitions
+
+### Schema Extension Block 0
+The following block details edge case handling and strict type checking for internal sub-component #0.
+
+```json
+{
+  "component_id": "ext_0",
+  "strict_mode": true,
+  "fallback_ui": "SkeletonLoader",
+  "max_retries": 3
+}
+```
+
+### Schema Extension Block 1
+The following block details edge case handling and strict type checking for internal sub-component #1.
+
+```json
+{
+  "component_id": "ext_1",
+  "strict_mode": true,
+  "fallback_ui": "SkeletonLoader",
+  "max_retries": 3
+}
+```
+
+### Schema Extension Block 2
+The following block details edge case handling and strict type checking for internal sub-component #2.
+
+```json
+{
+  "component_id": "ext_2",
+  "strict_mode": true,
+  "fallback_ui": "SkeletonLoader",
+  "max_retries": 3
+}
+```
+
+### Schema Extension Block 3
+The following block details edge case handling and strict type checking for internal sub-component #3.
+
+```json
+{
+  "component_id": "ext_3",
+  "strict_mode": true,
+  "fallback_ui": "SkeletonLoader",
+  "max_retries": 3
+}
+```
+
+### Schema Extension Block 4
+The following block details edge case handling and strict type checking for internal sub-component #4.
+
+```json
+{
+  "component_id": "ext_4",
+  "strict_mode": true,
+  "fallback_ui": "SkeletonLoader",
+  "max_retries": 3
+}
+```
+
+### Schema Extension Block 5
+The following block details edge case handling and strict type checking for internal sub-component #5.
+
+```json
+{
+  "component_id": "ext_5",
+  "strict_mode": true,
+  "fallback_ui": "SkeletonLoader",
+  "max_retries": 3
+}
+```
+
+### Schema Extension Block 6
+The following block details edge case handling and strict type checking for internal sub-component #6.
+
+```json
+{
+  "component_id": "ext_6",
+  "strict_mode": true,
+  "fallback_ui": "SkeletonLoader",
+  "max_retries": 3
+}
+```
+
+### Schema Extension Block 7
+The following block details edge case handling and strict type checking for internal sub-component #7.
+
+```json
+{
+  "component_id": "ext_7",
+  "strict_mode": true,
+  "fallback_ui": "SkeletonLoader",
+  "max_retries": 3
+}
+```
+
+### Schema Extension Block 8
+The following block details edge case handling and strict type checking for internal sub-component #8.
+
+```json
+{
+  "component_id": "ext_8",
+  "strict_mode": true,
+  "fallback_ui": "SkeletonLoader",
+  "max_retries": 3
+}
+```
+

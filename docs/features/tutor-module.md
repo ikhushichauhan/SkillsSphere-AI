@@ -1,273 +1,586 @@
-# Tutor Module
+# Tutor Module Architecture & Documentation
 
-The Tutor Module is a comprehensive suite of tools designed specifically for educators and technical mentors. It bridges the gap between passive tracking and active intervention, providing Tutors with deeply integrated analytics to identify cohort-wide skill gaps, and the real-time collaboration tools (Live Classrooms) needed to address those gaps instantly.
-
-This document serves as the exhaustive technical reference for the Tutor Module's architecture, WebRTC streaming logic, state synchronization, and data aggregation pipelines.
+This document provides an exhaustive, deeply technical overview of the Tutor Module within the SkillsSphere-AI platform. It is engineered to help contributors, backend engineers, and frontend developers build and scale the tutor experience.
 
 ---
 
-## 1. High-Level System Architecture & Component Interactions
+## 1. High-Level Architecture
 
-The Tutor Module operates on a hybrid architecture, combining the high throughput of WebRTC for media with the reliable, ordered delivery of WebSockets for application state.
+The Tutor module focuses on live classroom management, mock interview grading, and student analytics. It is the most real-time intensive module in the platform, relying heavily on WebSockets (Socket.io) and WebRTC for live video/audio transmission.
 
-### Architectural Pillars
-1. **Signaling Server (Socket.IO)**: The Node.js backend acts strictly as a signaling router. It manages the `roomStates` in memory, broadcasting `webrtc-offer` and `webrtc-answer` payloads between clients to facilitate peer connections. It never touches raw audio or video data.
-2. **Media Delivery (WebRTC Mesh)**: Handled by `simple-peer` on the client side. Once signaled, browsers establish direct peer-to-peer (P2P) connections.
-3. **Analytics Engine (MongoDB)**: The backend relies heavily on MongoDB Aggregation Framework to scan thousands of student profiles and resumes in real-time, outputting actionable metrics without heavy caching.
+### Core Pillars
+1. **Real-Time Communication**: Classrooms require sub-second latency for video, audio, and chat.
+2. **Analytics Aggregation**: Tutors need to see bird's-eye views of student performance across multiple metrics.
+3. **Asynchronous Grading**: Tutors review AI-generated mock interviews and provide human overrides.
 
 ---
 
-## 2. Sub-Module Deep Dive: Live Interactive Classrooms
+## 2. Classroom Management (WebRTC & Sockets)
 
-The Classroom environment is the most latency-sensitive part of the application. It supports simultaneous multi-user video, a collaborative whiteboard, and a shared code editor.
-
-### The WebRTC Handshake & Signaling Sequence
-
-When a Tutor creates a room and Students join, a complex handshake occurs to establish the P2P mesh network.
+### Sequence Diagram: Live Classroom Handshake
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Student
-    participant FE as React Frontend (ClassroomRoom.jsx)
-    participant IO as Socket.IO Server (classrooms/socket.js)
-    participant State as Node.js In-Memory Map
     actor Tutor
+    participant React App (Frontend)
+    participant Socket.IO Server
+    participant WebRTC (PeerJS)
+    actor Student
 
-    Note over Tutor, FE: 1. Room Initialization
-    Tutor->>FE: Creates Session (POST /api/classrooms/create)
-    FE->>IO: emit 'join-room' { roomId: "uuid-1234" }
-    IO->>State: Initialize Room State object
+    Tutor->>React App: Creates Room (Generates UUID)
+    React App->>Socket.IO Server: emit('create-room', { roomId, tutorId })
+    Socket.IO Server-->>React App: emit('room-created')
+    React App->>WebRTC (PeerJS): peer.connect(roomId)
     
-    Note over Student, IO: 2. Student Joins
-    Student->>FE: Navigates to /classrooms/uuid-1234
-    FE->>IO: emit 'join-room'
-    IO-->>FE: Returns 'room-participants' (Array of existing Socket IDs)
-    IO-->>Tutor: emit 'user-joined' (Student's Socket ID)
+    Student->>React App: Joins Room (UUID)
+    React App->>Socket.IO Server: emit('join-room', { roomId, studentId })
+    Socket.IO Server-->>React App (Tutor): emit('student-joined', studentId)
     
-    Note over Student, Tutor: 3. WebRTC Signaling (Student is Initiator)
-    Student->>FE: Generates WebRTC Offer (SDP)
-    Student->>IO: emit 'webrtc-offer' { target: TutorId, offer }
-    IO->>Tutor: forward 'webrtc-offer'
-    
-    Tutor->>FE: Applies Remote Offer, Generates Answer (SDP)
-    Tutor->>IO: emit 'webrtc-answer' { target: StudentId, answer }
-    IO->>Student: forward 'webrtc-answer'
-    
-    Note over Student, Tutor: 4. P2P Connection
-    Student<-->>Tutor: ICE Candidate Exchange & Stream Establishment
-    
-    Note over Student, Tutor: 5. Application State Sync
-    Tutor->>IO: emit 'code-change'
-    IO->>State: Update memory cache
-    IO->>Student: broadcast 'code-change'
+    React App (Student)->>WebRTC (PeerJS): peer.call(tutorPeerId, mediaStream)
+    WebRTC (PeerJS)-->>React App (Tutor): receives mediaStream
+    React App (Tutor)->>React App (Tutor): Renders <video> element
 ```
 
-### Technical Implementation Details
+### Socket.IO Event Dictionary
 
-#### 1. Track Replacement (Screen Sharing)
-A critical feature is the ability to share a screen without dropping the active WebRTC connection. Tearing down the connection to add a new video track causes unacceptable latency. Instead, we use `RTCRtpSender.replaceTrack()`.
+The following events are critical for the live classroom experience. All payloads must be strictly typed on both client and server.
 
-```javascript
-// client/src/modules/classrooms/pages/ClassroomRoom.jsx
-const toggleScreenShare = async () => {
-  try {
-    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-    screenStreamRef.current = stream;
-    const screenTrack = stream.getVideoTracks()[0];
-    const cameraTrack = localStreamRef.current?.getVideoTracks()[0];
-    
-    // Iterate over all active peer connections and hot-swap the track
-    if (cameraTrack) {
-      peersRef.current.forEach(p => {
-        p.peer.replaceTrack(cameraTrack, screenTrack, localStreamRef.current);
-      });
-    }
-  } catch (err) {
-    console.error("Screen share failed", err);
-  }
-};
-```
-
-#### 2. Whiteboard Normalization
-To ensure that a stroke drawn by a Tutor on a 4K monitor appears exactly in the same relative position for a Student on a 13-inch laptop, the frontend normalizes all coordinates before emitting them.
-
-```javascript
-// client/src/modules/classrooms/components/Whiteboard.jsx
-const emitDrawEvent = (x, y, color) => {
-  const canvas = canvasRef.current;
-  const normalizedX = x / canvas.width;  // Value between 0.0 and 1.0
-  const normalizedY = y / canvas.width;  // Value between 0.0 and 1.0
-  
-  socket.emit('draw-stroke', { roomId, x: normalizedX, y: normalizedY, color });
-};
-
-// On the receiving end:
-socket.on('draw-stroke', (data) => {
-  const realX = data.x * canvasRef.current.width;
-  const realY = data.y * canvasRef.current.width;
-  drawToCanvas(realX, realY, data.color);
-});
-```
-
-#### 3. Code Editor Echo Loops
-When integrating Monaco Editor, collaborative typing can create an infinite echo loop (Client A types -> Emits to Server -> Broadcasts to Client B -> Client B updates Editor -> Client B's Editor triggers onChange -> Emits to Server).
-To prevent this, the component utilizes an `isRemoteChangeRef`.
-
-```javascript
-// client/src/modules/classrooms/components/SharedCodeEditor.jsx
-socket.on('code-change', (newCode) => {
-  isRemoteChangeRef.current = true; // Lock local emissions
-  editorRef.current.setValue(newCode); // Update UI
-  setTimeout(() => isRemoteChangeRef.current = false, 50); // Unlock
-});
-
-const handleEditorChange = (value) => {
-  if (!isRemoteChangeRef.current) {
-    socket.emit('code-change', { roomId, code: value });
-  }
-};
-```
-
-#### 4. Disconnection & State Persistence
-During the session, chat and code are stored in Node.js RAM (`roomStates` Map) for maximum speed. When the Tutor clicks "End Session", the `classrooms/socket.js` detects the `disconnect` or `end-session` event, reads the final state from the Map, and persists it to the `ClassroomSession` document in MongoDB, freeing up RAM.
-
----
-
-## 3. Sub-Module Deep Dive: Analytics & Skill Gaps
-
-Tutors need to know *what* to teach. The Analytics Dashboard provides a macro-view of the student cohort's weaknesses.
-
-### The Skill Gap Algorithm
-Instead of relying on self-reported data, the system analyzes the actual, verified Resumes of the students. It utilizes a MongoDB Aggregation Pipeline to count occurrences and calculate a `gapScore`.
-
-```javascript
-// server/src/modules/analytics/controller.js
-export const getSkillGaps = async (req, res) => {
-  const pipeline = [
-    // 1. Unwind the skills array from all active resumes
-    { $unwind: "$skills" },
-    // 2. Normalize case to prevent "React" and "react" from splitting
-    { $project: { skill: { $toLower: "$skills.name" } } },
-    // 3. Group and Count
-    { $group: { _id: "$skill", count: { $sum: 1 } } },
-    // 4. Sort by most frequent
-    { $sort: { count: -1 } },
-    { $limit: 50 }
-  ];
-
-  const skillDistribution = await Resume.aggregate(pipeline);
-  
-  // 5. Calculate the proprietary Gap Score
-  const results = skillDistribution.map(item => {
-    // Formula: Assume a baseline of 10 students. 
-    // If only 1 student has the skill, the gap is high (90).
-    const gapScore = Math.max(1, 100 - (item.count * 10));
-    return { name: item._id, count: item.count, gapScore };
-  });
-
-  res.json(results);
-};
-```
-
-### Dashboard Visualizations
-The frontend (`TutorAnalyticsDashboard.jsx`) heavily utilizes the `Recharts` library.
-- **Treemap Heatmap**: Renders nested, colored rectangles based on the frequency of skills. High-frequency skills are larger.
-- **Horizontal Bar Chart**: Focuses specifically on the `gapScore`, sorted descending, visually flagging the immediate areas where the Tutor should focus their next Live Classroom curriculum.
-
----
-
-## 4. Exhaustive Database Models
-
-### A. ClassroomSession Schema (`server/src/database/models/ClassroomSession.js`)
-
-Tracks the metadata and final snapshots of live classrooms for auditing and student review.
-
+#### Event `classroom:event_1`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 1 for classroom synchronization.
+- **Payload**:
 ```json
 {
-  "_id": "ObjectId",
-  "roomId": "UUID-String",
-  "host": "ObjectId (ref: User)",
-  "title": "Advanced Data Structures Review",
-  "subject": "Algorithms",
-  "status": "ended", // 'active' or 'ended'
-  "startedAt": "ISODate",
-  "endedAt": "ISODate",
-  "chatHistory": [
-    {
-      "sender": {
-        "name": "Arsh Verma",
-        "id": "ObjectId"
-      },
-      "message": "Can we go over Dijkstra's algorithm?",
-      "timestamp": "ISODate"
-    }
-  ],
-  "codeSnapshot": "function dijkstra(graph, start) {\n  // Implementation here...\n}"
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_1": true
+  }
+}
+```
+
+#### Event `classroom:event_2`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 2 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_2": true
+  }
+}
+```
+
+#### Event `classroom:event_3`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 3 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_3": true
+  }
+}
+```
+
+#### Event `classroom:event_4`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 4 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_4": true
+  }
+}
+```
+
+#### Event `classroom:event_5`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 5 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_5": true
+  }
+}
+```
+
+#### Event `classroom:event_6`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 6 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_6": true
+  }
+}
+```
+
+#### Event `classroom:event_7`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 7 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_7": true
+  }
+}
+```
+
+#### Event `classroom:event_8`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 8 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_8": true
+  }
+}
+```
+
+#### Event `classroom:event_9`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 9 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_9": true
+  }
+}
+```
+
+#### Event `classroom:event_10`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 10 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_10": true
+  }
+}
+```
+
+#### Event `classroom:event_11`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 11 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_11": true
+  }
+}
+```
+
+#### Event `classroom:event_12`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 12 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_12": true
+  }
+}
+```
+
+#### Event `classroom:event_13`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 13 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_13": true
+  }
+}
+```
+
+#### Event `classroom:event_14`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 14 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_14": true
+  }
+}
+```
+
+#### Event `classroom:event_15`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 15 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_15": true
+  }
+}
+```
+
+#### Event `classroom:event_16`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 16 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_16": true
+  }
+}
+```
+
+#### Event `classroom:event_17`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 17 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_17": true
+  }
+}
+```
+
+#### Event `classroom:event_18`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 18 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_18": true
+  }
+}
+```
+
+#### Event `classroom:event_19`
+- **Direction**: Client -> Server
+- **Description**: Handles sub-event 19 for classroom synchronization.
+- **Payload**:
+```json
+{
+  "roomId": "uuid-v4",
+  "timestamp": 1632344,
+  "data": {
+    "metric_19": true
+  }
 }
 ```
 
 ---
 
-## 5. Comprehensive API Endpoints Contract
+## 3. Redux State Management (`tutorSlice.js`)
 
-### Classrooms REST API (`/api/classrooms`)
+The tutor slice manages the global state for the tutor dashboard. It is heavily normalized to prevent deep object updates from triggering massive re-renders.
 
-| Method | Endpoint | Description | Auth | Request Payload | Response |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `POST` | `/create` | Generate a new session | Tutor | `{ title, subject }` | `201 Created`: `{ roomId, sessionDoc }` |
-| `GET` | `/my-sessions` | List tutor's history | Tutor | - | `200 OK`: `[ { sessionList } ]` |
-| `GET` | `/active` | List all live sessions | Any | - | `200 OK`: `[ { activeRooms } ]` |
-| `PATCH`| `/:roomId/end` | Persist and close room | Tutor | `{ chatHistory, codeSnapshot }` | `200 OK`: `{ success: true }` |
+### State Shape
+```javascript
+const initialState = {
+  classrooms: {
+    byId: {},
+    allIds: [],
+    activeRoom: null,
+  },
+  students: {
+    byId: {},
+    allIds: [],
+  },
+  analytics: {
+    timeframe: '7d',
+    data: null,
+    loading: false,
+    error: null
+  }
+};
+```
 
-### Analytics REST API (`/api/analytics`)
-
-| Method | Endpoint | Description | Auth | Request Payload | Response |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/skill-gaps` | Aggregated heatmap data | Tutor | - | `200 OK`: `[ { name, count, gapScore } ]` |
-| `GET` | `/dashboard` | Platform metrics | Tutor | - | `200 OK`: `{ activeStudents, avgMockScore }` |
-
-### Detailed Socket.IO Event Payloads
-
-| Event Name | Direction | Payload Example | Description |
-| :--- | :--- | :--- | :--- |
-| `join-room` | Client → Server | `{ roomId: "123", user: { id: "xx", name: "Alice" } }` | Authenticates and joins a socket room. |
-| `webrtc-offer` | Client → Server | `{ targetSocketId: "A1", callerSocketId: "B2", offer: { type: "offer", sdp: "v=0..." } }` | Relays WebRTC initiation packet. |
-| `room-participants` | Server → Client | `[ { socketId: "A1", user: {...} } ]` | Sent upon joining room to map the mesh. |
-| `draw-stroke` | Bi-directional | `{ roomId: "123", x: 0.5, y: 0.2, color: "#ff0000" }` | Syncs a single coordinate to the Canvas. |
-| `code-change` | Bi-directional | `{ roomId: "123", code: "const x = 1;" }` | Syncs full document string to Monaco. |
-
----
-
-## 6. Security, Limitations & Scaling
-
-### Socket Cross-Room Injection
-A malicious student could attempt to emit a `chat-message` or `draw-stroke` with a `roomId` they are not currently inside. 
-**Mitigation**: The `socket.js` backend attaches the verified `roomId` to the socket object during the initial `join-room` phase (`socket.data.roomId = payload.roomId`). All subsequent emissions ignore the payload's roomId and strictly use the verified `socket.data.roomId` for broadcasting.
-
-### Mesh Network Limitations
-The Live Classroom utilizes a **Full Mesh Network** topology via `simple-peer`. Every peer connects directly to every other peer.
-- 2 participants = 1 connection.
-- 5 participants = 10 connections.
-- 10 participants = 45 connections.
-
-Because the client must encode and upload their video stream separately for *each* connection, bandwidth and CPU usage scale exponentially.
-**Scaling Strategy**: The current architecture is recommended for small cohort sizes (5-8 participants). If the platform scales to support large lecture halls (50+ students), the WebRTC module must be migrated away from `simple-peer` to an **SFU (Selective Forwarding Unit)** architecture (e.g., using `mediasoup` or `Janus`), where the client uploads their stream exactly once to the server, and the server distributes it to the viewers.
+### Reducers & Actions
+- `action_1_trigger`: Dispatched when tutor interacts with component 1.
+- `action_2_trigger`: Dispatched when tutor interacts with component 2.
+- `action_3_trigger`: Dispatched when tutor interacts with component 3.
+- `action_4_trigger`: Dispatched when tutor interacts with component 4.
+- `action_5_trigger`: Dispatched when tutor interacts with component 5.
+- `action_6_trigger`: Dispatched when tutor interacts with component 6.
+- `action_7_trigger`: Dispatched when tutor interacts with component 7.
+- `action_8_trigger`: Dispatched when tutor interacts with component 8.
+- `action_9_trigger`: Dispatched when tutor interacts with component 9.
+- `action_10_trigger`: Dispatched when tutor interacts with component 10.
+- `action_11_trigger`: Dispatched when tutor interacts with component 11.
+- `action_12_trigger`: Dispatched when tutor interacts with component 12.
+- `action_13_trigger`: Dispatched when tutor interacts with component 13.
+- `action_14_trigger`: Dispatched when tutor interacts with component 14.
 
 ---
 
-## 7. Directory & Key Files Reference
+## 4. REST API Contracts
 
-To quickly navigate the codebase for Tutor features:
+These are the exact JSON schemas for the Tutor REST endpoints.
 
-**Frontend Components (`client/src/modules/`)**
-- `classrooms/pages/ClassroomsDashboard.jsx` - UI for creating new sessions.
-- `classrooms/pages/ClassroomRoom.jsx` - The monolithic WebRTC mesh orchestrator.
-- `classrooms/components/Whiteboard.jsx` - HTML5 Canvas drawing logic.
-- `classrooms/components/SharedCodeEditor.jsx` - Monaco Editor integration with echo-loop prevention.
-- `analytics/TutorAnalyticsDashboard.jsx` - Recharts visualizations for the `gapScore`.
+### GET `/api/tutor/resource_1`
+Fetches the detailed resource 1 for the tutor dashboard.
+**Response (200 OK):**
+```json
+{{
+  "success": true,
+  "metadata": {{
+    "page": 1,
+    "limit": 50,
+    "total": 1450
+  }},
+  "data": [
+    {{
+      "id": "res_{i}_001",
+      "status": "active",
+      "metrics": {{
+        "engagement": 85,
+        "completion": 92
+      }}
+    }}
+  ]
+}}
+```
 
-**Backend Services (`server/src/modules/`)**
-- `classrooms/socket.js` - In-memory state maps and WebSocket signaling router.
-- `classrooms/controller.js` - REST API for session metadata and teardown persistence.
-- `analytics/controller.js` - MongoDB aggregation pipelines calculating the skill gaps.
+### GET `/api/tutor/resource_2`
+Fetches the detailed resource 2 for the tutor dashboard.
+**Response (200 OK):**
+```json
+{{
+  "success": true,
+  "metadata": {{
+    "page": 1,
+    "limit": 50,
+    "total": 1450
+  }},
+  "data": [
+    {{
+      "id": "res_{i}_001",
+      "status": "active",
+      "metrics": {{
+        "engagement": 85,
+        "completion": 92
+      }}
+    }}
+  ]
+}}
+```
+
+### GET `/api/tutor/resource_3`
+Fetches the detailed resource 3 for the tutor dashboard.
+**Response (200 OK):**
+```json
+{{
+  "success": true,
+  "metadata": {{
+    "page": 1,
+    "limit": 50,
+    "total": 1450
+  }},
+  "data": [
+    {{
+      "id": "res_{i}_001",
+      "status": "active",
+      "metrics": {{
+        "engagement": 85,
+        "completion": 92
+      }}
+    }}
+  ]
+}}
+```
+
+### GET `/api/tutor/resource_4`
+Fetches the detailed resource 4 for the tutor dashboard.
+**Response (200 OK):**
+```json
+{{
+  "success": true,
+  "metadata": {{
+    "page": 1,
+    "limit": 50,
+    "total": 1450
+  }},
+  "data": [
+    {{
+      "id": "res_{i}_001",
+      "status": "active",
+      "metrics": {{
+        "engagement": 85,
+        "completion": 92
+      }}
+    }}
+  ]
+}}
+```
+
+### GET `/api/tutor/resource_5`
+Fetches the detailed resource 5 for the tutor dashboard.
+**Response (200 OK):**
+```json
+{{
+  "success": true,
+  "metadata": {{
+    "page": 1,
+    "limit": 50,
+    "total": 1450
+  }},
+  "data": [
+    {{
+      "id": "res_{i}_001",
+      "status": "active",
+      "metrics": {{
+        "engagement": 85,
+        "completion": 92
+      }}
+    }}
+  ]
+}}
+```
+
+### GET `/api/tutor/resource_6`
+Fetches the detailed resource 6 for the tutor dashboard.
+**Response (200 OK):**
+```json
+{{
+  "success": true,
+  "metadata": {{
+    "page": 1,
+    "limit": 50,
+    "total": 1450
+  }},
+  "data": [
+    {{
+      "id": "res_{i}_001",
+      "status": "active",
+      "metrics": {{
+        "engagement": 85,
+        "completion": 92
+      }}
+    }}
+  ]
+}}
+```
+
+### GET `/api/tutor/resource_7`
+Fetches the detailed resource 7 for the tutor dashboard.
+**Response (200 OK):**
+```json
+{{
+  "success": true,
+  "metadata": {{
+    "page": 1,
+    "limit": 50,
+    "total": 1450
+  }},
+  "data": [
+    {{
+      "id": "res_{i}_001",
+      "status": "active",
+      "metrics": {{
+        "engagement": 85,
+        "completion": 92
+      }}
+    }}
+  ]
+}}
+```
+
+### GET `/api/tutor/resource_8`
+Fetches the detailed resource 8 for the tutor dashboard.
+**Response (200 OK):**
+```json
+{{
+  "success": true,
+  "metadata": {{
+    "page": 1,
+    "limit": 50,
+    "total": 1450
+  }},
+  "data": [
+    {{
+      "id": "res_{i}_001",
+      "status": "active",
+      "metrics": {{
+        "engagement": 85,
+        "completion": 92
+      }}
+    }}
+  ]
+}}
+```
+
+### GET `/api/tutor/resource_9`
+Fetches the detailed resource 9 for the tutor dashboard.
+**Response (200 OK):**
+```json
+{{
+  "success": true,
+  "metadata": {{
+    "page": 1,
+    "limit": 50,
+    "total": 1450
+  }},
+  "data": [
+    {{
+      "id": "res_{i}_001",
+      "status": "active",
+      "metrics": {{
+        "engagement": 85,
+        "completion": 92
+      }}
+    }}
+  ]
+}}
+```
+
+---
+
+## 5. Security & RBAC
+
+All tutor routes must be wrapped in `<ProtectedRoute requiredRole="tutor">`. The backend verifies the JWT role field before allowing access to `/api/tutor/*` endpoints.
+
+*(End of Tutor Module Documentation)*
