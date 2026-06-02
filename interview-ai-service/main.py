@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from cors_config import get_cors_config
 from routers.transcription import router as transcription_router
 from routers.evaluation import router as evaluation_router
 
@@ -15,13 +16,10 @@ async def add_security_headers(request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     return response
 
-# Allow the Node.js backend to communicate with this service
+# Allow only configured trusted browser origins.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    **get_cors_config(),
 )
 
 
