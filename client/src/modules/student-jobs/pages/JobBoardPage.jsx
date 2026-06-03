@@ -198,11 +198,11 @@ const JobBoardPage = () => {
 
             {/* Quick Note */}
             {!loading && jobs.length > 0 && (
-              <div className="mt-10 p-5 rounded-2xl bg-slate-900/50 border border-white/5 flex gap-4 items-start">
-                <div className="p-2 bg-blue-500/10 text-blue-400 rounded-lg shrink-0">
+              <div className="mt-10 p-5 rounded-2xl bg-[#898F9C] dark:bg-slate-900/50 border-none dark:border-white/5 flex gap-4 items-center shadow-sm">
+                <div className="p-2 bg-white/20 dark:bg-blue-500/10 text-blue-100 dark:text-blue-400 rounded-lg shrink-0">
                   <Info size={20} />
                 </div>
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <p className="text-sm text-gray-100 dark:text-slate-400 leading-relaxed font-medium">
                   Showing all active job listings. Jobs are updated daily based on company availability and recruiter postings. 
                   Ensure your profile is complete to improve your chances of getting noticed!
                 </p>
