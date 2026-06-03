@@ -132,7 +132,7 @@ const JobBoardPage = () => {
             </div>
             
             <h1 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tight">
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Job</span> Board
+              <span className="bg-gradient-to-r from-blue-600 via-purple-500 to-teal-400 bg-clip-text text-transparent">Job</span> Board
             </h1>
             <p className="text-gray-600 dark:text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">
               Browse through curated job listings from top companies looking for talent like you.
