@@ -5,6 +5,7 @@ import cacheMiddleware from "../../middleware/cacheMiddleware.js";
 import { aiActionLimiter } from "../../middleware/rateLimiter.js";
 import {
   completeInterview,
+  deleteInterviewSession,
   getAIServiceStatus,
   getAvailableTopics,
   getInterviewHistory,
@@ -115,6 +116,7 @@ router.post(
 );
 
 router.get("/:id", getSession);
+router.delete("/:id", deleteInterviewSession);
 router.post(
   "/:id/answer",
   aiActionLimiter,
