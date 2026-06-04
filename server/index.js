@@ -52,13 +52,8 @@ import { initRoadmapSockets } from "./src/modules/roadmap/socket.js";
 import userRoutes from "./src/modules/users/routes.js";
 import aiAssistantRoutes from "./src/modules/ai-assistant/routes.js";
 import { setIO } from "./src/utils/socketIO.js";
-import { connectRedis } from "./src/config/redis.js";
-import { initNotificationSockets } from "./src/modules/notifications/socket.js";
 import { protect, verifySocketToken } from "./src/middleware/authMiddleware.js";
-import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./src/config/swaggerConfig.js";
-import analyticsRoutes from "./src/modules/analytics/routes.js";
-import { globalLimiter } from "./src/middleware/rateLimiter.js";
 import attachSocketRateLimiter from "./src/middleware/socketRateLimiter.js";
 
 const app = express();
