@@ -89,6 +89,41 @@ describe("Notification Controller", () => {
       assert.equal(data[0].metadata.relatedModel, "JobPosting");
       assert.equal(data[1].metadata.actionUrl, "/dashboard");
     });
+
+    it("should throw AppError(400) when type filter is invalid", async () => {
+      req.query = { type: "invalid-category" };
+      getNotifications(req, res, next);
+      await flush();
+
+      assert.equal(next.mock.calls.length, 1);
+      assert.ok(next.mock.calls[0].arguments[0] instanceof AppError);
+      assert.equal(next.mock.calls[0].arguments[0].statusCode, 400);
+    });
+
+    it("should throw AppError(400) when type filter is too long", async () => {
+      req.query = { type: "a".repeat(51) };
+      getNotifications(req, res, next);
+      await flush();
+
+      assert.equal(next.mock.calls.length, 1);
+      assert.ok(next.mock.calls[0].arguments[0] instanceof AppError);
+      assert.equal(next.mock.calls[0].arguments[0].statusCode, 400);
+    });
+
+    it("should respond with 200 when a valid type filter is provided", async () => {
+      const mockNotifications = [{ _id: "n1", title: "Test", type: "job-update" }];
+      mock.method(Notification, "find", () => ({
+        sort: () => ({ skip: () => ({ limit: () => ({ populate: () => mockNotifications }) }) }),
+      }));
+      mock.method(Notification, "countDocuments", () => 1);
+
+      req.query = { type: "jobs" };
+      getNotifications(req, res, next);
+      await flush();
+
+      assert.equal(res.status.mock.calls[0].arguments[0], 200);
+      assert.equal(res.json.mock.calls[0].arguments[0].success, true);
+    });
   });
 
   describe("getUnreadCount", () => {

@@ -96,10 +96,33 @@ const serializeNotification = (notification) => {
  * @access  Private
  */
 export const getNotifications = asyncHandler(async (req, res) => {
-  const { page, limit, isRead } = req.query;
+  const { page, limit, isRead, type } = req.query;
   const userId = req.user._id;
 
-  const result = await getUserNotifications(userId, { page, limit, isRead });
+  if (type) {
+    if (typeof type !== "string" || type.length > 50) {
+      throw new AppError("Invalid type filter", 400);
+    }
+    const validTypes = [
+      "jobs",
+      "interviews",
+      "system",
+      "info",
+      "warning",
+      "success",
+      "error",
+      "job-update",
+      "interview",
+      "application",
+      "new_application",
+      "skill_gap_alert",
+    ];
+    if (!validTypes.includes(type)) {
+      throw new AppError(`Type filter must be one of: ${validTypes.join(", ")}`, 400);
+    }
+  }
+
+  const result = await getUserNotifications(userId, { page, limit, isRead, type });
 
   res.status(200).json({
     success: true,
