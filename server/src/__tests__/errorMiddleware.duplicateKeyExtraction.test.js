@@ -43,6 +43,7 @@ describe("errorMiddleware duplicate key value extraction", () => {
     globalErrorHandler(err, req, res, next);
 
     assert.equal(res.statusCode, 400);
+    assert.equal(res.payload.statusCode, 400);
     assert.match(
       res.payload.message,
       /Duplicate field value: RIGHT_VALUE\. Please use another value!/,

@@ -234,6 +234,7 @@ const globalErrorHandler = (err, req, res, next) => {
       res.status(error.statusCode).json({
         success: false,
         status: error.status,
+        statusCode: error.statusCode,
         message: error.message,
         errors: error.errors || {}, // Include field-level errors if available
       });
