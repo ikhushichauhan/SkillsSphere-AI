@@ -10,11 +10,25 @@ if (process.env.GEMINI_API_KEY) {
 }
 
 export const generateChatResponse = asyncHandler(async (req, res, next) => {
-  const { messages } = req.body;
+  const body = req.body || {};
+
+  // Backward compatibility:
+  // - New format: { "messages": [{ sender: "user"|"bot", text: "..." }] }
+  // - Old format: { "message": "..." }
+  let messages = body.messages;
+  if (!messages && typeof body.message === "string" && body.message.trim()) {
+    messages = [
+      {
+        sender: "user",
+        text: body.message.trim(),
+      },
+    ];
+  }
 
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return next(new AppError("Messages array is required", 400));
   }
+
 
   if (!geminiModel) {
     return next(new AppError("AI service is currently unconfigured. Please set GEMINI_API_KEY in .env", 503));
