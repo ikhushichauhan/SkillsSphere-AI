@@ -18,7 +18,7 @@ import { logEvaluatorConfig } from "./src/config/evaluatorConfig.js";
 import redisClient, { connectRedis } from "./src/config/redis.js";
 // import swaggerSpec from "./src/config/swaggerConfig.js";
 import connectDB, { isConnected } from "./src/database/db.js";
-import { verifySocketToken } from "./src/middleware/authMiddleware.js";
+import { protect, verifySocketToken } from "./src/middleware/authMiddleware.js";
 import globalErrorHandler from "./src/middleware/errorMiddleware.js";
 import { globalLimiter } from "./src/middleware/rateLimiter.js";
 import requireDB from "./src/middleware/requireDB.js";
