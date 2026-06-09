@@ -124,6 +124,26 @@ describe("Notification Controller", () => {
       assert.equal(res.status.mock.calls[0].arguments[0], 200);
       assert.equal(res.json.mock.calls[0].arguments[0].success, true);
     });
+
+    it("should query for system and message types when system filter is requested", async () => {
+      let passedFilters;
+      mock.method(Notification, "find", (filters) => {
+        passedFilters = filters;
+        return {
+          sort: () => ({ skip: () => ({ limit: () => ({ populate: () => [] }) }) }),
+        };
+      });
+      mock.method(Notification, "countDocuments", () => 0);
+
+      req.query = { type: "system" };
+      getNotifications(req, res, next);
+      await flush();
+
+      assert.equal(res.status.mock.calls[0].arguments[0], 200);
+      assert.deepEqual(passedFilters.type, {
+        $in: ["info", "warning", "success", "error", "skill_gap_alert", "system", "message"],
+      });
+    });
   });
 
   describe("getUnreadCount", () => {
