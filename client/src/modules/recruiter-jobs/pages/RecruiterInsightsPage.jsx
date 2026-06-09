@@ -163,7 +163,7 @@ const RecruiterInsightsPage = ({ jobId: propJobId }) => {
             <LoadingState message="Loading ranked candidates..." />
           </div>
         ) : error ? (
-          <ErrorState message={error} onRetry={() => fetchInsights(1)} />
+          <ErrorState description={error} onRetry={() => fetchInsights(1)} />
         ) : !job ? (
           <EmptyState
             icon={<Users size={48} className="text-slate-600" />}
@@ -294,7 +294,7 @@ const RecruiterInsightsPage = ({ jobId: propJobId }) => {
                 <Button
                   type="button"
                   variant="secondary"
-                  className="border border-slate-700 bg-slate-800/80 text-slate-200 hover:bg-slate-700"
+                  className="border border-slate-700 bg-slate-800/80 text-slate-500 dark:text-slate-200 hover:bg-slate-700"
                   onClick={() => {
                     setSearchTerm("");
                     setStatusFilter("all");
@@ -336,7 +336,7 @@ const RecruiterInsightsPage = ({ jobId: propJobId }) => {
                               {candidate.applicant?.email || "No email available"}
                             </p>
                           </div>
-                          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300">
+                          <span className="rounded-full border border-white/10 bg-gray-50 dark:bg-white/5 px-3 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
                             {candidate.status}
                           </span>
                         </div>
@@ -351,7 +351,7 @@ const RecruiterInsightsPage = ({ jobId: propJobId }) => {
                             </span>
                           )}
                           {candidate.resume?.fileName && (
-                            <span className="rounded-full bg-slate-500/10 px-3 py-1 text-slate-300">
+                            <span className="rounded-full bg-slate-500/10 px-3 py-1 text-slate-600 dark:text-slate-300">
                               Resume attached
                             </span>
                           )}
@@ -360,7 +360,7 @@ const RecruiterInsightsPage = ({ jobId: propJobId }) => {
                         <div className="grid gap-3 sm:grid-cols-2">
                           <div className="rounded-xl border border-white/10 bg-slate-950/30 p-3">
                             <p className="text-xs uppercase tracking-widest text-slate-500">Insights</p>
-                            <ul className="mt-2 space-y-1 text-sm text-slate-300">
+                            <ul className="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-300">
                               {(candidate.aiRecruiterInsights || []).slice(0, 3).map((item, index) => (
                                 <li key={index}>• {item}</li>
                               ))}
@@ -372,7 +372,7 @@ const RecruiterInsightsPage = ({ jobId: propJobId }) => {
 
                           <div className="rounded-xl border border-white/10 bg-slate-950/30 p-3">
                             <p className="text-xs uppercase tracking-widest text-slate-500">Weaknesses</p>
-                            <ul className="mt-2 space-y-1 text-sm text-slate-300">
+                            <ul className="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-300">
                               {(candidate.aiWeaknesses || []).slice(0, 3).map((item, index) => (
                                 <li key={index}>• {item}</li>
                               ))}
@@ -384,13 +384,13 @@ const RecruiterInsightsPage = ({ jobId: propJobId }) => {
                         </div>
                       </div>
 
-                      <div className="min-w-[180px] rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-center">
+                      <div className="min-w-[180px] rounded-2xl border border-white/10 bg-gray-50 dark:bg-slate-950/40 p-4 text-center">
                         <p className="text-xs uppercase tracking-widest text-slate-500">Candidate Score</p>
                         <p className="mt-3 text-4xl font-black text-white">
                           {candidate.aiMatchScore != null ? candidate.aiMatchScore : 0}
                         </p>
                         <p className="mt-1 text-xs text-slate-400">out of 100</p>
-                        <div className="mt-4 rounded-xl bg-slate-800/70 px-3 py-2 text-xs text-slate-300">
+                        <div className="mt-4 rounded-xl bg-slate-800/70 px-3 py-2 text-xs text-slate-600 dark:text-slate-300">
                           Applied {candidate.createdAt ? new Date(candidate.createdAt).toLocaleDateString() : "recently"}
                         </div>
                       </div>

@@ -525,7 +525,7 @@ const topSkills = topSkillsAgg;
   const result = {
     totalJobs: allJobs.length,
     statusBreakdown,
-    jobsByMonth,
+    jobsByMonth: jobsByMonthAgg,
     topSkills,
     recentJobs,
   };

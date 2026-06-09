@@ -23,7 +23,8 @@ import {
   Code,
   ShieldAlert,
   Download,
-  ChevronDown
+  ChevronDown,
+  FileText
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -344,7 +345,7 @@ const RecruiterAnalyticsPage = () => {
             <div className="absolute top-[5%] right-[20%] w-[35%] h-[35%] rounded-full bg-teal-50/40 dark:bg-teal-900/10 blur-[100px]" />
           </div>
           <div className="w-full max-w-[1200px] relative z-10 flex flex-col gap-6 pt-12">
-            <ErrorState message={error} onRetry={fetchAnalytics} />
+            <ErrorState description={error} onRetry={fetchAnalytics} />
           </div>
         </main>
       </div>
@@ -375,60 +376,58 @@ const RecruiterAnalyticsPage = () => {
           </div>
 
           {/* Header Block */}
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4">
-            <div className="text-left space-y-4 relative">
-              <div className="hidden md:flex absolute -top-8 -left-12 w-14 h-14 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-2xl items-center justify-center shadow-sm transform -rotate-3 hover:rotate-0 transition-transform">
-                 <BarChart3 className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="hidden md:flex absolute top-4 right-0 w-14 h-14 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl items-center justify-center shadow-sm transform rotate-3 hover:rotate-0 transition-transform">
-                 <Sparkles className="w-6 h-6 text-emerald-600" />
-              </div>
-
-              <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 shadow-sm text-[11px] font-bold text-blue-600 dark:text-blue-400 tracking-wide uppercase">
-                <Sparkles size={12} className="text-blue-500" /> HIRING INTELLIGENCE
-              </div>
-              
-              <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
-                <span className="bg-gradient-to-r from-blue-600 via-purple-500 to-teal-400 bg-clip-text text-transparent">Intelligence</span> Dashboard
-              </h1>
-              
-              <p className="text-gray-500 dark:text-gray-400 text-[15px] max-w-2xl font-medium">
-                Aggregated analytics and insights across all your job postings and applicants.
-              </p>
+          <div className="text-center space-y-4 mb-6 relative">
+            <div className="hidden md:flex absolute top-4 left-4 xl:left-8 w-14 h-14 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-2xl items-center justify-center shadow-sm transform -rotate-3 hover:rotate-0 transition-transform">
+               <BarChart3 className="w-6 h-6 text-blue-600" />
             </div>
-            <div className="flex items-center gap-3 relative mt-4 md:mt-0">
+            <div className="hidden md:flex absolute top-8 right-4 xl:right-8 w-14 h-14 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl items-center justify-center shadow-sm transform rotate-3 hover:rotate-0 transition-transform">
+               <Sparkles className="w-6 h-6 text-emerald-600" />
+            </div>
+
+            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 shadow-sm text-[11px] font-bold text-blue-600 dark:text-blue-400 mx-auto tracking-wide uppercase">
+              <Sparkles size={12} className="text-blue-500" /> HIRING INTELLIGENCE
+            </div>
             
-            <div className="relative">
-              <button
-                onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
-                className="inline-flex items-center gap-2 rounded-xl border border-blue-500/30 bg-blue-600/10 px-4 py-2.5 text-sm font-semibold text-blue-400 hover:bg-blue-600/20 hover:text-blue-300 backdrop-blur-sm transition-all duration-300"
-              >
-                <Download size={16} />
-                Export Report
-                <ChevronDown size={14} className={`transition-transform ${isExportDropdownOpen ? "rotate-180" : ""}`} />
-              </button>
-              
-              {isExportDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/95 p-2 shadow-2xl backdrop-blur-md z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <button
-                    onClick={handleExportPDF}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-white dark:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
-                  >
-                    <FileEdit size={14} />
-                    Export as PDF Snapshot
-                  </button>
-                  <button
-                    onClick={handleExportCSV}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-white dark:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
-                  >
-                    <BarChart3 size={14} />
-                    Export Summary (CSV)
-                  </button>
-                </div>
-              )}
+            <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
+              <span className="bg-gradient-to-r from-blue-600 via-purple-500 to-teal-400 bg-clip-text text-transparent">Intelligence</span> Dashboard
+            </h1>
+            
+            <p className="text-gray-500 dark:text-gray-400 text-[15px] max-w-2xl mx-auto font-medium">
+              Aggregated analytics and insights across all your job postings and applicants.
+            </p>
+
+            <div className="pt-2 flex justify-center">
+              <div className="relative">
+                <button
+                  onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-blue-500/30 bg-blue-600/10 px-6 py-2.5 text-sm font-semibold text-blue-500 dark:text-blue-400 hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-300 backdrop-blur-sm transition-all duration-300 shadow-sm"
+                >
+                  <Download size={16} />
+                  Export Report
+                  <ChevronDown size={14} className={`transition-transform ${isExportDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+                
+                {isExportDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/95 p-2 shadow-2xl backdrop-blur-md z-50 animate-in fade-in slide-in-from-top-2 duration-200 text-left">
+                    <button
+                      onClick={handleExportPDF}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-white dark:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
+                    >
+                      <FileEdit size={14} />
+                      Export as PDF Snapshot
+                    </button>
+                    <button
+                      onClick={handleExportCSV}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-white dark:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
+                    >
+                      <BarChart3 size={14} />
+                      Export Summary (CSV)
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
         {/* High-Level Overview Metrics */}
         <section className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-5">
@@ -485,8 +484,8 @@ const RecruiterAnalyticsPage = () => {
             onClick={() => setActiveTab("overview")}
             className={`flex-1 sm:flex-initial px-6 py-2.5 text-xs font-extrabold tracking-wider uppercase rounded-xl transition-all duration-300 ${
               activeTab === "overview"
-                ? "bg-blue-600 text-slate-900 dark:text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-200"
+                ? "bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-800 dark:hover:text-slate-200"
             }`}
           >
             Hiring Overview
@@ -495,8 +494,8 @@ const RecruiterAnalyticsPage = () => {
             onClick={() => setActiveTab("ai_ats")}
             className={`flex-1 sm:flex-initial px-6 py-2.5 text-xs font-extrabold tracking-wider uppercase rounded-xl transition-all duration-300 ${
               activeTab === "ai_ats"
-                ? "bg-blue-600 text-slate-900 dark:text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-200"
+                ? "bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-800 dark:hover:text-slate-200"
             }`}
           >
             AI & ATS Intelligence
@@ -505,8 +504,8 @@ const RecruiterAnalyticsPage = () => {
             onClick={() => setActiveTab("specialty")}
             className={`flex-1 sm:flex-initial px-6 py-2.5 text-xs font-extrabold tracking-wider uppercase rounded-xl transition-all duration-300 ${
               activeTab === "specialty"
-                ? "bg-blue-600 text-slate-900 dark:text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-200"
+                ? "bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-800 dark:hover:text-slate-200"
             }`}
           >
             Technical & OSS Insights
@@ -522,7 +521,7 @@ const RecruiterAnalyticsPage = () => {
               {/* Applicant Workflow Timeline Summary */}
               {totalApplicants > 0 && (
                 <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4">
-                  <div className="group relative rounded-2xl border border-white/5 bg-white dark:bg-slate-900/30 p-5 shadow-inner transition-all hover:border-amber-500/20">
+                  <div className="group relative rounded-2xl border border-gray-100 dark:border-white/5 bg-white dark:bg-slate-900/30 p-5 shadow-inner transition-all hover:border-amber-500/20">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400">
                         <Clock size={18} />
@@ -533,7 +532,7 @@ const RecruiterAnalyticsPage = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="group relative rounded-2xl border border-white/5 bg-white dark:bg-slate-900/30 p-5 shadow-inner transition-all hover:border-blue-500/20">
+                  <div className="group relative rounded-2xl border border-gray-100 dark:border-white/5 bg-white dark:bg-slate-900/30 p-5 shadow-inner transition-all hover:border-blue-500/20">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400">
                         <Eye size={18} />
@@ -544,7 +543,7 @@ const RecruiterAnalyticsPage = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="group relative rounded-2xl border border-white/5 bg-white dark:bg-slate-900/30 p-5 shadow-inner transition-all hover:border-emerald-500/20">
+                  <div className="group relative rounded-2xl border border-gray-100 dark:border-white/5 bg-white dark:bg-slate-900/30 p-5 shadow-inner transition-all hover:border-emerald-500/20">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
                         <UserCheck size={18} />
@@ -555,7 +554,7 @@ const RecruiterAnalyticsPage = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="group relative rounded-2xl border border-white/5 bg-white dark:bg-slate-900/30 p-5 shadow-inner transition-all hover:border-red-500/20">
+                  <div className="group relative rounded-2xl border border-gray-100 dark:border-white/5 bg-white dark:bg-slate-900/30 p-5 shadow-inner transition-all hover:border-red-500/20">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10 text-red-400">
                         <UserX size={18} />
@@ -574,9 +573,9 @@ const RecruiterAnalyticsPage = () => {
                 
                 {/* Status Distribution */}
                 <div className="rounded-2xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/50 overflow-hidden backdrop-blur-md shadow-2xl">
-                  <div className="border-b border-white/5 bg-white/5 px-6 py-4 flex items-center gap-2">
+                  <div className="border-b border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/5 px-6 py-4 flex items-center gap-2">
                     <BarChart3 className="text-blue-400" size={18} />
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-slate-200">Postings Status</h2>
+                    <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-200">Postings Status</h2>
                   </div>
                   <div className="p-6 h-[280px] flex items-center justify-center">
                     {statusPieData.length > 0 ? (
@@ -624,12 +623,12 @@ const RecruiterAnalyticsPage = () => {
 
                 {/* Posting Timeline */}
                 <div className="rounded-2xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/50 overflow-hidden backdrop-blur-md shadow-2xl">
-                  <div className="border-b border-white/5 bg-white/5 px-6 py-4 flex items-center justify-between">
+                  <div className="border-b border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/5 px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <TrendingUp className="text-emerald-400" size={18} />
-                      <h2 className="text-sm font-bold uppercase tracking-wider text-slate-200">Posting History</h2>
+                      <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-200">Posting History</h2>
                     </div>
-                    <div className="flex items-center gap-1 text-[10px] text-slate-600 dark:text-slate-400 bg-white/5 px-2 py-0.5 rounded border border-white/5 font-semibold uppercase tracking-wider">
+                    <div className="flex items-center gap-1 text-[10px] text-slate-600 dark:text-slate-400 bg-gray-50 dark:bg-white/5 px-2 py-0.5 rounded border border-gray-100 dark:border-white/5 font-semibold uppercase tracking-wider">
                       <Calendar size={10} /> 6 Months
                     </div>
                   </div>
@@ -664,7 +663,7 @@ const RecruiterAnalyticsPage = () => {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Top demanded skills */}
                 <div className="rounded-2xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/50 overflow-hidden backdrop-blur-md p-6 space-y-4">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2 pb-3 border-b border-white/5">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-200 flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-white/5">
                     <Zap size={16} className="text-amber-400" /> Dominated Demanded Skills
                   </h3>
                   {topSkills.length > 0 ? (
@@ -698,7 +697,7 @@ const RecruiterAnalyticsPage = () => {
 
                 {/* Applicants Per Job Bar */}
                 <div className="rounded-2xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/50 overflow-hidden backdrop-blur-md p-6 space-y-4">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2 pb-3 border-b border-white/5">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-200 flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-white/5">
                     <Users size={16} className="text-violet-400" /> Applicants Per Job
                   </h3>
                   {applicantsPerJob.length > 0 ? (
@@ -732,7 +731,7 @@ const RecruiterAnalyticsPage = () => {
 
                 {/* Recent Jobs list */}
                 <div className="rounded-2xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/50 overflow-hidden backdrop-blur-md p-6 space-y-4">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2 pb-3 border-b border-white/5">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-200 flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-white/5">
                     <Clock size={16} className="text-indigo-400" /> Recent Posting Activities
                   </h3>
                   {recentJobs.length > 0 ? (
@@ -802,9 +801,9 @@ const RecruiterAnalyticsPage = () => {
                 
                 {/* Match Category Pie Chart */}
                 <div className="lg:col-span-2 rounded-2xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/50 overflow-hidden backdrop-blur-md shadow-2xl">
-                  <div className="border-b border-white/5 bg-white/5 px-6 py-4 flex items-center gap-2">
+                  <div className="border-b border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/5 px-6 py-4 flex items-center gap-2">
                     <Sparkles className="text-blue-400" size={18} />
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-slate-200">Match Category Distributions</h2>
+                    <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-200">Match Category Distributions</h2>
                   </div>
                   <div className="p-6 h-[300px] flex items-center justify-center">
                     {matchCategoryPieData.length > 0 ? (
@@ -852,11 +851,11 @@ const RecruiterAnalyticsPage = () => {
 
                 {/* Recruiter Insight Alerts */}
                 <div className="rounded-2xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/50 overflow-hidden backdrop-blur-md p-6 space-y-6">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2 pb-3 border-b border-white/5">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-200 flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-white/5">
                     <Award size={16} className="text-emerald-400" /> Talent Quality Index
                   </h3>
                   <div className="space-y-4 pt-1">
-                    <div className="p-4 rounded-xl bg-slate-950/40 border border-white/5 space-y-1">
+                    <div className="p-4 rounded-xl bg-gray-50 dark:bg-slate-950/40 border border-gray-100 dark:border-white/5 space-y-1">
                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Top Talent Concentration</span>
                       <p className="text-lg font-black text-slate-900 dark:text-white">
                         {totalApplicants > 0 ? Math.round((topCandidatesCount / totalApplicants) * 100) : 0}%
@@ -866,7 +865,7 @@ const RecruiterAnalyticsPage = () => {
                       </p>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-slate-950/40 border border-white/5 space-y-1">
+                    <div className="p-4 rounded-xl bg-gray-50 dark:bg-slate-950/40 border border-gray-100 dark:border-white/5 space-y-1">
                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">ATS Optimization Index</span>
                       <p className="text-lg font-black text-slate-900 dark:text-white">
                         {atsReadyPercentage}% Ready
@@ -889,7 +888,7 @@ const RecruiterAnalyticsPage = () => {
                 
                 {/* Specialization Bar Chart */}
                 <div className="lg:col-span-2 rounded-2xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/50 overflow-hidden backdrop-blur-md p-6 shadow-2xl">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2 pb-4 border-b border-white/5 mb-6">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-200 flex items-center gap-2 pb-4 border-b border-gray-100 dark:border-white/5 mb-6">
                     <Code size={18} className="text-blue-400" /> Specialization Demographics
                   </h3>
                   <div className="h-[280px]">
@@ -913,13 +912,13 @@ const RecruiterAnalyticsPage = () => {
 
                 {/* Contribution details & stages */}
                 <div className="rounded-2xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/50 overflow-hidden backdrop-blur-md p-6 space-y-6">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2 pb-3 border-b border-white/5">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-200 flex items-center gap-2 pb-3 border-b border-gray-100 dark:border-white/5">
                     <BookOpen size={16} className="text-indigo-400" /> Career & Contributions
                   </h3>
                   <div className="grid grid-cols-1 gap-4 pt-1">
                     
                     {/* OSS Contributor rate */}
-                    <div className="p-4 bg-slate-950/40 border border-white/5 rounded-xl flex items-center justify-between">
+                    <div className="p-4 bg-gray-50 dark:bg-slate-950/40 border border-gray-100 dark:border-white/5 rounded-xl flex items-center justify-between">
                       <div className="space-y-0.5">
                         <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">OSS Activity Rate</span>
                         <span className="block text-lg font-black text-slate-900 dark:text-white">{ossContributorPercentage}%</span>
@@ -931,7 +930,7 @@ const RecruiterAnalyticsPage = () => {
                     </div>
 
                     {/* Career readiness stages */}
-                    <div className="p-4 bg-slate-950/40 border border-white/5 rounded-xl flex items-center justify-between">
+                    <div className="p-4 bg-gray-50 dark:bg-slate-950/40 border border-gray-100 dark:border-white/5 rounded-xl flex items-center justify-between">
                       <div className="space-y-0.5">
                         <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Roadmap Active Rate</span>
                         <span className="block text-lg font-black text-slate-900 dark:text-white">

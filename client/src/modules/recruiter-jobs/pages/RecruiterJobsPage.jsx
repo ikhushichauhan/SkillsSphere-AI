@@ -270,7 +270,7 @@ const RecruiterJobsPage = () => {
             ))}
           </div>
         ) : error ? (
-          <ErrorState message={error} onRetry={fetchJobs} />
+          <ErrorState description={error} onRetry={fetchJobs} />
         ) : filteredJobs.length === 0 ? (
           <EmptyState
             icon={<Briefcase size={48} className="text-slate-600" />}

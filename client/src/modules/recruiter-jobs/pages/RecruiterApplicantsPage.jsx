@@ -299,46 +299,23 @@ const RecruiterApplicantsPage = () => {
         </div>
 
         <div className="w-full max-w-[1200px] relative z-10 flex flex-col gap-6">
-          <div className="py-6 flex justify-between items-center w-full">
+          <div className="py-6 flex justify-start items-center w-full">
             <Link 
               to="/recruiter/jobs" 
               className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
             >
               <ArrowLeft size={16} /> Back to Jobs
             </Link>
-          
-          <div className="relative z-20">
-            <button
-              onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
-              className="inline-flex items-center gap-2 rounded-xl border border-blue-500/30 bg-blue-600/10 px-4 py-2.5 text-sm font-semibold text-blue-400 hover:bg-blue-600/20 hover:text-blue-300 backdrop-blur-sm transition-all duration-300"
-            >
-              <Download size={16} />
-              Export Candidates
-              <ChevronDown size={14} className={`transition-transform ${isExportDropdownOpen ? "rotate-180" : ""}`} />
-            </button>
-            
-            {isExportDropdownOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/95 p-2 shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
-                <button
-                  onClick={handleExportPDF}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white dark:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
-                >
-                  <FileText size={14} />
-                  Export List (PDF)
-                </button>
-                <button
-                  onClick={handleExportCSV}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white dark:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
-                >
-                  <Filter size={14} />
-                  Export Data (CSV)
-                </button>
-              </div>
-            )}
           </div>
-        </div>
 
         <div className="text-center space-y-4 mb-6 relative">
+          <div className="hidden md:flex absolute top-4 left-4 xl:left-8 w-14 h-14 bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/20 rounded-2xl items-center justify-center shadow-sm transform -rotate-3 hover:rotate-0 transition-transform">
+             <Users className="w-6 h-6 text-purple-600" />
+          </div>
+          <div className="hidden md:flex absolute top-8 right-4 xl:right-8 w-14 h-14 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-2xl items-center justify-center shadow-sm transform rotate-3 hover:rotate-0 transition-transform">
+             <Filter className="w-6 h-6 text-emerald-600" />
+          </div>
+
           <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/20 shadow-sm text-[11px] font-bold text-purple-600 dark:text-purple-400 mx-auto tracking-wide uppercase">
             <Sparkles size={12} className="text-purple-500" /> APPLICANT TRACKING
           </div>
@@ -348,10 +325,41 @@ const RecruiterApplicantsPage = () => {
           </h1>
           
           <p className="text-gray-500 dark:text-gray-400 text-[15px] max-w-2xl mx-auto font-medium">
-            Reviewing applicants for <span className="text-indigo-600 dark:text-indigo-400 font-bold">{job?.title || 'Loading...'}</span>
+            Review, evaluate, and manage applications for <span className="text-indigo-600 dark:text-indigo-400 font-bold">{job?.title || "this position"}</span>.
           </p>
-          
-          <div className="flex items-center justify-center gap-4 text-gray-500 dark:text-slate-400 text-sm mt-2">
+
+          <div className="pt-2 flex justify-center">
+            <div className="relative z-20">
+              <button
+                onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
+                className="inline-flex items-center gap-2 rounded-xl border border-blue-500/30 bg-blue-600/10 px-6 py-2.5 text-sm font-semibold text-blue-500 dark:text-blue-400 hover:bg-blue-600/20 hover:text-blue-600 dark:hover:text-blue-300 backdrop-blur-sm transition-all duration-300 shadow-sm"
+              >
+                <Download size={16} />
+                Export Candidates
+                <ChevronDown size={14} className={`transition-transform ${isExportDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+              
+              {isExportDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-gray-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/95 p-2 shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200 text-left">
+                  <button
+                    onClick={handleExportPDF}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-white dark:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  >
+                    <FileText size={14} />
+                    Export List (PDF)
+                  </button>
+                  <button
+                    onClick={handleExportCSV}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-white dark:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  >
+                    <Filter size={14} />
+                    Export Data (CSV)
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center justify-center gap-4 text-gray-500 dark:text-slate-400 text-sm mt-4">
             <span className="flex items-center gap-1.5">
               <Users size={16} /> {applicants.length} Matching Candidate{applicants.length !== 1 ? 's' : ''}
             </span>
@@ -627,7 +635,7 @@ const RecruiterApplicantsPage = () => {
                 <LoadingState message="Filtering candidates dynamically..." />
               </div>
             ) : error ? (
-              <ErrorState message={error} onRetry={fetchData} />
+              <ErrorState description={error} onRetry={fetchData} />
             ) : applicants.length === 0 ? (
               <EmptyState 
                 icon={<Users size={48} className="text-slate-700 animate-pulse" />}
@@ -760,7 +768,7 @@ const RecruiterApplicantsPage = () => {
 
                       {/* Expanded Details Section */}
                       {expandedId === app._id && (
-                        <div className="p-8 border-t border-white/5 bg-slate-950/30 space-y-8 animate-in slide-in-from-top-4 duration-300">
+                        <div className="p-8 border-t border-gray-100 dark:border-white/5 bg-slate-950/30 space-y-8 animate-in slide-in-from-top-4 duration-300">
                           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                             {/* Left Side: Resume & Note */}
                             <div className="space-y-6">
@@ -774,18 +782,18 @@ const RecruiterApplicantsPage = () => {
                                       href={app.resumeLink} 
                                       target="_blank" 
                                       rel="noreferrer"
-                                      className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-white/5 rounded-2xl hover:border-blue-500/30 hover:bg-blue-500/5 transition-all group/link"
+                                      className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-gray-100 dark:border-white/5 rounded-2xl hover:border-blue-500/30 hover:bg-blue-500/5 transition-all group/link"
                                     >
                                       <div className="flex items-center gap-3">
                                         <div className="p-2 bg-red-500/10 rounded-lg text-red-400">
                                           <FileText size={20} />
                                         </div>
-                                        <span className="text-sm font-medium text-slate-200">View Candidate Resume</span>
+                                        <span className="text-sm font-medium text-slate-500 dark:text-slate-200">View Candidate Resume</span>
                                       </div>
                                       <ExternalLink size={18} className="text-slate-600 group-hover/link:text-blue-400 transition-colors" />
                                     </a>
                                   )}
-                                  <div className="p-4 bg-white dark:bg-slate-900/50 border border-white/5 rounded-2xl">
+                                  <div className="p-4 bg-white dark:bg-slate-900/50 border border-gray-100 dark:border-white/5 rounded-2xl">
                                     <h5 className="text-xs font-bold text-slate-500 uppercase mb-2">Cover Note</h5>
                                     <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed italic">
                                       &ldquo;{app.coverNote || 'No cover note provided.'}&rdquo;
@@ -795,7 +803,7 @@ const RecruiterApplicantsPage = () => {
                               </div>
 
                               {app.aiHiringSignals && app.aiHiringSignals.length > 0 && (
-                                <div className="space-y-3 pt-6 border-t border-white/5">
+                                <div className="space-y-3 pt-6 border-t border-gray-100 dark:border-white/5">
                                   <h4 className="text-sm font-bold text-purple-400 uppercase tracking-widest flex items-center gap-2">
                                     <Award size={16} /> Interview Readiness Signals
                                   </h4>
@@ -811,7 +819,7 @@ const RecruiterApplicantsPage = () => {
                               )}
 
                               {app.aiRecruiterInsights && app.aiRecruiterInsights.length > 0 && (
-                                <div className="space-y-3 pt-6 border-t border-white/5">
+                                <div className="space-y-3 pt-6 border-t border-gray-100 dark:border-white/5">
                                   <h4 className="text-sm font-bold text-blue-400 uppercase tracking-widest flex items-center gap-2">
                                     <Sparkles size={16} /> AI Recruiter Insights
                                   </h4>
@@ -829,7 +837,7 @@ const RecruiterApplicantsPage = () => {
                               )}
 
                               {app.aiWeaknesses && app.aiWeaknesses.length > 0 && (
-                                <div className="space-y-3 pt-6 border-t border-white/5">
+                                <div className="space-y-3 pt-6 border-t border-gray-100 dark:border-white/5">
                                   <h4 className="text-sm font-bold text-amber-400 uppercase tracking-widest flex items-center gap-2">
                                     <AlertTriangle size={16} /> AI Weakness Detection
                                   </h4>
@@ -847,15 +855,15 @@ const RecruiterApplicantsPage = () => {
                               )}
 
                               {app.matchBreakdown && (
-                                <div className="space-y-3 pt-6 border-t border-white/5">
+                                <div className="space-y-3 pt-6 border-t border-gray-100 dark:border-white/5">
                                   <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-2">
                                     <Sparkles size={16} /> AI Match Breakdown
                                   </h4>
-                                  <div className="p-4 bg-white dark:bg-slate-900/80 border border-white/5 rounded-2xl space-y-4">
+                                  <div className="p-4 bg-white dark:bg-slate-900/80 border border-gray-100 dark:border-white/5 rounded-2xl space-y-4">
                                     <div>
                                       <div className="flex justify-between items-center mb-1.5">
                                         <span className="text-sm text-slate-600 dark:text-slate-400">ATS Compatibility</span>
-                                        <span className="text-sm font-bold text-slate-200">{app.matchBreakdown.atsCompatibility || 0}%</span>
+                                        <span className="text-sm font-bold text-slate-500 dark:text-slate-200">{app.matchBreakdown.atsCompatibility || 0}%</span>
                                       </div>
                                       <div className="w-full bg-white dark:bg-slate-800 rounded-full h-1.5">
                                         <div className="bg-emerald-500 h-1.5 rounded-full transition-all duration-1000" style={{ width: `${app.matchBreakdown.atsCompatibility || 0}%` }} />
@@ -865,7 +873,7 @@ const RecruiterApplicantsPage = () => {
                                     <div>
                                       <div className="flex justify-between items-center mb-1.5">
                                         <span className="text-sm text-slate-600 dark:text-slate-400">Skill Match</span>
-                                        <span className="text-sm font-bold text-slate-200">{app.matchBreakdown.skillMatch || 0}%</span>
+                                        <span className="text-sm font-bold text-slate-500 dark:text-slate-200">{app.matchBreakdown.skillMatch || 0}%</span>
                                       </div>
                                       <div className="w-full bg-white dark:bg-slate-800 rounded-full h-1.5">
                                         <div className="bg-blue-500 h-1.5 rounded-full transition-all duration-1000" style={{ width: `${app.matchBreakdown.skillMatch || 0}%` }} />
@@ -875,14 +883,14 @@ const RecruiterApplicantsPage = () => {
                                     <div>
                                       <div className="flex justify-between items-center mb-1.5">
                                         <span className="text-sm text-slate-600 dark:text-slate-400">Project Strength</span>
-                                        <span className="text-sm font-bold text-slate-200">{app.matchBreakdown.projectStrength || 0}%</span>
+                                        <span className="text-sm font-bold text-slate-500 dark:text-slate-200">{app.matchBreakdown.projectStrength || 0}%</span>
                                       </div>
                                       <div className="w-full bg-white dark:bg-slate-800 rounded-full h-1.5">
                                         <div className="bg-purple-500 h-1.5 rounded-full transition-all duration-1000" style={{ width: `${app.matchBreakdown.projectStrength || 0}%` }} />
                                       </div>
                                     </div>
 
-                                    <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                                    <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-white/5">
                                       <span className="text-sm text-slate-600 dark:text-slate-400">Contribution Activity</span>
                                       <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
                                         app.matchBreakdown.contributionActivity === 'High' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
@@ -933,7 +941,7 @@ const RecruiterApplicantsPage = () => {
             
             {/* Pagination Controls */}
             {!loading && !error && applicants.length > 0 && totalPages > 1 && (
-              <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/40 border border-white/5 rounded-2xl p-4 mt-6">
+              <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/40 border border-gray-100 dark:border-white/5 rounded-2xl p-4 mt-6">
                 <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
                   Showing <span className="text-slate-900 dark:text-white">{(page - 1) * 20 + 1}</span> to <span className="text-slate-900 dark:text-white">{Math.min(page * 20, totalCount)}</span> of <span className="text-slate-900 dark:text-white">{totalCount}</span> candidates
                 </div>

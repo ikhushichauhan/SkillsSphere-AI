@@ -489,7 +489,7 @@ const TalentFinderPage = () => {
                 <LoadingState message="Searching candidates..." />
               </div>
             ) : error ? (
-              <ErrorState message={error} onRetry={fetchCandidatesDirectory} />
+              <ErrorState description={error} onRetry={fetchCandidatesDirectory} />
             ) : candidates.length === 0 ? (
               <EmptyState
                 icon={<User size={52} className="text-gray-300 dark:text-slate-700 animate-pulse" />}
