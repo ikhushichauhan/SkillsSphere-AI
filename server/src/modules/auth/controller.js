@@ -186,8 +186,8 @@ export const googleOAuthCallback = asyncHandler(async (req, res, next) => {
         stateObj = { redirect: decoded };
       }
 
-      if (stateObj.role) {
-        requestedRole = stateObj.role;
+      if (stateObj.role && stateObj.role === "student") {
+        requestedRole = "student";
       }
 
       const decodedUrl = new URL(stateObj.redirect);

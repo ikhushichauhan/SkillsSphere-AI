@@ -59,7 +59,8 @@ router.get("/google", (req, res) => {
 
   const fallbackCallback = `${inferredFrontendOrigin}/auth/callback`;
   const requestedRedirect = req.query.redirect;
-  const role = req.query.role;
+  const rawRole = req.query.role;
+  const role = rawRole === "student" ? "student" : undefined;
   const redirectTarget =
     typeof requestedRedirect === "string" && requestedRedirect.length > 0
       ? requestedRedirect
