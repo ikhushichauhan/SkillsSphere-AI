@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const allowedRoles = ["student", "tutor", "recruiter"];
+const allowedRoles = ["student"];
 
 // Helper for generic validation
 const validate = (schema, payload) => {
@@ -33,7 +33,7 @@ export const registerSchema = z.object({
     .trim()
     .toLowerCase()
     .refine((value) => allowedRoles.includes(value), {
-      message: "Role must be one of: student, tutor, recruiter"
+      message: "Role must be: student"
     })
 });
 
