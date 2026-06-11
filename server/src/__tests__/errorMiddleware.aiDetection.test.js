@@ -141,5 +141,23 @@ describe("errorMiddleware AI detection", () => {
     assert.equal(res.statusCode, 503);
     assert.match(res.payload.message, /AI service is currently unavailable/i);
   });
+
+  test("does not classify errors named GoogleGenerativeAI as AI if they lack SDK fields", async () => {
+    process.env.NODE_ENV = "production";
+
+    const err = new Error("Operational failure on standard subsystem");
+    err.isOperational = true;
+    err.statusCode = 400;
+    err.name = "GoogleGenerativeAI";
+
+    const req = { method: "GET", originalUrl: "/api/test" };
+    const res = makeRes();
+
+    globalErrorHandler(err, req, res, next);
+
+    assert.equal(res.statusCode, 400);
+    assert.equal(res.payload.message, "Operational failure on standard subsystem");
+    assert.ok(!res.payload.message.includes("AI "));
+  });
 });
 

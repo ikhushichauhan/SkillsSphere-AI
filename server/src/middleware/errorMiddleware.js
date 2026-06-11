@@ -234,7 +234,16 @@ const globalErrorHandler = (err, req, res, next) => {
     error.isAxiosError && normalizedProvider && allowedProviders.has(normalizedProvider);
 
   // Also allow strongly-typed AI SDK errors (no URL/message heuristics)
-  const isTypedGeminiSdkError = error?.name === "GoogleGenerativeAI";
+  const isTypedGeminiSdkError =
+    error?.name === "GoogleGenerativeAI" &&
+    (error.provider === "google" ||
+      error.provider === "gemini" ||
+      error.status !== undefined ||
+      error.errors !== undefined ||
+      error.details !== undefined ||
+      error.response !== undefined ||
+      error.config !== undefined ||
+      error.cause !== undefined);
 
   if (isTaggedAiAxiosError || isTypedGeminiSdkError) {
     error = handleAIError(error);
