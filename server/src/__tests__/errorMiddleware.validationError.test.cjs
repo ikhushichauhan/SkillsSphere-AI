@@ -42,5 +42,24 @@ describe("errorMiddleware ValidationError handling", () => {
     assert.match(res.payload.message, /Invalid input data/i);
 
   });
+
+  test("preserves isOperational = false from the original error", () => {
+    process.env.NODE_ENV = "production";
+
+    const err = new Error("Cast failed");
+    err.name = "CastError";
+    err.path = "id";
+    err.value = "123";
+    err.isOperational = false;
+
+    const req = { method: "POST", originalUrl: "/api/test" };
+    const res = makeRes();
+
+    globalErrorHandler(err, req, res, next);
+
+    // If it correctly preserved isOperational = false, it should return 500
+    assert.equal(res.statusCode, 500);
+    assert.equal(res.payload.message, "Something went very wrong!");
+  });
 });
 

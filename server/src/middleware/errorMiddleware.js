@@ -4,7 +4,9 @@ import logger from "../utils/logger.js";
 
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}.`;
-  return new AppError(message, 400);
+  const error = new AppError(message, 400);
+  error.isOperational = err.isOperational !== undefined ? err.isOperational : true;
+  return error;
 };
 
 const handleDuplicateFieldsDB = (err) => {
@@ -12,6 +14,8 @@ const handleDuplicateFieldsDB = (err) => {
   // - err.code === 11000
   // - message includes: "dup key: { <field>: \"<value>\" }"
   // - and may also include: err.keyValue === { <field>: <value> }
+
+  let error;
 
   // Preferred: keyValue (works regardless of MongoDB version / message format)
   if (err?.keyValue && typeof err.keyValue === "object") {
@@ -25,23 +29,28 @@ const handleDuplicateFieldsDB = (err) => {
           : String(rawValue).replace(/^['"]|['"]$/g, "");
 
       const message = `Duplicate field value: ${value}. Please use another value!`;
-      return new AppError(message, 400);
+      error = new AppError(message, 400);
     }
   }
 
-  // Fallback: parse message "dup key: { ...: \"VALUE\" }"
-  const raw = err?.errmsg || err?.message || "";
+  if (!error) {
+    // Fallback: parse message "dup key: { ...: \"VALUE\" }"
+    const raw = err?.errmsg || err?.message || "";
 
-  // Capture either a quoted string or a number-like value inside the dup key object.
-  // Example: dup key: { email: "a@b.com" }
-  const match = raw.match(/dup key:\s*\{[^}]*:\s*(?:"([^"]*)"|'([^']*)'|([^\s}]+))\s*\}/i);
+    // Capture either a quoted string or a number-like value inside the dup key object.
+    // Example: dup key: { email: "a@b.com" }
+    const match = raw.match(/dup key:\s*\{[^}]*:\s*(?:"([^"]*)"|'([^']*)'|([^\s}]+))\s*\}/i);
 
-  const value = match
-    ? String(match[1] || match[2] || match[3] || "unknown").trim()
-    : "unknown";
+    const value = match
+      ? String(match[1] || match[2] || match[3] || "unknown").trim()
+      : "unknown";
 
-  const message = `Duplicate field value: ${value}. Please use another value!`;
-  return new AppError(message, 400);
+    const message = `Duplicate field value: ${value}. Please use another value!`;
+    error = new AppError(message, 400);
+  }
+
+  error.isOperational = err.isOperational !== undefined ? err.isOperational : true;
+  return error;
 };
 
 const handleValidationErrorDB = (err) => {
@@ -54,6 +63,7 @@ const handleValidationErrorDB = (err) => {
     const message = "Invalid input data.";
     const error = new AppError(message, 400);
     error.errors = {};
+    error.isOperational = err.isOperational !== undefined ? err.isOperational : true;
     return error;
   }
 
@@ -76,6 +86,7 @@ const handleValidationErrorDB = (err) => {
 
   const error = new AppError(message, 400);
   error.errors = errors; // Attach field-level errors
+  error.isOperational = err.isOperational !== undefined ? err.isOperational : true;
   return error;
 };
 
@@ -170,7 +181,9 @@ const handleAIError = (err) => {
     }
   }
 
-  return new AppError(message, statusCode);
+  const error = new AppError(message, statusCode);
+  error.isOperational = err.isOperational !== undefined ? err.isOperational : true;
+  return error;
 };
 
 
