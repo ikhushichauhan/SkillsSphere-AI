@@ -180,3 +180,17 @@ export const getUnreadNotificationCount = async (userId) => {
   const count = await Notification.countDocuments({ userId, isRead: false });
   return count;
 };
+
+/**
+ * Delete multiple notifications for a user in bulk
+ * @param {string[]} notificationIds - Array of Notification IDs
+ * @param {string} userId - User ID (for authorization)
+ * @returns {Promise<Object>} - Delete result containing deletedCount
+ */
+export const deleteNotificationsBulk = async (notificationIds, userId) => {
+  const result = await Notification.deleteMany({
+    _id: { $in: notificationIds },
+    userId: userId,
+  });
+  return result;
+};

@@ -7,6 +7,7 @@ import {
   markAllAsRead,
   deleteNotificationById,
   clearAllNotifications,
+  deleteNotificationsBulk,
 } from "../../../features/notifications/notificationsSlice";
 
 /**
@@ -56,6 +57,14 @@ export const useNotifications = ({ page = 1, limit = 10, filter = "all", type } 
     dispatch(clearAllNotifications());
   }, [dispatch]);
 
+  // Delete multiple notifications in bulk
+  const handleDeleteNotificationsBulk = useCallback(
+    (notificationIds) => {
+      dispatch(deleteNotificationsBulk(notificationIds));
+    },
+    [dispatch],
+  );
+
   // Load more notifications (pagination)
   const handleLoadMore = useCallback(() => {
     const nextPage = pagination.page + 1;
@@ -75,6 +84,7 @@ export const useNotifications = ({ page = 1, limit = 10, filter = "all", type } 
     markAllAsRead: handleMarkAllAsRead,
     deleteNotification: handleDeleteNotification,
     deleteAllNotifications: handleDeleteAllNotifications,
+    deleteNotificationsBulk: handleDeleteNotificationsBulk,
     loadMore: handleLoadMore,
     hasMore: pagination.pages > 1 && pagination.page < pagination.pages,
   };

@@ -88,3 +88,17 @@ export const deleteAllNotifications = async (token) => {
     token,
   });
 };
+
+/**
+ * Delete multiple notifications in a single request.
+ * @param {string[]} ids - Array of notification IDs to delete
+ * @param {string} token - The auth JWT token
+ * @returns {Promise<Object>} The bulk delete confirmation response
+ */
+export const deleteNotificationsBulk = async (ids, token) => {
+  return apiRequest("/api/notifications/bulk", {
+    method: "DELETE",
+    token,
+    body: { ids },
+  });
+};

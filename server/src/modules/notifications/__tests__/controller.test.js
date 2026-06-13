@@ -11,6 +11,7 @@ import {
   sanitizeNotificationMetadata,
   deleteNotificationById,
   deleteAllNotificationsForUser,
+  deleteNotificationsBulk,
 } from "../controller.js";
 import Notification from "../../../database/models/Notification.js";
 import AppError from "../../../utils/AppError.js";
@@ -468,6 +469,43 @@ describe("Notification Controller", () => {
         res.json.mock.calls[0].arguments[0].data.deletedCount,
         3,
       );
+    });
+  });
+
+  describe("deleteNotificationsBulk", () => {
+    it("should respond with 200 and deleted count when valid IDs list is provided", async () => {
+      mock.method(Notification, "deleteMany", () => ({ deletedCount: 2 }));
+
+      req.body = { ids: ["n1", "n2"] };
+      deleteNotificationsBulk(req, res, next);
+      await flush();
+
+      assert.equal(res.status.mock.calls[0].arguments[0], 200);
+      assert.equal(res.json.mock.calls[0].arguments[0].success, true);
+      assert.equal(
+        res.json.mock.calls[0].arguments[0].data.deletedCount,
+        2,
+      );
+    });
+
+    it("should throw AppError(400) when ids list is empty", async () => {
+      req.body = { ids: [] };
+      deleteNotificationsBulk(req, res, next);
+      await flush();
+
+      assert.equal(next.mock.calls.length, 1);
+      assert.ok(next.mock.calls[0].arguments[0] instanceof AppError);
+      assert.equal(next.mock.calls[0].arguments[0].statusCode, 400);
+    });
+
+    it("should throw AppError(400) when ids parameter is missing", async () => {
+      req.body = {};
+      deleteNotificationsBulk(req, res, next);
+      await flush();
+
+      assert.equal(next.mock.calls.length, 1);
+      assert.ok(next.mock.calls[0].arguments[0] instanceof AppError);
+      assert.equal(next.mock.calls[0].arguments[0].statusCode, 400);
     });
   });
 });

@@ -9,6 +9,7 @@ import {
   deleteNotification,
   deleteAllNotifications,
   getUnreadNotificationCount,
+  deleteNotificationsBulk as deleteNotificationsBulkService,
 } from "./service.js";
 
 const decodeActionUrl = (value) => {
@@ -297,5 +298,27 @@ export const deleteAllNotificationsForUser = asyncHandler(async (req, res) => {
     success: true,
     data: { deletedCount: result.deletedCount },
     message: "All notifications deleted successfully",
+  });
+});
+
+/**
+ * @desc    Delete multiple notifications for user in bulk
+ * @route   DELETE /api/notifications/bulk
+ * @access  Private
+ */
+export const deleteNotificationsBulk = asyncHandler(async (req, res) => {
+  const { ids } = req.body;
+  const userId = req.user._id;
+
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    throw new AppError("Invalid or empty notification IDs list", 400);
+  }
+
+  const result = await deleteNotificationsBulkService(ids, userId.toString());
+
+  res.status(200).json({
+    success: true,
+    data: { deletedCount: result.deletedCount },
+    message: `${result.deletedCount} notifications deleted successfully`,
   });
 });

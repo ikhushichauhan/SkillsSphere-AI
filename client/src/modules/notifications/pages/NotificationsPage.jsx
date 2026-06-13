@@ -95,6 +95,7 @@ const NotificationsPage = () => {
     markAllAsRead,
     deleteNotification,
     deleteAllNotifications,
+    deleteNotificationsBulk,
     loadMore,
     hasMore,
     socketStatus,
@@ -171,7 +172,7 @@ const NotificationsPage = () => {
         }?`,
       )
     ) {
-      selectedNotifications.forEach((id) => deleteNotification(id));
+      deleteNotificationsBulk(Array.from(selectedNotifications));
       setSelectedNotifications(new Set());
     }
   };
