@@ -9,6 +9,9 @@ const ChatWidget = () => {
     <>
       {/* Chat Panel */}
       <div
+        id="ai-chat-panel"
+        role="dialog"
+        aria-label="AI assistant chat"
         className={`fixed bottom-24 right-5 z-[1000] w-[calc(100vw-40px)] sm:w-[380px] h-[520px] transition-all duration-300 ease-out origin-bottom-right ${
           isOpen
             ? "scale-100 opacity-100 translate-y-0 pointer-events-auto"
@@ -21,6 +24,9 @@ const ChatWidget = () => {
       {/* Floating Action Button */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
+        aria-label={isOpen ? "Close AI assistant chat" : "Open AI assistant chat"}
+        aria-expanded={isOpen}
+        aria-controls="ai-chat-panel"
         className={`fixed bottom-5 right-5 z-[1000] w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
           isOpen
             ? "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-slate-300 rotate-0 hover:bg-gray-300 dark:hover:bg-slate-600"
