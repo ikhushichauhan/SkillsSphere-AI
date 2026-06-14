@@ -53,15 +53,24 @@ export const updateProfileSchema = z.object({
   education: z.array(z.any()).optional(),
 });
 
+const notificationPreferencesSchema = z.object({
+  emailNotifications: z.boolean().optional(),
+  inAppNotifications: z.boolean().optional(),
+  interviewReminders: z.boolean().optional(),
+  jobUpdates: z.boolean().optional(),
+  resumeAnalysis: z.boolean().optional(),
+  systemAlerts: z.boolean().optional(),
+}).strict();
+
+const privacyPreferencesSchema = z.object({
+  profileVisibility: z.enum(['public', 'recruiters', 'private']).optional(),
+  showResumeToRecruiters: z.boolean().optional(),
+  showInterviewHistory: z.boolean().optional(),
+  allowPersonalizedRecommendations: z.boolean().optional(),
+}).strict();
+
 export const updatePreferencesSchema = z.object({
-  notifications: z.object({
-    emailNotifications: z.boolean().optional(),
-    inAppNotifications: z.boolean().optional(),
-    interviewReminders: z.boolean().optional(),
-    jobUpdates: z.boolean().optional(),
-    resumeAnalysis: z.boolean().optional(),
-    systemAlerts: z.boolean().optional(),
-  }).optional(),
+  notifications: notificationPreferencesSchema.optional(),
   emailFrequency: z.enum(['instant', 'daily', 'weekly', 'never']).optional(),
-  privacy: z.record(z.any()).optional(),
-});
+  privacy: privacyPreferencesSchema.optional(),
+}).strict();
