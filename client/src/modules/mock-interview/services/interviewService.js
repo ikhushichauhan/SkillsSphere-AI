@@ -75,3 +75,18 @@ export const getHistory = async (page = 1, limit = 10) => {
     token: getToken(),
   });
 };
+
+export const toggleQuestionBookmark = async (sessionId, questionId, bookmarked) => {
+  return apiRequest(`/api/interviews/${sessionId}/questions/${questionId}/bookmark`, {
+    method: "PATCH",
+    token: getToken(),
+    body: { bookmarked },
+  });
+};
+
+export const getBookmarkedQuestions = async () => {
+  return apiRequest("/api/interviews/bookmarks", {
+    method: "GET",
+    token: getToken(),
+  });
+};

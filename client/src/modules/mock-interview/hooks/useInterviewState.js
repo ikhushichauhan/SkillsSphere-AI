@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { submitAnswer, completeInterview } from "../services/interviewService";
+import { submitAnswer, completeInterview, toggleQuestionBookmark } from "../services/interviewService";
 import { apiRequest } from "../../../services/apiClient";
 import {
   saveInterviewSession,
@@ -88,6 +88,7 @@ export const useInterviewState = (sessionId, isObserver) => {
   const [mediaWarning, setMediaWarning] = useState(null);
   const [recoveryMessage, setRecoveryMessage] = useState(null);
   const [failedAction, setFailedAction] = useState(null);
+  const [bookmarking, setBookmarking] = useState(false);
 
   const debouncedAnalyze = useRef(
     debounce((text) => {
@@ -192,6 +193,7 @@ export const useInterviewState = (sessionId, isObserver) => {
         const question = {
           questionText: data.answers[idx]?.questionText,
           questionId: data.answers[idx]?.questionId,
+          bookmarked: Boolean(data.answers[idx]?.bookmarked),
         };
         const savedDraft = loadInterviewAnswerDraft({
           sessionId,
@@ -270,6 +272,75 @@ export const useInterviewState = (sessionId, isObserver) => {
       }, 3000);
     }
   }, [currentIndex, currentQuestion?.questionId, sessionId]);
+
+  const toggleCurrentQuestionBookmark = async () => {
+    if (!currentQuestion?.questionId || bookmarking) return;
+
+    const nextBookmarked = !Boolean(currentQuestion.bookmarked);
+    const previousQuestion = currentQuestion;
+
+    setBookmarking(true);
+    setError(null);
+    setCurrentQuestion((question) => ({
+      ...question,
+      bookmarked: nextBookmarked,
+    }));
+    setSession((currentSession) => {
+      if (!currentSession?.answers) return currentSession;
+      return {
+        ...currentSession,
+        answers: currentSession.answers.map((item) =>
+          item.questionId?.toString?.() === currentQuestion.questionId?.toString?.() ||
+          item.questionId === currentQuestion.questionId
+            ? { ...item, bookmarked: nextBookmarked }
+            : item,
+        ),
+      };
+    });
+
+    try {
+      const response = await toggleQuestionBookmark(
+        sessionId,
+        currentQuestion.questionId,
+        nextBookmarked,
+      );
+      const savedBookmarked = Boolean(response.data?.bookmarked);
+      setCurrentQuestion((question) => ({
+        ...question,
+        bookmarked: savedBookmarked,
+      }));
+      setSession((currentSession) => {
+        if (!currentSession?.answers) return currentSession;
+        return {
+          ...currentSession,
+          answers: currentSession.answers.map((item) =>
+            item.questionId?.toString?.() === currentQuestion.questionId?.toString?.() ||
+            item.questionId === currentQuestion.questionId
+              ? { ...item, bookmarked: savedBookmarked }
+              : item,
+          ),
+        };
+      });
+    } catch (err) {
+      setCurrentQuestion(previousQuestion);
+      setSession((currentSession) => {
+        if (!currentSession?.answers) return currentSession;
+        return {
+          ...currentSession,
+          answers: currentSession.answers.map((item) =>
+            item.questionId?.toString?.() === previousQuestion.questionId?.toString?.() ||
+            item.questionId === previousQuestion.questionId
+              ? { ...item, bookmarked: Boolean(previousQuestion.bookmarked) }
+              : item,
+          ),
+        };
+      });
+      setError(err.message || "Could not update bookmark. Please try again.");
+      logger.error("[InterviewSessionState] Bookmark error:", err);
+    } finally {
+      setBookmarking(false);
+    }
+  };
 
   const handleAnswerChange = (e, socket) => {
     const nextAnswer = e.target.value;
@@ -393,6 +464,8 @@ export const useInterviewState = (sessionId, isObserver) => {
     handleEvaluationResult,
     failedAction,
     setFailedAction,
+    bookmarking,
+    toggleCurrentQuestionBookmark,
     formatTime,
   };
 };

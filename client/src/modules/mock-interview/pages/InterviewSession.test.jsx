@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import InterviewSession from "./InterviewSession";
 import { apiRequest } from "../../../services/apiClient";
-import { submitAnswer } from "../services/interviewService";
+import { submitAnswer, toggleQuestionBookmark } from "../services/interviewService";
 import { MemoryRouter } from "react-router-dom";
 
 const navigate = vi.fn();
@@ -57,6 +57,7 @@ vi.mock("../../../services/apiClient", () => ({
 vi.mock("../services/interviewService", () => ({
   submitAnswer: vi.fn(),
   completeInterview: vi.fn(),
+  toggleQuestionBookmark: vi.fn(),
 }));
 
 vi.mock("react-redux", async () => {
@@ -97,11 +98,13 @@ const sessionPayload = {
         questionId: "q1",
         questionText: "What is React?",
         transcript: "",
+        bookmarked: false,
       },
       {
         questionId: "q2",
         questionText: "What is state?",
         transcript: "",
+        bookmarked: true,
       },
     ],
   },
@@ -150,6 +153,14 @@ describe("InterviewSession recovery", () => {
         },
       },
     });
+    toggleQuestionBookmark.mockResolvedValue({
+      data: {
+        sessionId: "session-1",
+        questionId: "q1",
+        questionText: "What is React?",
+        bookmarked: true,
+      },
+    });
     socketHandlers = {};
     managerHandlers = {};
     socket.on.mockImplementation((event, handler) => {
@@ -179,6 +190,10 @@ describe("InterviewSession recovery", () => {
 
   it("shows disconnect and reconnect recovery messages", async () => {
     await renderSession();
+
+    await waitFor(() => {
+      expect(socketHandlers.connect).toEqual(expect.any(Function));
+    });
 
     act(() => socketHandlers.connect());
     act(() => socketHandlers.disconnect());
@@ -211,6 +226,25 @@ describe("InterviewSession recovery", () => {
     expect(screen.getByText("Question 2")).toBeInTheDocument();
     expect(screen.getByText("00:42")).toBeInTheDocument();
     expect(screen.getByText(/audio status/i)).toHaveTextContent("queued");
+  });
+
+  it("bookmarks the current question and persists the change", async () => {
+    await renderSession();
+
+    const bookmarkButton = screen.getByRole("button", { name: /bookmark this question/i });
+
+    await act(async () => {
+      fireEvent.click(bookmarkButton);
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(toggleQuestionBookmark).toHaveBeenCalledWith("session-1", "q1", true);
+    });
+    expect(screen.getByRole("button", { name: /remove bookmark from this question/i })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
   });
 
   it("handles corrupted backup data safely", async () => {

@@ -227,6 +227,7 @@ export const processAnswerSubmission = async ({
           index: currentIndex + 1,
           questionText: session.answers[currentIndex + 1].questionText,
           questionId: session.answers[currentIndex + 1].questionId,
+          bookmarked: Boolean(session.answers[currentIndex + 1].bookmarked),
         }
       : null;
 
@@ -403,16 +404,84 @@ export const getSessionResults = async (sessionId, userId) => {
     duration: session.duration,
     totalQuestions: session.totalQuestions,
     answers: session.answers.map((a) => ({
+      questionId: a.questionId,
       questionText: a.questionText,
       transcript: a.transcript,
       scores: a.scores,
       concepts: a.concepts,
       fillerWords: a.fillerWords,
       speakingSpeed: a.speakingSpeed,
+      bookmarked: Boolean(a.bookmarked),
     })),
     startedAt: session.startedAt,
     completedAt: session.completedAt,
   };
+};
+
+export const updateQuestionBookmark = async ({
+  sessionId,
+  userId,
+  questionId,
+  bookmarked,
+}) => {
+  const session = await InterviewSession.findOne({
+    _id: sessionId,
+    userId,
+  });
+
+  if (!session) {
+    throw new AppError("Interview session not found", 404);
+  }
+
+  const answer = session.answers.find(
+    (item) => item.questionId?.toString() === questionId,
+  );
+
+  if (!answer) {
+    throw new AppError("Question not found in interview session", 404);
+  }
+
+  answer.bookmarked =
+    typeof bookmarked === "boolean" ? bookmarked : !Boolean(answer.bookmarked);
+
+  await session.save({ validateModifiedOnly: true });
+
+  return {
+    sessionId: session._id,
+    questionId: answer.questionId,
+    questionText: answer.questionText,
+    bookmarked: Boolean(answer.bookmarked),
+  };
+};
+
+export const getBookmarkedQuestions = async (userId) => {
+  const sessions = await InterviewSession.find({
+    userId,
+    "answers.bookmarked": true,
+  })
+    .select("topic difficulty status overallScore createdAt completedAt answers")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  return sessions.flatMap((session) =>
+    (session.answers || [])
+      .filter((answer) => answer.bookmarked)
+      .map((answer) => ({
+        sessionId: session._id,
+        topic: session.topic,
+        difficulty: session.difficulty,
+        status: session.status,
+        overallScore: session.overallScore,
+        createdAt: session.createdAt,
+        completedAt: session.completedAt,
+        questionId: answer.questionId,
+        questionText: answer.questionText,
+        transcript: answer.transcript,
+        scores: answer.scores,
+        concepts: answer.concepts,
+        bookmarked: true,
+      })),
+  );
 };
 
 /**
@@ -515,6 +584,7 @@ export const getTutorSessionDetails = async (sessionId, tutorId) => {
       concepts: a.concepts || { detected: [], missed: [], expected: [] },
       fillerWords: a.fillerWords,
       speakingSpeed: a.speakingSpeed,
+      bookmarked: Boolean(a.bookmarked),
     })),
     startedAt: session.startedAt,
     completedAt: session.completedAt,

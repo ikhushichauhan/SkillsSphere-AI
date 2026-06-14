@@ -32,7 +32,8 @@ import {
   WifiOff,
   RefreshCw,
   MicOff,
-  Info
+  Info,
+  Bookmark
 } from "lucide-react";
 
 const formatTime = (seconds) => {
@@ -287,8 +288,34 @@ const InterviewSession = () => {
           
           {/* Question Card */}
           <div className="bg-white dark:bg-slate-900/60 rounded-3xl p-8 sm:p-10 shadow-[0_20px_40px_rgba(0,0,0,0.04)] dark:shadow-none border border-gray-200 dark:border-slate-800 flex flex-col">
-            <div className="inline-flex self-start items-center gap-2 px-3 py-1 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold tracking-wide uppercase mb-6">
-              Question {state.currentIndex + 1}
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold tracking-wide uppercase">
+                Question {state.currentIndex + 1}
+              </div>
+              {!isObserver && state.currentQuestion?.questionId && (
+                <button
+                  type="button"
+                  onClick={state.toggleCurrentQuestionBookmark}
+                  disabled={state.bookmarking}
+                  aria-pressed={Boolean(state.currentQuestion.bookmarked)}
+                  aria-label={
+                    state.currentQuestion.bookmarked
+                      ? "Remove bookmark from this question"
+                      : "Bookmark this question"
+                  }
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
+                    state.currentQuestion.bookmarked
+                      ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
+                      : "border-gray-200 bg-gray-50 text-slate-600 hover:border-amber-300 hover:text-amber-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300"
+                  }`}
+                >
+                  <Bookmark
+                    size={16}
+                    fill={state.currentQuestion.bookmarked ? "currentColor" : "none"}
+                  />
+                  {state.currentQuestion.bookmarked ? "Bookmarked" : "Bookmark"}
+                </button>
+              )}
             </div>
             <h2 className="text-2xl sm:text-3xl font-semibold leading-relaxed text-slate-900 dark:text-white tracking-tight">
               {state.currentQuestion?.questionText || "Loading question..."}

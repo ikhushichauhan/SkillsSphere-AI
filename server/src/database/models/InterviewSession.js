@@ -53,6 +53,11 @@ const answerSchema = new mongoose.Schema(
       default: null,
     },
 
+    bookmarked: {
+      type: Boolean,
+      default: false,
+    },
+
     tutorScores: {
       technical: { type: Number, min: 0, max: 100 },
       communication: { type: Number, min: 0, max: 100 },

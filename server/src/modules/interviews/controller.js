@@ -9,6 +9,8 @@ import {
   getTutorSessionsList,
   getTutorSessionDetails,
   addTutorFeedback,
+  updateQuestionBookmark,
+  getBookmarkedQuestions,
 } from "./service.js";
 import { getServiceStatus } from "../../integrations/aiInterviewService.js";
 import asyncHandler from "../../utils/asyncHandler.js";
@@ -48,6 +50,7 @@ export const startInterview = asyncHandler(async (req, res) => {
             index: 0,
             questionText: session.answers[0].questionText,
             questionId: session.answers[0].questionId,
+            bookmarked: Boolean(session.answers[0].bookmarked),
           }
         : null,
     },
@@ -149,6 +152,47 @@ export const getSessionResults = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     data: results,
+  });
+});
+
+/**
+ * @desc    Toggle or set bookmark state for an interview question
+ * @route   PATCH /api/interviews/:id/questions/:questionId/bookmark
+ * @access  Private
+ */
+export const bookmarkQuestion = asyncHandler(async (req, res) => {
+  if (
+    req.body?.bookmarked !== undefined &&
+    typeof req.body.bookmarked !== "boolean"
+  ) {
+    throw new AppError("bookmarked must be a boolean", 400);
+  }
+
+  const bookmark = await updateQuestionBookmark({
+    sessionId: req.params.id,
+    questionId: req.params.questionId,
+    userId: req.user._id,
+    bookmarked: req.body?.bookmarked,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: bookmark.bookmarked ? "Question bookmarked" : "Question bookmark removed",
+    data: bookmark,
+  });
+});
+
+/**
+ * @desc    Get all bookmarked interview questions for the current user
+ * @route   GET /api/interviews/bookmarks
+ * @access  Private
+ */
+export const getInterviewBookmarks = asyncHandler(async (req, res) => {
+  const bookmarks = await getBookmarkedQuestions(req.user._id);
+
+  res.status(200).json({
+    success: true,
+    data: bookmarks,
   });
 });
 

@@ -7,9 +7,11 @@ import { aiActionLimiter } from "../../middleware/rateLimiter.js";
 import AppError from "../../utils/AppError.js";
 import {
   completeInterview,
+  bookmarkQuestion,
   deleteInterviewSession,
   getAIServiceStatus,
   getAvailableTopics,
+  getInterviewBookmarks,
   getInterviewHistory,
   getSession,
   getSessionResults,
@@ -191,6 +193,7 @@ router.post("/start", aiActionLimiter, startInterview);
  *         description: List of previous sessions
  */
 router.get("/history", getInterviewHistory);
+router.get("/bookmarks", getInterviewBookmarks);
 
 // Tutor routes (must be before /:id to avoid route conflict)
 router.get("/tutor/sessions", authorizeRoles("tutor"), getTutorSessions);
@@ -211,6 +214,7 @@ router.post(
   submitAnswer,
 );
 router.post("/:id/complete", completeInterview);
+router.patch("/:id/questions/:questionId/bookmark", bookmarkQuestion);
 router.get("/:id/results", getSessionResults);
 
 export default router;

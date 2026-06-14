@@ -16,6 +16,7 @@ import {
   Sparkles,
   Search,
   RotateCcw,
+  Bookmark,
 } from "lucide-react";
 import Navbar from "../../../shared/components/Navbar";
 import Footer from "../../../shared/components/Footer";
@@ -378,6 +379,13 @@ const InterviewHistory = () => {
                 </button>
               </div>
             )}
+            <button
+              type="button"
+              className="bg-white dark:bg-surface text-amber-700 dark:text-amber-300 border border-border py-2 px-5 rounded-full font-semibold text-sm cursor-pointer flex items-center gap-2 hover:border-amber-400/40 transition-colors shadow-sm"
+              onClick={() => navigate("/mock-interview/bookmarks")}
+            >
+              <Bookmark size={16} /> Bookmarked Questions
+            </button>
             <button
               className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-none py-2 px-5 rounded-full font-semibold text-sm cursor-pointer flex items-center gap-2 hover:shadow-[0_10px_20px_rgba(79,70,229,0.3)] hover:-translate-y-0.5 transition-all"
               onClick={() => navigate("/mock-interview")}

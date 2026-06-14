@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { getResults } from "../services/interviewService";
+import { getResults, toggleQuestionBookmark } from "../services/interviewService";
 import InterviewResultsSkeleton from "../components/InterviewResultsSkeleton";
 import { analyzeText } from "../utils/sentiment";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
@@ -19,7 +19,8 @@ import {
   Video,
   Play,
   FileJson,
-  Sparkles
+  Sparkles,
+  Bookmark
 } from "lucide-react";
 import Navbar from "../../../shared/components/Navbar";
 import Footer from "../../../shared/components/Footer";
@@ -35,6 +36,8 @@ const InterviewResults = () => {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [bookmarkError, setBookmarkError] = useState(null);
+  const [bookmarkingQuestionId, setBookmarkingQuestionId] = useState(null);
   const [expandedCards, setExpandedCards] = useState({});
 
   useEffect(() => {
@@ -54,6 +57,48 @@ const InterviewResults = () => {
 
   const toggleCard = (idx) => {
     setExpandedCards((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  };
+
+  const handleBookmarkToggle = async (answer) => {
+    if (!answer?.questionId || bookmarkingQuestionId) return;
+
+    const nextBookmarked = !Boolean(answer.bookmarked);
+    setBookmarkingQuestionId(answer.questionId);
+    setBookmarkError(null);
+    setResults((currentResults) => ({
+      ...currentResults,
+      answers: currentResults.answers.map((item) =>
+        item.questionId === answer.questionId
+          ? { ...item, bookmarked: nextBookmarked }
+          : item,
+      ),
+    }));
+
+    try {
+      const response = await toggleQuestionBookmark(sessionId, answer.questionId, nextBookmarked);
+      const savedBookmarked = Boolean(response.data?.bookmarked);
+      setResults((currentResults) => ({
+        ...currentResults,
+        answers: currentResults.answers.map((item) =>
+          item.questionId === answer.questionId
+            ? { ...item, bookmarked: savedBookmarked }
+            : item,
+        ),
+      }));
+    } catch (err) {
+      setResults((currentResults) => ({
+        ...currentResults,
+        answers: currentResults.answers.map((item) =>
+          item.questionId === answer.questionId
+            ? { ...item, bookmarked: Boolean(answer.bookmarked) }
+            : item,
+        ),
+      }));
+      setBookmarkError(err.message || "Could not update bookmark. Please try again.");
+      logger.error("[InterviewResults] Bookmark error:", err);
+    } finally {
+      setBookmarkingQuestionId(null);
+    }
   };
 
   const getScoreColor = (score) => {
@@ -286,6 +331,12 @@ const InterviewResults = () => {
       </div>
 
       {/* Weak Concepts */}
+      {bookmarkError && (
+        <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+          {bookmarkError}
+        </div>
+      )}
+
       {results.weakConcepts?.length > 0 && (
         <div className="bg-amber-50 dark:bg-surface border border-amber-200 dark:border-amber-500/20 rounded-3xl p-8 dark:shadow-none animate-[fadeInUp_0.6s_ease-out]">
           <h3 className="text-lg font-bold mb-4 text-text-main flex items-center gap-2">
@@ -312,6 +363,12 @@ const InterviewResults = () => {
             <span className="font-semibold text-text-main flex-1 pr-4">
               Q{idx + 1}. {a.questionText}
             </span>
+            {a.bookmarked && (
+              <span className="mr-3 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+                <Bookmark size={13} fill="currentColor" />
+                Bookmarked
+              </span>
+            )}
             <span
               className="font-bold text-lg"
               style={{ color: getScoreColor(a.scores?.technical || 0) }}
@@ -326,6 +383,20 @@ const InterviewResults = () => {
           </div>
           {expandedCards[idx] && (
             <div className="px-6 pb-6 border-t border-border pt-4">
+              <button
+                type="button"
+                onClick={() => handleBookmarkToggle(a)}
+                disabled={bookmarkingQuestionId === a.questionId}
+                aria-pressed={Boolean(a.bookmarked)}
+                className={`mb-4 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
+                  a.bookmarked
+                    ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
+                    : "border-gray-200 bg-gray-50 text-slate-600 hover:border-amber-300 hover:text-amber-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300"
+                }`}
+              >
+                <Bookmark size={16} fill={a.bookmarked ? "currentColor" : "none"} />
+                {a.bookmarked ? "Remove bookmark" : "Bookmark question"}
+              </button>
               <p className="text-text-muted leading-relaxed my-4 text-sm bg-gray-50 dark:bg-slate-900 p-4 rounded-xl">
                 <strong className="text-text-main block mb-2">Your Answer:</strong>{" "}
                 {a.transcript || "No answer submitted"}
