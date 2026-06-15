@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import * as authService from "../../services/authService";
-import { TOKEN_KEY } from "../../utils/authToken";
+
+const TOKEN_KEY = "skillssphere.auth.token";
 const USER_KEY = "skillssphere.auth.user";
 const PENDING_EMAIL_KEY = "skillssphere.auth.pendingEmail";
 
@@ -250,8 +251,8 @@ const authSlice = createSlice({
       const { token, user, rememberMe = true } = action.payload;
 
       const storage = rememberMe ? window.localStorage : window.sessionStorage;
-      storage.setItem(TOKEN_KEY, token);
-      storage.setItem(USER_KEY, JSON.stringify(user));
+      safeSetItem(storage, TOKEN_KEY, token);
+      safeSetItem(storage, USER_KEY, JSON.stringify(user));
 
       state.token = token;
       state.user = user;
@@ -261,17 +262,14 @@ const authSlice = createSlice({
     },
     updateUserProfile: (state, action) => {
       state.user = action.payload;
-      
-      // Update storage as well
-      const storage = window.localStorage.getItem(TOKEN_KEY)
+
+      if (!canUseStorage()) return;
+
+      const storage = safeGetItem(window.localStorage, TOKEN_KEY)
         ? window.localStorage
         : window.sessionStorage;
-      
-      try {
-        storage.setItem("skillssphere.auth.user", JSON.stringify(action.payload));
-      } catch (e) {
-        // Ignore storage errors
-      }
+
+      safeSetItem(storage, USER_KEY, JSON.stringify(action.payload));
     },
   },
   extraReducers: (builder) => {
