@@ -137,9 +137,15 @@ SkillSphere AI aims to simplify the path from learning to hiring by giving users
 To simplify setup, you can now run the entire project using root-level scripts.
 
 ### Install all dependencies
+```bash
+### Install all dependencies
+
+If the unified installer script encounters execution restriction errors on your system terminal, run the installation manually using directory prefixes:
 
 ```bash
-npm run install-all
+npm install
+npm install --prefix Backend
+npm install --prefix Frontend
 ```
 
 This installs:
