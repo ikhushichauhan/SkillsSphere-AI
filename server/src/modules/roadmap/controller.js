@@ -191,6 +191,16 @@ export const updateTopicStatus = asyncHandler(async (req, res) => {
     if (io) {
       io.to(`roadmap_${progress._id}`).emit("new-roadmap-comment", populated);
     }
+    
+    // Trigger dashboard refresh events
+    if (io) {
+      io.to(`user_${progress.user}`).emit("dashboard-refresh");
+      if (progress.tutorsTracking && Array.isArray(progress.tutorsTracking)) {
+        progress.tutorsTracking.forEach(tutorId => {
+          io.to(`user_${tutorId}`).emit("dashboard-refresh");
+        });
+      }
+    }
   } catch (error) {
     logger.error("Failed to save status change comment log:", error);
   }

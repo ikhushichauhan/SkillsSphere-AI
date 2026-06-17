@@ -345,6 +345,30 @@ export const finalizeInterview = async (sessionId, userId) => {
     await session.save();
   }
 
+  // Trigger dashboard refresh events
+  try {
+    const io = getIO();
+    if (io) {
+      // 1. Notify student
+      io.to(`user_${userId}`).emit("dashboard-refresh");
+
+      // 2. Notify tracking tutors
+      const progress = await LearningProgress.findOne({ user: userId }).select("tutorsTracking").lean();
+      if (progress && Array.isArray(progress.tutorsTracking)) {
+        progress.tutorsTracking.forEach(tutorId => {
+          io.to(`user_${tutorId}`).emit("dashboard-refresh");
+        });
+      }
+
+      // 3. Notify recruiters if high score (>= 80)
+      if (overallScore >= 80) {
+        io.to("role_recruiter").emit("dashboard-refresh");
+      }
+    }
+  } catch (err) {
+    logger.error("Failed to emit dashboard-refresh in finalizeInterview:", err);
+  }
+
   return {
     overallScore,
     scores: {
