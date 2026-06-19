@@ -81,21 +81,17 @@ export default function gapAnalyzer({
     categorizedSuggestions.optimization.push("Readability is highly active. Maintain this by keeping bullet points strictly under two lines each for maximum scannability.");
   }
 
-  // 4. 🏛️ Domain Specialization — always surface missing tech keywords
-  const domainMissing = techStandard?.details?.domainMissing || {};
-  const topMissingKeywords = Object.values(domainMissing)
-    .flat()
-    .slice(0, 5);
-
-  if (topMissingKeywords.length > 0) {
-    categorizedSuggestions.strategic.push(
-      `Strengthen your technical breadth by adding keywords like: ${topMissingKeywords.join(", ")} to your resume.`
-    );
-  }
-
-
-  // 4. 🏛️ Domain Specialization
+  // 4. Domain Specialization
   if ((techStandard?.score ?? Infinity) < 60) {
+    const domainMissing = techStandard?.details?.domainMissing || {};
+    const topMissingKeywords = Object.values(domainMissing)
+      .flat()
+      .slice(0, 5);
+    if (topMissingKeywords.length > 0) {
+      categorizedSuggestions.strategic.push(
+        `Strengthen your technical breadth by adding keywords like: ${topMissingKeywords.join(", ")} to your resume.`
+      );
+    }
     const techSuggestions = techStandard.details?.suggestions || techStandard.suggestions || [];
     techSuggestions.forEach(s => categorizedSuggestions.strategic.push(s));
   } else {
