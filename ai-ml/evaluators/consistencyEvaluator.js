@@ -85,9 +85,14 @@ function detectGeneric(text) {
 export default function consistencyEvaluator({
   resumeText = ""
 }) {
-  const clean = normalize(resumeText);
+  // 1. Split sentences using the raw text so punctuation delimiters still exist
+  const rawSentences = splitSentences(resumeText);
+  
+  // 2. Normalize individual sentences for clean structural comparison
+  const sentences = rawSentences.map(s => normalize(s));
 
-  const sentences = splitSentences(clean);
+  // 3. Keep global normalization intact for whole-text frequency maps and phrase analysis
+  const clean = normalize(resumeText);
   const freqMap = getWordFrequency(clean);
   
   // Calculate word count and dynamic threshold (fixes #230)
