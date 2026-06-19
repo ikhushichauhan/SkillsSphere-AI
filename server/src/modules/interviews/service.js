@@ -546,6 +546,7 @@ export const getBookmarkedQuestions = async (userId) => {
   })
     .select("topic difficulty status overallScore createdAt completedAt answers")
     .sort({ createdAt: -1 })
+    .limit(50)
     .lean();
 
   return sessions.flatMap((session) =>
