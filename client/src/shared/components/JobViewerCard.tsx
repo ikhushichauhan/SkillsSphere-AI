@@ -18,46 +18,46 @@ import {
 } from "lucide-react";
 import Button from "./Button";
 
+import { JobPosting, JobLocation, JobSalary, JobLevel } from "../../types";
+
 export interface JobViewerCardProps {
-  job?: any;
+  job?: JobPosting;
   _id?: string;
   id?: string;
   title: string;
   description?: string;
-  skills?: string;
-  requirements?: string;
-  responsibilities?: string;
-  keywords?: string;
+  skills?: string[];
+  requirements?: string[];
+  responsibilities?: string[];
+  keywords?: string[];
   experienceRequired?: number;
-  jobLevel?: any;
-  status?: any;
-  location?: any;
+  jobLevel?: JobLevel;
+  status?: "open" | "draft" | "closed" | "published";
+  location?: JobLocation | string;
   city?: string;
   state?: string;
   country?: string;
   remote?: boolean;
-  salary?: any;
+  salary?: JobSalary;
   min?: number;
   max?: number;
   currency?: string;
   isNegotiable?: boolean;
-  recruiter?: any;
+  recruiter?: { name?: string; email?: string; company?: string; companyWebsite?: string; linkedinUrl?: string };
   name?: string;
   email?: string;
   company?: string;
   companyWebsite?: string;
   linkedinUrl?: string;
   createdAt?: string;
-  company?: string;
-  companyWebsite?: string;
   type?: string;
   openings?: number;
-  viewerRole?: any;
-  onApply?: (...args: any[]) => any;
-  onEdit?: (...args: any[]) => any;
-  onDelete?: (...args: any[]) => any;
-  onViewStats?: (...args: any[]) => any;
-  onViewApplicants?: (...args: any[]) => any;
+  viewerRole?: "student" | "recruiter";
+  onApply?: (job: JobPosting) => void;
+  onEdit?: (job: JobPosting) => void;
+  onDelete?: (job: JobPosting) => void;
+  onViewStats?: (job: JobPosting) => void;
+  onViewApplicants?: (job: JobPosting) => void;
   isApplied?: boolean;
   className?: string;
 }
@@ -69,8 +69,9 @@ export interface JobViewerCardProps {
  * Format nested location object from the JobPosting schema.
  * Handles optional `remote` flag and missing fields gracefully.
  */
-const formatLocation = (loc) => {
+const formatLocation = (loc?: JobLocation | string) => {
   if (!loc) return "Not specified";
+  if (typeof loc === "string") return loc;
   const parts = [loc.city, loc.state, loc.country].filter(Boolean);
   if (parts.length === 0) return loc.remote ? "Remote" : "Not specified";
   return loc.remote ? `${parts.join(", ")} · Remote` : parts.join(", ");
@@ -80,12 +81,12 @@ const formatLocation = (loc) => {
  * Format nested salary object from the JobPosting schema.
  * Supports `isNegotiable` flag and INR locale formatting.
  */
-const formatSalary = (sal) => {
+const formatSalary = (sal?: JobSalary) => {
   if (!sal) return "Not disclosed";
   const { min, max, currency = "INR", isNegotiable } = sal;
   if (isNegotiable) return `Negotiable (${currency})`;
   if (min == null && max == null) return "Not disclosed";
-  const fmt = (n) =>
+  const fmt = (n?: number) =>
     n != null
       ? Number(n).toLocaleString("en-IN", { maximumFractionDigits: 0 })
       : "–";
@@ -95,9 +96,9 @@ const formatSalary = (sal) => {
 /**
  * Returns a human-readable relative time string (e.g. "3d ago", "Just now").
  */
-const getTimeAgo = (date) => {
+const getTimeAgo = (date?: string) => {
   if (!date) return "–";
-  const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+  const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
   if (seconds < 0) return "Just now";
 
   const intervals = [
@@ -119,7 +120,7 @@ const getTimeAgo = (date) => {
 /**
  * Formats a date string as a locale-friendly short date.
  */
-const formatDate = (dateString) => {
+const formatDate = (dateString?: string) => {
   if (!dateString) return "–";
   return new Date(dateString).toLocaleDateString("en-IN", {
     year: "numeric",
@@ -165,7 +166,7 @@ const JOB_LEVEL_STYLES = {
  *   // Recruiter view
  *   <JobViewerCard job={job} viewerRole="recruiter" onEdit={fn} onViewStats={fn} />
  */
-const JobViewerCard = ({
+const JobViewerCard: React.FC<JobViewerCardProps> = ({
   job,
   viewerRole = "student",
   onApply,

@@ -3,9 +3,17 @@
 import React from 'react';
 import { CheckCircle2, Clock, XCircle, UserCheck, MessageSquare } from 'lucide-react';
 
-export interface StatusTimelineProps {
-  history?: any[];
+export interface ApplicationHistory {
+  _id?: string;
   status: string;
+  comment?: string;
+  updatedAt?: string;
+  date?: string;
+}
+
+export interface StatusTimelineProps {
+  history?: ApplicationHistory[];
+  status?: string;
   comment?: string;
   updatedAt?: string;
 }
@@ -19,7 +27,7 @@ const STATUS_ICONS = {
   withdrawn: { icon: XCircle, color: 'text-slate-400', bg: 'bg-slate-400/10' },
 };
 
-const StatusTimeline = ({ history = [] }) => {
+const StatusTimeline: React.FC<StatusTimelineProps> = ({ history = [] }) => {
   if (!history || history.length === 0) {
     return (
       <div className="text-center py-4 text-slate-500 text-sm italic">

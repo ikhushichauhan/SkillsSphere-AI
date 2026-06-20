@@ -20,7 +20,7 @@ export interface ApiError {
   status: number;
   message: string;
   errors: Record<string, string>;
-  data: any;
+  data: unknown;
 }
 
 // Domain Models
@@ -32,22 +32,51 @@ export interface User {
   lastName?: string;
   role: 'student' | 'recruiter' | 'admin' | 'tutor' | string;
   avatarUrl?: string;
-  preferences?: Record<string, any>;
+  preferences?: Record<string, unknown>;
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface JobLocation {
+  city?: string;
+  state?: string;
+  country?: string;
+  remote?: boolean;
+}
+
+export interface JobSalary {
+  min?: number;
+  max?: number;
+  currency?: string;
+  isNegotiable?: boolean;
+}
+
+export type JobLevel = "Internship" | "Entry Level" | "Associate" | "Mid-Senior Level" | "Director" | "Executive";
 
 export interface JobPosting {
   id: string;
   _id?: string;
   title: string;
   company: string;
+  companyWebsite?: string;
   description: string;
-  location?: string;
+  location?: JobLocation | string;
   salaryRange?: string;
+  salary?: JobSalary;
   requirements?: string[];
-  status: 'draft' | 'published' | 'closed';
+  responsibilities?: string[];
+  skills?: string[];
+  keywords?: string[];
+  experienceRequired?: number;
+  jobLevel?: JobLevel;
+  status: 'open' | 'draft' | 'closed' | 'published';
   recruiterId: string;
+  recruiter?: {
+    name?: string;
+    email?: string;
+    company?: string;
+    companyWebsite?: string;
+  };
   createdAt: string;
   updatedAt: string;
 }

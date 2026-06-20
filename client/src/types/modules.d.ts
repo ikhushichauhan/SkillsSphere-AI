@@ -1,12 +1,13 @@
 declare module '*.jsx' {
-  const component: any;
+  import React from 'react';
+  const component: React.ComponentType<Record<string, unknown>>;
   export default component;
 }
 
 declare module '*.js' {
-  const module: any;
+  const module: unknown;
   export default module;
-  export const configureStore: any;
-  export const fetchCurrentUser: any;
-  export const logoutUser: any;
+  export const configureStore: unknown;
+  export const fetchCurrentUser: unknown;
+  export const logoutUser: unknown;
 }

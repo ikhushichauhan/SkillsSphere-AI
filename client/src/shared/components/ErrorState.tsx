@@ -7,22 +7,15 @@ import Button from "./Button";
 export interface ErrorStateProps {
   title?: string;
   description?: string;
-  onRetry?: (...args: any[]) => any;
+  onRetry?: () => void;
   retryText?: string;
   className?: string;
 }
 
-
 /**
  * ErrorState — A unified error view with an optional retry action.
- * 
- * @param {string} title - Error heading
- * @param {string} description - Error details or message
- * @param {function} onRetry - Callback for the "Try Again" button
- * @param {string} retryText - Label for the retry button
- * @param {string} className - Extra Tailwind classes for the container
  */
-const ErrorState = ({ 
+const ErrorState: React.FC<ErrorStateProps> = ({ 
   title = "Something went wrong", 
   description, 
   onRetry,

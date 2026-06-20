@@ -3,14 +3,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export interface ButtonProps {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: any;
-  size?: any;
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
+  size?: "sm" | "md" | "lg";
   loading?: boolean;
   disabled?: boolean;
-  type?: any;
-  onClick?: (...args: any[]) => any;
+  type?: "button" | "submit" | "reset";
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   fullWidth?: boolean;
   className?: string;
   leftIcon?: React.ReactNode;
@@ -63,7 +63,7 @@ const ICON_SIZE = {
 };
 
 /** Inline SVG spinner */
-const Spinner = ({ sizeClass }) => (
+const Spinner = ({ sizeClass }: { sizeClass: string }) => (
   <svg
     className={`${sizeClass} animate-spin`}
     xmlns="http://www.w3.org/2000/svg"
@@ -87,7 +87,7 @@ const Spinner = ({ sizeClass }) => (
   </svg>
 );
 
-const Button = ({
+const Button: React.FC<ButtonProps> = ({
   children,
   variant = "primary",
   size = "md",

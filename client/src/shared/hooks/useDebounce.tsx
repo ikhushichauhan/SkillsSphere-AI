@@ -5,12 +5,12 @@ import { useState, useEffect } from 'react';
  * It waits for the specified delay to pass without any new updates 
  * before actually changing the returned value.
  *
- * @param {any} value - The state value to debounce (e.g., search term)
+ * @param {T} value - The state value to debounce (e.g., search term)
  * @param {number} delay - The delay in milliseconds (default: 500ms)
- * @returns {any} The debounced value
+ * @returns {T} The debounced value
  */
-export function useDebounce(value, delay = 500) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
+export function useDebounce<T>(value: T, delay = 500): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {
     // Set a timer to update the debounced value after the delay

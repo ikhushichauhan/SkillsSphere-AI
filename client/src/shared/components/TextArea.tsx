@@ -1,10 +1,11 @@
+import React from "react";
 
-export interface TextAreaProps {
+export interface TextAreaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'onChange'> {
   id: string;
   label?: string;
   placeholder?: string;
-  value?: string;
-  onChange?: (...args: any[]) => any;
+  value?: string | number;
+  onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
   error?: string;
   helperText?: string;
   disabled?: boolean;
@@ -13,11 +14,10 @@ export interface TextAreaProps {
   rows?: number;
 }
 
-
 /**
  * TextArea — Reusable multi-line text input component.
  */
-const TextArea = ({
+const TextArea: React.FC<TextAreaProps> = ({
   id,
   label,
   placeholder = "",

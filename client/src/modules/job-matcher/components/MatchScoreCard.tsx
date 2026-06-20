@@ -1,7 +1,14 @@
 import { ErrorState } from "../../../shared/components";
 import { Loader2 } from "lucide-react";
 
-export default function MatchScoreCard({ score, error, isLoading, onRetry }) {
+export interface MatchScoreCardProps {
+  score?: number;
+  error?: string;
+  isLoading?: boolean;
+  onRetry?: () => void;
+}
+
+export default function MatchScoreCard({ score = 0, error, isLoading, onRetry }: MatchScoreCardProps) {
   if (error) {
     return (
       <div className="bg-white dark:bg-white/10 backdrop-blur-lg border border-red-200 dark:border-red-900/50 p-6 rounded-2xl shadow-xl text-center">

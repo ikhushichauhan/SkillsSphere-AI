@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
-export interface InputProps {
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   id: string;
   label?: string;
   type?: string;
   placeholder?: string;
-  value?: string;
-  onChange?: (...args: any[]) => any;
+  value?: string | number;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
   error?: string;
   helperText?: string;
   disabled?: boolean;
@@ -17,27 +17,10 @@ export interface InputProps {
   rightIcon?: React.ReactNode;
 }
 
-
 /**
  * Input — Reusable text input component.
- *
- * Props
- * ─────
- * @param {string}   id          - Unique id (required for a11y label association)
- * @param {string}   label       - Visible label text
- * @param {string}   type        - HTML input type (default: "text")
- * @param {string}   placeholder - Placeholder text
- * @param {string|number} value  - Controlled value
- * @param {function} onChange    - Change handler
- * @param {string}   error       - Error message (shows red border + message)
- * @param {string}   helperText  - Subtle hint shown below input when no error
- * @param {boolean}  disabled    - Disables the input
- * @param {boolean}  required    - Marks field as required
- * @param {string}   className   - Extra Tailwind classes for the wrapper
- * @param {React.ReactNode} leftIcon  - Icon element rendered inside left edge
- * @param {React.ReactNode} rightIcon - Icon element rendered inside right edge
  */
-const Input = ({
+const Input: React.FC<InputProps> = ({
   id,
   label,
   type = "text",

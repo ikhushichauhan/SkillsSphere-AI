@@ -9,32 +9,32 @@ import { useToast } from './toast/ToastProvider';
 
 export interface StatusUpdateModalProps {
   isOpen: boolean;
-  onClose: (...args: any[]) => any;
-  onUpdate: (...args: any[]) => any;
+  onClose: () => void;
+  onUpdate: (status: string, comment: string) => Promise<void> | void;
   currentStatus?: string;
   applicantName?: string;
 }
 
-
-const StatusUpdateModal = ({ isOpen, onClose, onUpdate, currentStatus, applicantName }) => {
+const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({ isOpen, onClose, onUpdate, currentStatus, applicantName }) => {
   const toast = useToast();
   const [status, setStatus] = useState(currentStatus || 'reviewed');
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
       await onUpdate(status, comment);
       onClose();
-    } catch (err) {
-      setError(err.message || "Failed to update status.");
-      toast.error(err.message || "Failed to update status.");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to update status.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

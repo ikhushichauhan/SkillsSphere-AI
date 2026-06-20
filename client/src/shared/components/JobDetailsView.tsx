@@ -1,37 +1,39 @@
 import React from "react";
 
+import { JobPosting, JobLocation, JobSalary, JobLevel } from "../../types";
+
 export interface JobDetailsViewProps {
-  job?: any;
+  job?: JobPosting;
   _id?: string;
   title: string;
   description?: string;
-  skills?: string;
-  requirements?: string;
-  responsibilities?: string;
-  keywords?: string;
+  skills?: string[];
+  requirements?: string[];
+  responsibilities?: string[];
+  keywords?: string[];
   experienceRequired?: number;
-  jobLevel?: any;
-  status?: any;
-  location?: any;
+  jobLevel?: JobLevel;
+  status?: "open" | "draft" | "closed" | "published";
+  location?: JobLocation | string;
   city?: string;
   state?: string;
   country?: string;
   remote?: boolean;
-  salary?: any;
+  salary?: JobSalary;
   min?: number;
   max?: number;
   currency?: string;
   isNegotiable?: boolean;
-  recruiter?: any;
+  recruiter?: { name?: string; email?: string; company?: string; companyWebsite?: string };
   name?: string;
   email?: string;
   company?: string;
   createdAt?: string;
-  viewerRole?: any;
-  onEdit?: (...args: any[]) => any;
-  onDelete?: (...args: any[]) => any;
-  onApply?: (...args: any[]) => any;
-  onBack?: (...args: any[]) => any;
+  viewerRole?: "student" | "recruiter";
+  onEdit?: (job: JobPosting) => void;
+  onDelete?: (job: JobPosting) => void;
+  onApply?: (job: JobPosting) => void;
+  onBack?: () => void;
   isApplied?: boolean;
   className?: string;
 }
@@ -39,23 +41,24 @@ export interface JobDetailsViewProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const formatLocation = (loc) => {
+const formatLocation = (loc?: JobLocation | string) => {
   if (!loc) return "Not specified";
+  if (typeof loc === "string") return loc;
   const parts = [loc.city, loc.state, loc.country].filter(Boolean);
   return loc.remote ? `${parts.join(", ")} · Remote` : parts.join(", ");
 };
 
-const formatSalary = (sal) => {
+const formatSalary = (sal?: JobSalary) => {
   if (!sal) return "Not specified";
   const { min, max, currency, isNegotiable } = sal;
   if (isNegotiable) return `Negotiable (${currency || "INR"})`;
   if (min == null && max == null) return "Not disclosed";
-  const fmt = (n) =>
+  const fmt = (n?: number) =>
     n != null ? Number(n).toLocaleString("en-IN", { maximumFractionDigits: 0 }) : "–";
   return `${currency || "INR"} ${fmt(min)} – ${fmt(max)} / yr`;
 };
 
-const formatDate = (dateString) => {
+const formatDate = (dateString?: string) => {
   if (!dateString) return "–";
   return new Date(dateString).toLocaleDateString("en-IN", {
     year: "numeric", month: "short", day: "numeric",
@@ -71,8 +74,8 @@ const JOB_LEVEL_COLORS = {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-const Badge = ({ children, color = "slate" }) => {
-  const colors = {
+const Badge = ({ children, color = "slate" }: { children: React.ReactNode; color?: "blue" | "emerald" | "yellow" | "purple" | "slate" | string }) => {
+  const colors: Record<string, string> = {
     blue: "bg-blue-100 text-blue-900 border-blue-300 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/25",
     emerald: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25",
     yellow: "bg-yellow-100 text-yellow-900 border-yellow-300 dark:bg-yellow-500/15 dark:text-yellow-300 dark:border-yellow-500/25",
@@ -86,12 +89,12 @@ const Badge = ({ children, color = "slate" }) => {
   );
 };
 
-const StatusBadge = ({ status }) => {
-  const map = { open: "emerald", draft: "yellow", closed: "slate" };
+const StatusBadge = ({ status }: { status: "open" | "draft" | "closed" | "published" }) => {
+  const map: Record<string, string> = { open: "emerald", draft: "yellow", closed: "slate", published: "emerald" };
   return <Badge color={map[status] || "slate"}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>;
 };
 
-const InfoItem = ({ icon, label, value }) => (
+const InfoItem = ({ icon, label, value }: { icon: React.ReactNode; label: string; value?: React.ReactNode }) => (
   <div className="flex items-start gap-3">
     <span className="mt-0.5 text-slate-500 shrink-0">{icon}</span>
     <div>
@@ -101,7 +104,7 @@ const InfoItem = ({ icon, label, value }) => (
   </div>
 );
 
-const TagList = ({ items, color = "blue" }) => {
+const TagList = ({ items, color = "blue" }: { items?: string[]; color?: string }) => {
   if (!items || items.length === 0)
     return <p className="text-sm text-slate-500 italic">None listed</p>;
   return (
@@ -111,7 +114,7 @@ const TagList = ({ items, color = "blue" }) => {
   );
 };
 
-const BulletList = ({ items }) => {
+const BulletList = ({ items }: { items?: string[] }) => {
   if (!items || items.length === 0)
     return <p className="text-sm text-slate-500 italic">None listed</p>;
   return (
@@ -126,7 +129,7 @@ const BulletList = ({ items }) => {
   );
 };
 
-const Section = ({ title, children }) => (
+const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="border-t border-white/5 pt-5">
     <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{title}</h4>
     {children}
@@ -157,7 +160,7 @@ const Icons = {
  *   // Student
  *   <JobDetailsView job={job} viewerRole="student" onApply={fn} onBack={fn} isApplied={false} />
  */
-const JobDetailsView = ({
+const JobDetailsView: React.FC<JobDetailsViewProps> = ({
   job,
   viewerRole = "student",
   onEdit,

@@ -106,7 +106,7 @@ export const useInterviewAudio = ({
       setIsRecording(false);
       setUploadStatus("failed");
       setFailedAction("media");
-      const isCodecError = err.name === "NotSupportedError";
+      const isCodecError = err instanceof Error && err.name === "NotSupportedError";
       setMediaWarning(
         isCodecError
           ? "Audio recording is not supported in this browser. Please use Chrome or Firefox."

@@ -2,14 +2,17 @@
 
 import React from "react";
 
-export interface SelectProps {
+export interface SelectOption {
+  label: string;
+  value: string | number;
+}
+
+export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
   id: string;
   label?: string;
-  options?: any[];
+  options?: SelectOption[];
   value?: string;
-  label: string;
-  value?: string;
-  onChange?: (...args: any[]) => any;
+  onChange?: React.ChangeEventHandler<HTMLSelectElement>;
   placeholder?: string;
   error?: string;
   helperText?: string;
@@ -18,25 +21,10 @@ export interface SelectProps {
   className?: string;
 }
 
-
 /**
  * Select — Reusable dropdown/select component.
- *
- * Props
- * ─────
- * @param {string}   id          - Unique id (required for a11y label association)
- * @param {string}   label       - Visible label text
- * @param {Array<{value: string|number, label: string}>} options
- * @param {string|number} value  - Controlled value
- * @param {function} onChange    - Change handler
- * @param {string}   placeholder - Default blank option text (default: "Select an option")
- * @param {string}   error       - Error message
- * @param {string}   helperText  - Hint shown below when no error
- * @param {boolean}  disabled    - Disables the select
- * @param {boolean}  required    - Marks field as required
- * @param {string}   className   - Extra Tailwind classes for wrapper
  */
-const Select = ({
+const Select: React.FC<SelectProps> = ({
   id,
   label,
   options = [],
