@@ -48,4 +48,5 @@ class SimpleCache {
 
 // Export a singleton instance
 const cache = new SimpleCache();
+export { SimpleCache };
 export default cache;
