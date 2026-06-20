@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { API_URL } from "../config/env";
+import { apiRequest } from "../services/apiClient";
 import logger from "./logger";
 
 const SENSITIVE_KEYS = new Set([
@@ -75,15 +75,9 @@ const buildErrorPayload = (error, errorInfo = {}) => ({
 });
 
 const reportToBackend = async (payload) => {
-  const endpoint = `${API_URL}/api/errors`;
-
-  await fetch(endpoint, {
+  await apiRequest("/api/errors", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify(payload),
+    body: payload,
     keepalive: true,
   });
 };

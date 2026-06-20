@@ -145,7 +145,7 @@ const extractApiErrors = (value) => {
 };
 
 export const apiRequest = async (path, options = {}) => {
-  const { method = "GET", body, token, headers = {}, signal } = options;
+  const { method = "GET", body, token, headers = {}, signal, responseType = "json", keepalive } = options;
 
   const url = toUrl(path);
 
@@ -162,6 +162,7 @@ export const apiRequest = async (path, options = {}) => {
     method,
     headers: requestHeaders,
     signal,
+    keepalive,
   };
 
   if (body !== undefined && body !== null) {
@@ -189,7 +190,13 @@ export const apiRequest = async (path, options = {}) => {
 
   let data = null;
   if (response.status !== 204) {
-    if (contentType.includes("application/json")) {
+    if (responseType === "blob") {
+      try {
+        data = await response.blob();
+      } catch {
+        data = null;
+      }
+    } else if (contentType.includes("application/json")) {
       try {
         data = await response.json();
       } catch {

@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, startTransition } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { API_URL } from "../../config/env";
+import { apiRequest } from "../../services/apiClient";
 import { setOAuthData, persistAuth } from "../../features/auth/authSlice";
 import { useDocumentTitle } from "../../hooks/useDocumentTitle";
 import { useToast } from "../../shared/components";
@@ -85,12 +85,10 @@ const OAuthCallback = () => {
 
     const exchangeCode = async () => {
       try {
-        const exchangeRes = await fetch(`${API_URL}/api/auth/exchange-code`, {
+        const exchangeData = await apiRequest("/api/auth/exchange-code", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code }),
+          body: { code },
         });
-        const exchangeData = await exchangeRes.json();
 
         if (!exchangeData.success || !exchangeData.token) {
           throw new Error("OAuth authorization code exchange failed");
