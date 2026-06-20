@@ -98,7 +98,7 @@ export default function consistencyEvaluator({
   // 2. Normalize individual sentences for clean structural comparison
   const sentences = rawSentences.map(s => normalize(s));
 
-  const sentences = splitSentences(clean);
+  const clean = normalize(resumeText);
 
   // Extract both the frequency map and the non-deflated total word count
   const { freqMap, totalWordCount: wordCount } = getWordFrequency(clean);

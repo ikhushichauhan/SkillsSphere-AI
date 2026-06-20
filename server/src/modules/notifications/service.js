@@ -100,7 +100,6 @@ export const getNotificationById = async (notificationId, userId) => {
 
   // Verify ownership
   if (notificationUserId.toString() !== userId) {
-  if (!notification.userId || notification.userId._id.toString() !== userId) {
     throw new AppError("Not authorized to access this notification", 403);
   }
 

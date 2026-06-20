@@ -17,8 +17,8 @@ import WebSocket from "ws";
 
 import logger from "../utils/logger.js";
 
-const AI_SERVICE_URL =
-  process.env.INTERVIEW_AI_URL || "http://localhost:8000";
+const isProduction = process.env.NODE_ENV === "production";
+const AI_SERVICE_URL = isProduction ? process.env.INTERVIEW_AI_URL : (process.env.INTERVIEW_AI_URL || "http://localhost:8000");
 const EVAL_TIMEOUT = parseInt(process.env.INTERVIEW_AI_TIMEOUT || "5000", 10);
 const TRANSCRIBE_TIMEOUT = parseInt(
   process.env.INTERVIEW_AI_TRANSCRIBE_TIMEOUT || "30000",

@@ -499,6 +499,46 @@ export const validateSocketRateLimiterConfig = (env = process.env) => {
   return { errors, warnings };
 };
 
+export const validateServiceUrls = (env = process.env) => {
+  const errors = [];
+  const warnings = [];
+  const production = isProduction(env);
+
+  const urlKeys = [
+    { name: "FRONTEND_URL", requiredProd: true },
+    { name: "BACKEND_URL", requiredProd: false },
+    { name: "INTERVIEW_AI_URL", requiredProd: true },
+    { name: "REDIS_URL", requiredProd: true },
+  ];
+
+  for (const { name, requiredProd } of urlKeys) {
+    const value = env[name];
+    
+    if (isBlank(value)) {
+      if (production && requiredProd) {
+        addIssue(errors, name, "is required in production. Do not rely on localhost fallbacks.");
+      } else if (!production && requiredProd) {
+        addIssue(warnings, name, "is not set. Falling back to localhost defaults.");
+      }
+      continue;
+    }
+
+    if (hasPlaceholderValue(value)) {
+      addIssue(production ? errors : warnings, name, "must not contain placeholder values.");
+    }
+
+    if (production && hasLocalHost(value)) {
+      addIssue(errors, name, "must not point to localhost in production.");
+    }
+    
+    if (!isValidUrl(value)) {
+       addIssue(production ? errors : warnings, name, "must be a valid URL.");
+    }
+  }
+
+  return { errors, warnings };
+};
+
 export const collectEnvValidationIssues = (env = process.env) => {
   const checks = [
     validateRequiredEnv,
@@ -510,6 +550,7 @@ export const collectEnvValidationIssues = (env = process.env) => {
     validateExternalApiKeys,
     validateFileSigningSecret,
     validateSocketRateLimiterConfig,
+    validateServiceUrls,
   ];
 
   return checks.reduce(

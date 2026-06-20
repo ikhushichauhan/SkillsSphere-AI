@@ -16,7 +16,7 @@ export const getFrontendUrl = () => {
   if (!url && isProduction) {
     logger.warn("WARNING: FRONTEND_URL is not set in production. CORS and OAuth redirects may fail.");
   }
-  return url || "http://localhost:5174";
+  return isProduction ? (url || "") : (url || "http://localhost:5174");
 };
 
 export const getBackendUrl = () => {
@@ -24,7 +24,7 @@ export const getBackendUrl = () => {
   if (!url && isProduction) {
     logger.warn("WARNING: BACKEND_URL is not set in production. Resource URLs may be incorrect.");
   }
-  return url || `http://localhost:${process.env.PORT || 5000}`;
+  return isProduction ? (url || "") : (url || `http://localhost:${process.env.PORT || 5000}`);
 };
 
 export const getCorsOrigins = () => {
@@ -32,8 +32,8 @@ export const getCorsOrigins = () => {
     logger.warn("WARNING: Missing FRONTEND_URL in production, CORS might block legitimate requests.");
   }
   const frontendUrl = getFrontendUrl();
-  return [
+  return isProduction ? [frontendUrl].filter(Boolean) : [
     frontendUrl,
     "http://localhost:5173", // Secondary dev server
-  ];
+  ].filter(Boolean);
 };

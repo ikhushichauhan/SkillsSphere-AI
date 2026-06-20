@@ -411,8 +411,7 @@ export const googleLogin = asyncHandler(async (req, res, next) => {
 // Google OAuth callback (redirect flow)
 export const googleOAuthCallback = asyncHandler(async (req, res, next) => {
   const { code, state } = req.query;
-  const frontendRedirectBase =
-    process.env.FRONTEND_URL || "http://localhost:5174";
+  const frontendRedirectBase = getFrontendUrl();
   const frontendRedirectOrigin = new URL(frontendRedirectBase).origin;
   const fallbackCallbackUrl = `${frontendRedirectOrigin}${DEFAULT_OAUTH_REDIRECT_PATH}`;
   let callbackUrl = fallbackCallbackUrl;

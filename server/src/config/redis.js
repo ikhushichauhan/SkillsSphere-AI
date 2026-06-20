@@ -5,8 +5,11 @@ import logger from "../utils/logger.js";
 
 dotenv.config();
 
+const isProduction = process.env.NODE_ENV === "production";
+const redisUrl = isProduction ? process.env.REDIS_URL : (process.env.REDIS_URL || "redis://localhost:6379");
+
 const redisClient = createClient({
-  url: process.env.REDIS_URL || "redis://localhost:6379",
+  url: redisUrl,
   socket: {
     reconnectStrategy: (retries) => {
       if (retries > 10) return new Error("Redis max retries reached");
