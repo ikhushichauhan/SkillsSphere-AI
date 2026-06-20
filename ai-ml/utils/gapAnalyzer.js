@@ -16,7 +16,7 @@ export default function gapAnalyzer({
     optimization: []
   };
 
-  // 1. 🚨 Critical: Structural & ATS Gaps
+  // 1. Critical: Structural & ATS Gaps
   if (atsOptimization?.score < 80) {
     const details = atsOptimization.details || {};
     const sectionResults = details.sectionResults || {};
@@ -41,7 +41,7 @@ export default function gapAnalyzer({
     categorizedSuggestions.optimization.push("Your ATS structure is excellent. Ensure you use standard, non-serif fonts to guarantee 100% parseability by legacy ATS systems.");
   }
 
-  // 2. 🎯 Strategic: Skills & Keywords (Only if JD provided)
+  // 2. Strategic: Skills & Keywords (Only if JD provided)
   if (isJDProvided && skillMatch?.score !== null && skillMatch?.score < 100) {
     const missingSkills = skillMatch.details?.missingSkills || skillMatch.missingSkills || [];
     const prioritySkills = missingSkills.slice(0, 3);
@@ -66,7 +66,7 @@ export default function gapAnalyzer({
     }
   }
 
-  // 3. 📈 Optimization: Impact & Readability
+  // 3. Optimization: Impact & Readability
   if (impactMatch?.score < 50) {
     categorizedSuggestions.optimization.push("Transform task-based descriptions into result-oriented bullet points using the XYZ formula (Accomplished [X] as measured by [Y], by doing [Z]).");
   } else {
@@ -98,7 +98,7 @@ export default function gapAnalyzer({
     categorizedSuggestions.strategic.push("You have a solid technical foundation. Consider linking open-source contributions or live deployments to provide proof-of-work for your top skills.");
   }
 
-  // 5. 🤝 Contribution Milestones
+  // 5. Contribution Milestones
   const contributionSuggestions = [];
   const field = (resumeText || "").toLowerCase();
   
