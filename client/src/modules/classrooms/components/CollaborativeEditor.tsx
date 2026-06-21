@@ -3,25 +3,24 @@ import Editor from "@monaco-editor/react";
 import { Code2, Info, Play, Terminal, XCircle, Loader2, Copy, Download } from "lucide-react";
 import { useToast } from "../../../shared/components/toast/ToastProvider";
 
+import * as Y from "yjs";
+import { MonacoBinding } from "y-monaco";
+
 import logger from "../../../utils/logger";
 
-export default function SharedCodeEditor({ socket, roomId, userRole, initialCode }) {
+export default function CollaborativeEditor({ socket, roomId, userRole, initialCode }) {
   const { success } = useToast();
+  // Standard code state
   const [code, setCode] = useState(initialCode || `// Welcome to SkillSphere AI Live Coding Classroom!\n// Type your collaborative code here...\n\nfunction helloWorld() {\n  logger.log("Welcome to class!");\n}`);
   const [language, setLanguage] = useState("javascript");
-
-  useEffect(() => {
-    if (initialCode) {
-      setCode(initialCode);
-    }
-  }, [initialCode]);
-  const [lastEditorInfo, setLastEditorInfo] = useState("");
   const [isExecuting, setIsExecuting] = useState(false);
-  const [executionResult, setExecutionResult] = useState(null); // { output, isError, senderName }
+  const [executionResult, setExecutionResult] = useState(null);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
+  const [lastEditorInfo, setLastEditorInfo] = useState("");
   
   const editorRef = useRef(null);
-  const isRemoteChangeRef = useRef(false);
+  const docRef = useRef(null);
+  const bindingRef = useRef(null);
 
   const languages = [
     { label: "JavaScript", value: "javascript" },
@@ -31,30 +30,28 @@ export default function SharedCodeEditor({ socket, roomId, userRole, initialCode
     { label: "C++", value: "cpp" }
   ];
 
+  // Setup Yjs and Socket.io relay integration
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !roomId) return;
 
-    // Listen for code changes from other participants
-    socket.on("code-change", ({ code }) => {
-      isRemoteChangeRef.current = true;
-      setCode(code);
-      // Reset ref flag after rendering cycle
-      setTimeout(() => {
-        isRemoteChangeRef.current = false;
-      }, 50);
+    // Create Yjs Document
+    const doc = new Y.Doc();
+    docRef.current = doc;
+
+    // Handle incoming Yjs updates from the relay server
+    const handleRemoteUpdate = ({ update }) => {
+      Y.applyUpdate(doc, new Uint8Array(update));
+    };
+
+    socket.on("yjs-update", handleRemoteUpdate);
+
+    // Send local Yjs updates to the relay server
+    doc.on("update", (update) => {
+      // Y.applyUpdate triggers this, but we only want to broadcast local changes
+      socket.emit("yjs-update", { roomId, update: Array.from(update) });
     });
 
-    // Listen for remote cursor updates
-    socket.on("code-cursor", ({ cursorPosition, senderName }) => {
-      setLastEditorInfo(`${senderName} is active on line ${cursorPosition.line}, col ${cursorPosition.column}`);
-      // Clear after 3 seconds of inactivity
-      const timer = setTimeout(() => {
-        setLastEditorInfo("");
-      }, 3000);
-      return () => clearTimeout(timer);
-    });
-
-    // Listen for execution started
+    // Handle code execution events
     socket.on("execution-started", ({ senderName }) => {
       setIsExecuting(true);
       setIsTerminalOpen(true);
@@ -65,7 +62,6 @@ export default function SharedCodeEditor({ socket, roomId, userRole, initialCode
       });
     });
 
-    // Listen for execution result
     socket.on("execution-result", ({ output, isError, senderName }) => {
       setIsExecuting(false);
       setExecutionResult({
@@ -74,28 +70,46 @@ export default function SharedCodeEditor({ socket, roomId, userRole, initialCode
         senderName,
       });
     });
+    
+    // Also handle cursor events
+    socket.on("code-cursor", ({ cursorPosition, senderName }) => {
+      setLastEditorInfo(`${senderName} is active on line ${cursorPosition.line}, col ${cursorPosition.column}`);
+      setTimeout(() => setLastEditorInfo(""), 3000);
+    });
 
     return () => {
-      socket.off("code-change");
-      socket.off("code-cursor");
+      socket.off("yjs-update", handleRemoteUpdate);
       socket.off("execution-started");
       socket.off("execution-result");
+      socket.off("code-cursor");
+      doc.destroy();
     };
-  }, [socket]);
-
-  const handleEditorChange = (value) => {
-    setCode(value);
-    if (socket && !isRemoteChangeRef.current) {
-      socket.emit("code-change", { roomId, code: value });
-    }
-  };
+  }, [socket, roomId]);
 
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
 
-    // Emit cursor position changes to others
+    if (docRef.current) {
+      const type = docRef.current.getText("monaco");
+      
+      // If the document is currently empty but we have initialCode, insert it
+      if (type.toString() === "" && initialCode) {
+        type.insert(0, initialCode);
+      } else if (type.toString() === "" && code) {
+        type.insert(0, code);
+      }
+
+      // Bind Yjs to Monaco
+      bindingRef.current = new MonacoBinding(
+        type,
+        editor.getModel(),
+        new Set([editor]),
+        // We aren't setting up awareness in this lightweight relay, but it can be added here
+      );
+    }
+    
     editor.onDidChangeCursorPosition((e) => {
-      if (socket && !isRemoteChangeRef.current) {
+      if (socket) {
         socket.emit("code-cursor", {
           roomId,
           cursorPosition: {
@@ -107,22 +121,30 @@ export default function SharedCodeEditor({ socket, roomId, userRole, initialCode
     });
   };
 
+  const handleEditorChange = (value) => {
+    setCode(value);
+  };
+
   const handleRunCode = () => {
     if (!socket || isExecuting) return;
     setIsExecuting(true);
     setIsTerminalOpen(true);
     setExecutionResult({ output: "Executing...\n", isError: false, senderName: "You" });
     
+    // Use the latest Yjs text content
+    const currentCode = docRef.current?.getText("monaco").toString() || code;
+    
     socket.emit("execute-code-request", {
       roomId,
-      code,
+      code: currentCode,
       language
     });
   };
 
   const handleCopyCode = async () => {
     try {
-      await navigator.clipboard.writeText(code);
+      const currentCode = docRef.current?.getText("monaco").toString() || code;
+      await navigator.clipboard.writeText(currentCode);
       success("Code copied to clipboard!");
     } catch (err: any) {
       logger.error("Failed to copy", err);
@@ -138,7 +160,8 @@ export default function SharedCodeEditor({ socket, roomId, userRole, initialCode
       cpp: "cpp"
     };
     const ext = extMap[language] || "txt";
-    const blob = new Blob([code], { type: "text/plain" });
+    const currentCode = docRef.current?.getText("monaco").toString() || code;
+    const blob = new Blob([currentCode], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -210,7 +233,7 @@ export default function SharedCodeEditor({ socket, roomId, userRole, initialCode
           height="100%"
           language={language}
           theme="vs-dark"
-          value={code}
+          defaultValue={initialCode || code}
           onChange={handleEditorChange}
           onMount={handleEditorDidMount}
           options={{

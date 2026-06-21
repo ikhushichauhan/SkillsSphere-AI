@@ -89,6 +89,19 @@ export default function registerCodeEditorHandler(io, socket) {
     socket.to(roomId).emit("code-change", { code });
   });
 
+  // Yjs update event for CRDT sync
+  socket.on("yjs-update", ({ roomId, update }) => {
+    if (!socket.data || socket.data.roomId !== roomId) {
+      socket.emit("unauthorized", {
+        message: "Cross-classroom action detected",
+      });
+      return;
+    }
+    
+    // Broadcast the raw Uint8Array/Array payload to all other clients in the room
+    socket.to(roomId).emit("yjs-update", { update });
+  });
+
   // Code cursor event
   socket.on("code-cursor", ({ roomId, cursorPosition }) => {
     if (!socket.data || socket.data.roomId !== roomId) {

@@ -22,9 +22,9 @@ import { getSession, clearClassroomsError } from "../../../features/classrooms/c
 import { ErrorState } from "../../../shared/components";
 import Peer from "simple-peer";
 import { io } from "socket.io-client";
-import SharedCodeEditor from "../components/SharedCodeEditor";
+import CollaborativeEditor from "../components/CollaborativeEditor";
 import VideoTile from "../components/VideoTile";
-import Whiteboard from "../components/Whiteboard";
+import InteractiveWhiteboard from "../components/InteractiveWhiteboard";
 import { endClassroomSession } from "../services/classroomService";
 
 import { SOCKET_URL } from "../../../config/env";
@@ -690,7 +690,7 @@ export default function ClassroomRoom() {
               )}
 
               {activeWorkspace === "whiteboard" && socket && (
-                <Whiteboard
+                <InteractiveWhiteboard
                   socket={socket}
                   roomId={roomId}
                   userRole={user?.role}
@@ -699,7 +699,7 @@ export default function ClassroomRoom() {
               )}
 
               {activeWorkspace === "code" && socket && (
-                <SharedCodeEditor
+                <CollaborativeEditor
                   socket={socket}
                   roomId={roomId}
                   userRole={user?.role}

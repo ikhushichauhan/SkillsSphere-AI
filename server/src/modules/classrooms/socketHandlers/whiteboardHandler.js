@@ -247,8 +247,8 @@ export const canClearWhiteboard = (socket) =>
   CLEAR_CANVAS_ROLES.has(socket.data?.user?.role);
 
 export default function registerWhiteboardHandler(io, socket) {
-  // Draw stroke event
-  socket.on("draw-stroke", async ({ roomId, strokeData }) => {
+  // Excalidraw update event
+  socket.on("excalidraw-update", async ({ roomId, elements }) => {
     if (!socket.data || socket.data.roomId !== roomId) {
       socket.emit("unauthorized", {
         message: "Cross-classroom action detected",
@@ -256,34 +256,30 @@ export default function registerWhiteboardHandler(io, socket) {
       return;
     }
 
-    const validation = validateWhiteboardStrokePayload(strokeData);
-    if (!validation.isValid) {
-      emitWhiteboardError(
-        socket,
-        validation.error.errorCode,
-        validation.error.message,
-      );
+    if (!Array.isArray(elements)) {
+      emitWhiteboardError(socket, WHITEBOARD_ERROR_CODES.INVALID_STROKE_PAYLOAD, "Elements must be an array");
       return;
     }
 
-    const validatedStroke = { ...validation.strokeData };
-    if (validatedStroke.points && Array.isArray(validatedStroke.points)) {
-      validatedStroke.points = optimizeStrokePoints(validatedStroke.points);
-    }
-
-    const payload = {
-      strokeData: validatedStroke,
-      sender: socket.data.user,
-    };
-
     const state = getOrCreateRoomState(roomId);
-    if (state.whiteboard.length >= 2000) {
-      state.whiteboard.shift();
-    }
-    state.whiteboard.push(payload);
+    // Excalidraw elements represent the full current state of the board
+    state.whiteboard = elements;
     persistRoomState(roomId);
 
-    socket.to(roomId).emit("draw-stroke", payload);
+    socket.to(roomId).emit("excalidraw-update", { elements });
+  });
+
+  // Excalidraw pointer update event
+  socket.on("excalidraw-pointer", async ({ roomId, pointer }) => {
+    if (!socket.data || socket.data.roomId !== roomId) {
+      return;
+    }
+    // Broadcast pointer to other users
+    socket.to(roomId).emit("excalidraw-pointer", {
+      pointer,
+      senderId: socket.id,
+      senderName: socket.data.user?.name || "Participant"
+    });
   });
 
   // Clear canvas event
