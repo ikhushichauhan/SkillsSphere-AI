@@ -3,7 +3,7 @@ import { Activity, Users, FileText, LayoutDashboard } from "lucide-react";
 import Navbar from "../../../shared/components/Navbar";
 import Footer from "../../../shared/components/Footer";
 import AuditChart from "../components/AuditChart";
-import api from "../../../services/api";
+import api from "../../../services/apiClient";
 
 const AdminAnalyticsDashboard = () => {
   const [data, setData] = useState({ chartData: [], actions: [] });
