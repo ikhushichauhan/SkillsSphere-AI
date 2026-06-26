@@ -131,16 +131,21 @@ const mockEvaluate = (transcript, expectedAnswer, expectedConcepts) => {
 
   // Simple keyword overlap for technical score
   const expectedWords = expectedLower.split(/\s+/).filter((w) => w.length > 3);
-  const matchedWords = expectedWords.filter((w) => transcriptLower.includes(w));
+  const matchedWords = expectedWords.filter((w) => {
+    const regex = new RegExp(`\\b${w}\\b`, "i");
+    return regex.test(transcriptLower);
+  });
   const technical = Math.min(
     100,
     Math.round((matchedWords.length / Math.max(expectedWords.length, 1)) * 100)
   );
 
   // Concept detection via keyword matching
-  const detected = expectedConcepts.filter((c) =>
-    transcriptLower.includes(c.replace(/-/g, " ").toLowerCase())
-  );
+  const detected = expectedConcepts.filter((c) => {
+    const conceptStr = c.replace(/-/g, " ").toLowerCase();
+    const regex = new RegExp(`\\b${conceptStr}\\b`, "i");
+    return regex.test(transcriptLower);
+  });
   const missed = expectedConcepts.filter((c) => !detected.includes(c));
   const relevance = Math.round(
     (detected.length / Math.max(expectedConcepts.length, 1)) * 100
