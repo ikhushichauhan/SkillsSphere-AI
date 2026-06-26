@@ -2,9 +2,16 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import { authorizeRoles, protect } from "../../middleware/authMiddleware.js";
+import { validateBody } from "../../middleware/validation.js";
 import cacheMiddleware from "../../middleware/cacheMiddleware.js";
 import { aiActionLimiter } from "../../middleware/rateLimiter.js";
 import AppError from "../../utils/AppError.js";
+import {
+  startInterviewSchema,
+  submitAnswerSchema,
+  submitTutorFeedbackSchema,
+  bookmarkQuestionSchema,
+} from "../../validations/interviews.validation.js";
 import {
   completeInterview,
   bookmarkQuestion,
@@ -189,7 +196,7 @@ router.get("/ai-status", getAIServiceStatus);
  *       201:
  *         description: Session started
  */
-router.post("/start", aiActionLimiter, startInterview);
+router.post("/start", aiActionLimiter, validateBody(startInterviewSchema), startInterview);
 
 /**
  * @openapi
@@ -286,6 +293,7 @@ router.get("/tutor/sessions/:id", authorizeRoles("tutor"), getTutorSession);
 router.post(
   "/tutor/sessions/:id/feedback",
   authorizeRoles("tutor"),
+  validateBody(submitTutorFeedbackSchema),
   submitTutorFeedback,
 );
 
@@ -358,6 +366,7 @@ router.post(
   aiActionLimiter,
   handleAudioUpload,
   validateUploadedAudioFile,
+  validateBody(submitAnswerSchema),
   submitAnswer,
 );
 
@@ -404,7 +413,7 @@ router.post("/:id/complete", completeInterview);
  *       200:
  *         description: Question bookmarked
  */
-router.patch("/:id/questions/:questionId/bookmark", bookmarkQuestion);
+router.patch("/:id/questions/:questionId/bookmark", validateBody(bookmarkQuestionSchema), bookmarkQuestion);
 
 /**
  * @openapi

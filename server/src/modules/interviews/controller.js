@@ -26,10 +26,6 @@ import { safeDeletePhysicalFile } from "../../utils/fileUtils.js";
 export const startInterview = asyncHandler(async (req, res) => {
   const { topic, difficulty, persona } = req.body;
 
-  if (!topic) {
-    throw new AppError("Topic is required to start an interview", 400);
-  }
-
   const session = await createSession({
     userId: req.user._id,
     topic,
@@ -161,13 +157,6 @@ export const getSessionResults = asyncHandler(async (req, res) => {
  * @access  Private
  */
 export const bookmarkQuestion = asyncHandler(async (req, res) => {
-  if (
-    req.body?.bookmarked !== undefined &&
-    typeof req.body.bookmarked !== "boolean"
-  ) {
-    throw new AppError("bookmarked must be a boolean", 400);
-  }
-
   const bookmark = await updateQuestionBookmark({
     sessionId: req.params.id,
     questionId: req.params.questionId,
