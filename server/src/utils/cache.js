@@ -44,6 +44,43 @@ class SimpleCache {
   clear() {
     this.cache.clear();
   }
+
+  /**
+   * Check if a key exists and is not expired (does not delete expired entries)
+   * @param {string} key - The cache key
+   * @returns {boolean} True if exists and not expired
+   */
+  has(key) {
+    const item = this.cache.get(key);
+    if (!item) return false;
+    return Date.now() <= item.expiresAt;
+  }
+
+  /**
+   * Check if a key is expired or missing
+   * @param {string} key - The cache key
+   * @returns {boolean} True if expired or missing
+   */
+  isExpired(key) {
+    const item = this.cache.get(key);
+    if (!item) return true;
+    return Date.now() > item.expiresAt;
+  }
+
+  /**
+   * Get the number of non-expired entries in the cache
+   * @returns {number} The count of active entries
+   */
+  get size() {
+    let count = 0;
+    const now = Date.now();
+    for (const item of this.cache.values()) {
+      if (now <= item.expiresAt) {
+        count++;
+      }
+    }
+    return count;
+  }
 }
 
 // Export a singleton instance
