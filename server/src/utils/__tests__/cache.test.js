@@ -82,3 +82,46 @@ test("storing falsy values (false, 0, empty string) is supported", () => {
   assert.equal(cache.get("falsyZero"), 0);
   assert.equal(cache.get("falsyEmpty"), "");
 });
+
+test("has returns true for existing non-expired key", () => {
+  const cache = new SimpleCache();
+  cache.set("key4", "value4", 60);
+  assert.equal(cache.has("key4"), true);
+});
+
+test("has returns false for missing or expired key", async () => {
+  const cache = new SimpleCache();
+  assert.equal(cache.has("missing"), false);
+  
+  cache.set("exp", "val", 0);
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.equal(cache.has("exp"), false);
+});
+
+test("isExpired returns false for non-expired key", () => {
+  const cache = new SimpleCache();
+  cache.set("key5", "value5", 60);
+  assert.equal(cache.isExpired("key5"), false);
+});
+
+test("isExpired returns true for missing or expired key", async () => {
+  const cache = new SimpleCache();
+  assert.equal(cache.isExpired("missing"), true);
+  
+  cache.set("exp2", "val", 0);
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.equal(cache.isExpired("exp2"), true);
+});
+
+test("size returns count of non-expired keys", async () => {
+  const cache = new SimpleCache();
+  assert.equal(cache.size, 0);
+  
+  cache.set("k1", 1, 60);
+  cache.set("k2", 2, 60);
+  assert.equal(cache.size, 2);
+  
+  cache.set("k3", 3, 0);
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.equal(cache.size, 2); // k3 is expired
+});

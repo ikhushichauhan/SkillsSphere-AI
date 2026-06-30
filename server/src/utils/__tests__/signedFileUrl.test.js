@@ -5,6 +5,7 @@ import {
   buildSignedFileUrl,
   normalizeProtectedFilePath,
   verifySignedFileUrl,
+  parseSignedUrlExpiry,
 } from "../signedFileUrl.js";
 
 process.env.FILE_URL_SIGNING_SECRET = "test-signing-secret-that-is-long-enough-for-hmac";
@@ -97,4 +98,37 @@ test("buildSignedFileUrl throws when FILE_URL_SIGNING_SECRET is too short", () =
   );
 
   process.env.FILE_URL_SIGNING_SECRET = original;
+});
+
+test("parseSignedUrlExpiry returns valid expiry from absolute URL", () => {
+  const expiresAt = Math.floor(Date.now() / 1000) + 3600;
+  const url = `http://localhost:3000/api/files/avatars/a.png?exp=${expiresAt}&sig=abc`;
+  assert.equal(parseSignedUrlExpiry(url), expiresAt);
+});
+
+test("parseSignedUrlExpiry returns valid expiry from relative path", () => {
+  const expiresAt = Math.floor(Date.now() / 1000) + 3600;
+  const path = `/api/files/avatars/a.png?exp=${expiresAt}&sig=abc`;
+  assert.equal(parseSignedUrlExpiry(path), expiresAt);
+});
+
+test("parseSignedUrlExpiry returns null for missing exp", () => {
+  assert.equal(parseSignedUrlExpiry("/api/files/avatars/a.png?sig=abc"), null);
+});
+
+test("parseSignedUrlExpiry returns null for invalid exp", () => {
+  assert.equal(parseSignedUrlExpiry("/api/files/avatars/a.png?exp=abc"), null);
+  assert.equal(parseSignedUrlExpiry("/api/files/avatars/a.png?exp=0"), null);
+  assert.equal(parseSignedUrlExpiry("/api/files/avatars/a.png?exp=-100"), null);
+});
+
+test("parseSignedUrlExpiry returns null for expired exp", () => {
+  const expiresAt = Math.floor(Date.now() / 1000) - 3600;
+  assert.equal(parseSignedUrlExpiry(`/api/files/avatars/a.png?exp=${expiresAt}`), null);
+});
+
+test("parseSignedUrlExpiry returns null for invalid input types", () => {
+  assert.equal(parseSignedUrlExpiry(null), null);
+  assert.equal(parseSignedUrlExpiry(undefined), null);
+  assert.equal(parseSignedUrlExpiry(123), null);
 });
