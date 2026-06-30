@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import logger from "../../../utils/logger";
 
 export const useInterviewAudio = ({
@@ -17,6 +17,7 @@ export const useInterviewAudio = ({
   const mediaStreamRef = useRef(null);
   const mediaTrackCleanupRef = useRef([]);
   const isStartingRef = useRef(false);
+  const audioChunkQueue = useRef([]);
 
   const clearMediaTrackListeners = useCallback(() => {
     mediaTrackCleanupRef.current.forEach((cleanup) => cleanup());
@@ -72,12 +73,22 @@ export const useInterviewAudio = ({
 
       mediaRecorder.ondataavailable = (event) => {
         try {
-          if (event.data.size > 0 && socket && socketStatus === "connected") {
-            setUploadStatus("uploading");
-            socket.emit("audio-chunk", { sessionId, chunk: event.data });
-          } else if (event.data.size > 0) {
-            setUploadStatus("queued");
-            setRecoveryMessage("Audio upload paused until the connection recovers.");
+          if (event.data.size > 0) {
+            if (socket && socketStatus === "connected") {
+              if (audioChunkQueue.current.length > 0) {
+                logger.info(`[InterviewSessionAudio] Flushing ${audioChunkQueue.current.length} queued audio chunks.`);
+                audioChunkQueue.current.forEach((chunk) => {
+                  socket.emit("audio-chunk", { sessionId, chunk });
+                });
+                audioChunkQueue.current = [];
+              }
+              setUploadStatus("uploading");
+              socket.emit("audio-chunk", { sessionId, chunk: event.data });
+            } else {
+              audioChunkQueue.current.push(event.data);
+              setUploadStatus("queued");
+              setRecoveryMessage("Audio upload paused. Chunks are being saved locally.");
+            }
           }
         } catch (err: any) {
           setUploadStatus("failed");
@@ -151,6 +162,21 @@ export const useInterviewAudio = ({
       socket.emit("end-audio-stream", { sessionId });
     }
   }, [clearMediaTrackListeners, sessionId, socket, socketStatus]);
+
+  useEffect(() => {
+    if (isRecording && socket && socketStatus === "connected") {
+      logger.info("[InterviewSessionAudio] Reconnected during active recording. Restarting audio stream.");
+      socket.emit("start-audio-stream", { sessionId });
+      
+      if (audioChunkQueue.current.length > 0) {
+        logger.info(`[InterviewSessionAudio] Flushing ${audioChunkQueue.current.length} queued audio chunks on reconnection.`);
+        audioChunkQueue.current.forEach((chunk) => {
+          socket.emit("audio-chunk", { sessionId, chunk });
+        });
+        audioChunkQueue.current = [];
+      }
+    }
+  }, [socket, socketStatus, isRecording, sessionId]);
 
   return {
     isRecording,
