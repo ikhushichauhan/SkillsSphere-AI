@@ -48,7 +48,7 @@ const connectDB = async () => {
       minPoolSize: 2,
     });
     isConnected = true;
-    logger.info(`MongoDB Connected Successfully! : ${conn.connection.host}`);
+    logger.info("MongoDB Connected Successfully!");
 
     // Seed data if collections are empty
     try {
