@@ -98,11 +98,9 @@ const DeleteModal = ({ onConfirm, onCancel, loading }) => (
         action <strong>cannot be undone</strong>.
       </p>
       <div className="flex gap-3">
-        {/* @ts-expect-error TODO: Fix pervasive types */}
         <Button variant="outline" fullWidth onClick={onCancel} disabled={loading}>
           Cancel
         </Button>
-        {/* @ts-expect-error TODO: Fix pervasive types */}
         <Button variant="danger" fullWidth onClick={onConfirm} loading={loading}>
           Yes, Delete
         </Button>
@@ -253,7 +251,7 @@ const ProfilePage = () => {
     linkedinUrl: user?.linkedinUrl || "",
     credentialUrl: user?.credentialUrl || "",
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -633,13 +631,10 @@ const ProfilePage = () => {
               {/* Desktop Mode Action Buttons */}
               <div className="hidden sm:block">
                 {!isEditing ? (
-                  // @ts-expect-error TODO: Fix pervasive types
                   <Button variant="outline" size="sm" onClick={handleEditClick} leftIcon={<Pencil size={13} />}>Edit Profile</Button>
                 ) : (
                   <div className="flex gap-2">
-                    {/* @ts-expect-error TODO: Fix pervasive types */}
                     <Button size="sm" onClick={handleSave} loading={isSaving} leftIcon={<Check size={13} />} className="bg-gradient-to-r from-violet-500 to-indigo-500 border-none text-white hover:opacity-90">Save</Button>
-                    {/* @ts-expect-error TODO: Fix pervasive types */}
                     <Button variant="ghost" size="sm" onClick={handleCancel} leftIcon={<X size={13} />}>Cancel</Button>
                   </div>
                 )}
@@ -649,15 +644,12 @@ const ProfilePage = () => {
             {/* Mobile Mode Action Triggers */}
             {isEditing && (
               <div className="flex sm:hidden gap-2 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm justify-end">
-                {/* @ts-expect-error TODO: Fix pervasive types */}
                 <Button size="sm" onClick={handleSave} loading={isSaving} leftIcon={<Check size={13} />} className="bg-gradient-to-r from-violet-500 to-indigo-500 border-none text-white hover:opacity-90">Save</Button>
-                {/* @ts-expect-error TODO: Fix pervasive types */}
                 <Button variant="ghost" size="sm" onClick={handleCancel} leftIcon={<X size={13} />}>Cancel</Button>
               </div>
             )}
             {!isEditing && (
               <div className="flex sm:hidden bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm justify-end">
-                {/* @ts-expect-error TODO: Fix pervasive types */}
                 <Button variant="outline" size="sm" fullWidth onClick={handleEditClick} leftIcon={<Pencil size={13} />}>Edit Profile</Button>
               </div>
             )}
@@ -694,9 +686,7 @@ const ProfilePage = () => {
               </h3>
               {isEditing ? (
                 <form onSubmit={handleSave} noValidate className="flex flex-col gap-4">
-                  {/* @ts-expect-error TODO: Fix pervasive types */}
                   <Input id="name" label="Full Name" placeholder="Enter your full name" value={formData.name} onChange={handleChange} error={errors.name} required leftIcon={<User size={16} />} />
-                  {/* @ts-expect-error TODO: Fix pervasive types */}
                   <Input id="email-display" label="Email" type="email" value={user.email} disabled leftIcon={<Mail size={16} />} helperText="Email cannot be changed." />
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-medium text-slate-600 dark:text-gray-300">Role</label>

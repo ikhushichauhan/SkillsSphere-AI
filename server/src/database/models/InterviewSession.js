@@ -30,6 +30,16 @@ const answerSchema = new mongoose.Schema(
       _id: false,
     },
 
+    isAIEvaluated: {
+      type: Boolean,
+      default: true,
+    },
+
+    fallbackReason: {
+      type: String,
+      default: null,
+    },
+
     concepts: {
       expected: { type: [String], default: [] },
       detected: { type: [String], default: [] },

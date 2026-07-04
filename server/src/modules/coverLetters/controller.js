@@ -1,5 +1,4 @@
 import CoverLetter from "../../database/models/CoverLetter.js";
-import { generateCoverLetterService } from "./service.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import AppError from "../../utils/AppError.js";
 import { COVER_LETTER_LIMIT } from "../../validations/coverLetterValidation.js";
@@ -63,42 +62,7 @@ export const getCoverLetterById = asyncHandler(async (req, res, next) => {
   });
 });
 
-/**
- * @desc    Generate a new personalized cover letter
- * @route   POST /api/cover-letters/generate
- * @access  Private (Student)
- */
-export const generateCoverLetter = asyncHandler(async (req, res, next) => {
-  const userId = req.user._id || req.user.id;
-  const { resumeId, jobDescription } = req.body;
 
-  if (!resumeId || !jobDescription) {
-    return next(new AppError("Resume ID and Job Description are required", 400));
-  }
-
-  const count = await CoverLetter.countDocuments({ user: userId });
-  if (count >= COVER_LETTER_LIMIT) {
-    return next(
-      new AppError(
-        `Maximum limit of ${COVER_LETTER_LIMIT} cover letters reached. Please delete an existing one to generate a new one.`,
-        400
-      )
-    );
-  }
-
-  // Sanitize: remove null bytes and strip HTML tags
-  const sanitizedJobDescription = jobDescription
-    .replace(/\0/g, "")
-    .replace(/<[^>]*>/g, "");
-
-  const newCoverLetter = await generateCoverLetterService(userId, resumeId, sanitizedJobDescription);
-
-  res.status(201).json({
-    success: true,
-    message: "Cover letter generated successfully",
-    data: newCoverLetter,
-  });
-});
 
 /**
  * @desc    Delete a cover letter by ID

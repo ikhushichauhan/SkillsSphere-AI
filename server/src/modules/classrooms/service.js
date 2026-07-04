@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import ClassroomSession from "../../database/models/ClassroomSession.js";
 import AppError from "../../utils/AppError.js";
-import { clearRoomState, getRoomState } from "./socket.js";
+import { clearRoomState, getRoomState } from "./roomStateManager.js";
 
 /**
  * Create a new live classroom session

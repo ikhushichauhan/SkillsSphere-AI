@@ -82,3 +82,25 @@ export const verifySignedFileUrl = (path, expiresAt, sig, extra = "") => {
 
   return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(sig));
 };
+
+export const parseSignedUrlExpiry = (url) => {
+  if (!url || typeof url !== "string") return null;
+
+  try {
+    // Handle both relative paths and absolute URLs safely
+    const parsed = new URL(url, "http://localhost");
+    const expStr = parsed.searchParams.get("exp");
+    
+    if (!expStr) return null;
+    
+    const exp = Number(expStr);
+    if (!Number.isFinite(exp) || exp <= 0) return null;
+    
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    if (exp < nowSeconds) return null;
+    
+    return exp;
+  } catch {
+    return null;
+  }
+};

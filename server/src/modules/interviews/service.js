@@ -195,11 +195,21 @@ export const processAnswerSubmission = async ({
         concepts: { detected: [], missed: question.expectedConcepts },
         fillerWords: 0,
         speakingSpeed: "normal",
+        _mock: true,
       };
+    }
+
+    const isAIEvaluated = !evaluation._mock;
+    const fallbackReason = evaluation._mock ? "AI service unavailable" : null;
+    
+    if (evaluation._mock) {
+      logger.warn(`[fallback] timestamp=${new Date().toISOString()} session_id=${sessionId} question_index=${currentIndex} reason="AI service unavailable"`);
     }
 
     // Step 3: Update the session with the answer data
     session.answers[currentIndex].transcript = finalTranscript;
+    session.answers[currentIndex].isAIEvaluated = isAIEvaluated;
+    session.answers[currentIndex].fallbackReason = fallbackReason;
     session.answers[currentIndex].scores = {
       technical: evaluation.technical || 0,
       communication: evaluation.communication || 0,
@@ -249,6 +259,8 @@ if (audioFile) {
       transcript: finalTranscript,
       isLastQuestion,
       nextQuestion,
+      is_ai_evaluated: isAIEvaluated,
+      fallback_reason: fallbackReason,
     };
   } finally {
     if (useRedis) {
@@ -497,6 +509,8 @@ export const getSessionResults = async (sessionId, userId) => {
       fillerWords: a.fillerWords,
       speakingSpeed: a.speakingSpeed,
       bookmarked: Boolean(a.bookmarked),
+      is_ai_evaluated: a.isAIEvaluated !== false,
+      fallback_reason: a.fallbackReason || null,
     })),
     startedAt: session.startedAt,
     completedAt: session.completedAt,
