@@ -3,15 +3,14 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files and install production dependencies only
-COPY package*.json ./
-RUN npm ci --omit=dev
-
-# Copy the rest of the application
+# Copy the entire monorepo (since server depends on ai-ml workspace)
 COPY . .
 
-# Railway assigns PORT dynamically via environment variable
+# Install dependencies for all workspaces (needed for local module links)
+RUN npm ci --omit=dev
+
+# Render assigns PORT dynamically
 EXPOSE ${PORT:-5000}
 
-# Production start command
-CMD ["node", "index.js"]
+# The index.js is inside the server folder
+CMD ["node", "server/index.js"]
