@@ -139,14 +139,15 @@ To simplify setup, you can now run the entire project using root-level scripts.
 ### Install all dependencies
 
 ```bash
-### Install all dependencies
+npm run quickstart
+```
 
 If the unified installer script encounters execution restriction errors on your system terminal, run the installation manually using directory prefixes:
 
 ```bash
 npm install
-npm install --prefix Backend
-npm install --prefix Frontend
+npm install --prefix server
+npm install --prefix client
 ```
 
 This installs:
@@ -191,7 +192,7 @@ To avoid manual installation of Python dependencies, Node modules, and OS-level 
 
 ### Steps
 1. Clone the repository and navigate to the root directory.
-2. Ensure you have created your local `.env` file from `.env.example`. Keep real secrets out of git.
+2. Ensure you have created your local `.env` files from `.env.example`. Keep real secrets out of git.
 3. Run the following command from the root directory:
 
    ```bash
@@ -204,6 +205,11 @@ Access the applications:
 - **AI Microservice**: [http://localhost:8000](http://localhost:8000)
 
 To stop the containers, press `Ctrl+C` or run `docker-compose down`.
+
+## 🚀 Deployment (Railway)
+
+For production deployment instructions, please see the [Railway Deployment Guide](./DEPLOYMENT.md).
+
 
 ## Scalable Folder Structure
 

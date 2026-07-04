@@ -46,3 +46,10 @@ hf-cache/
 # Local emergency scripts
 server/reset-auth.js
 
+# Deployment and non-essential documentation
+DEPLOYMENT.md
+NOTIFICATION_CENTER_*.md
+DESIGN.md
+COMPLETION_CHECKLIST.md
+FILES_SUMMARY.md
+VISUAL_SUMMARY.md

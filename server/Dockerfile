@@ -1,17 +1,17 @@
-# server/Dockerfile
+# server/Dockerfile — Production-ready Node.js backend
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package files and install production dependencies only
 COPY package*.json ./
-RUN npm install
+RUN npm ci --omit=dev
 
 # Copy the rest of the application
 COPY . .
 
-# Expose the server port
-EXPOSE 5000
+# Railway assigns PORT dynamically via environment variable
+EXPOSE ${PORT:-5000}
 
-# Run the dev server
-CMD ["npm", "run", "dev"]
+# Production start command
+CMD ["node", "index.js"]

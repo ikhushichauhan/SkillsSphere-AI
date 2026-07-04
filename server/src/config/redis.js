@@ -12,14 +12,17 @@ const redisClient = createClient({
   url: redisUrl,
   socket: {
     reconnectStrategy: (retries) => {
-      if (retries > 10) return new Error("Redis max retries reached");
+      const maxRetries = isProduction ? 10 : (process.env.REDIS_URL ? 10 : 0);
+      if (retries > maxRetries) return new Error("Redis max retries reached");
       return Math.min(retries * 100, 3000);
     },
   },
 });
 
 redisClient.on("error", (err) => {
-  logger.error("Redis error:", err.message);
+  if (isProduction || process.env.REDIS_URL) {
+    logger.error("Redis error:", err.message);
+  }
 });
 
 redisClient.on("connect", () => {
