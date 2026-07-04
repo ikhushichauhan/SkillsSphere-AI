@@ -440,6 +440,24 @@ const InterviewResults = () => {
                   ))}
                 </div>
               )}
+              {a.weakConcepts && a.weakConcepts.length > 0 && (
+                <div className="mt-4">
+                  <span className="block text-xs font-bold text-text-muted mb-1.5">AI-Detected Weaknesses:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {a.weakConcepts.map((wc, i) => (
+                      <span key={`wc-${i}`} className="py-1 px-2.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400">
+                        ⚠ {wc}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {a.feedback && (
+                <div className="mt-4 p-4 rounded-xl bg-indigo-500/5 border border-indigo-500/10 text-sm">
+                  <span className="font-bold text-indigo-400 block mb-1">AI Evaluation Feedback:</span>
+                  <p className="text-text-muted leading-relaxed">{a.feedback}</p>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -571,6 +589,24 @@ const InterviewResults = () => {
                       ✗ {c}
                     </span>
                   ))}
+                </div>
+              )}
+              {a.weakConcepts && a.weakConcepts.length > 0 && (
+                <div className="space-y-1">
+                  <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">AI Weaknesses:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {a.weakConcepts.map((wc, i) => (
+                      <span key={`pwc-${i}`} className="text-[9px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/10 px-2 py-0.5 rounded">
+                        ⚠ {wc}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {a.feedback && (
+                <div className="text-[11px] text-slate-300 leading-relaxed bg-slate-900/40 p-3 rounded border border-slate-800/40">
+                  <span className="block text-[9px] font-bold text-indigo-400 uppercase tracking-widest mb-1">AI Feedback:</span>
+                  {a.feedback}
                 </div>
               )}
             </div>

@@ -212,6 +212,8 @@ export const processAnswerSubmission = async ({
     session.answers[currentIndex].fillerWords = evaluation.fillerWords || 0;
     session.answers[currentIndex].speakingSpeed =
       evaluation.speakingSpeed || "normal";
+    session.answers[currentIndex].weakConcepts = evaluation.weakConcepts || [];
+    session.answers[currentIndex].feedback = evaluation.feedback || "";
     session.answers[currentIndex].answeredAt = new Date();
 
     const previousAudioPath = session.answers[currentIndex].audioPath;
@@ -300,7 +302,10 @@ export const finalizeInterview = async (sessionId, userId) => {
   );
 
   // Collect all missed concepts across all answers
-  const allMissed = answeredQuestions.flatMap((a) => a.concepts.missed);
+  const allMissed = [
+    ...answeredQuestions.flatMap((a) => a.concepts.missed),
+    ...answeredQuestions.flatMap((a) => a.weakConcepts || [])
+  ];
   // Count frequency and sort by most missed
   const missedCounts = {};
   allMissed.forEach((c) => {

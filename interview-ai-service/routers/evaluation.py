@@ -1,9 +1,10 @@
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from services.semantic_service import compute_technical_score
 from services.nlp_service import detect_concepts
 from services.communication_analyzer import analyze_communication
+from services.retriever import retrieve_context
+from services.evaluator import evaluate_with_rag
 
 router = APIRouter()
 
@@ -12,6 +13,7 @@ class EvaluationRequest(BaseModel):
     transcript: str
     expectedAnswer: str
     expectedConcepts: List[str]
+    topic: Optional[str] = "React"
 
 
 class ConceptResult(BaseModel):
@@ -26,17 +28,14 @@ class EvaluationResponse(BaseModel):
     concepts: ConceptResult
     fillerWords: int
     speakingSpeed: str
+    weakConcepts: List[str] = []
+    feedback: str = ""
 
 
 @router.post("/evaluate", response_model=EvaluationResponse)
 async def evaluate_answer(request: EvaluationRequest):
     """
-    Evaluate a student's answer against the expected answer and concepts.
-
-    Scoring:
-    - technical: Semantic similarity between transcript and expected answer (0-100)
-    - relevance: How many expected concepts were detected in the transcript (0-100)
-    - communication: Answer structure, filler words, length analysis (0-100)
+    Evaluate a student's answer using Retrieval-Augmented Generation (RAG) and Gemini.
     """
     if not request.transcript.strip():
         raise HTTPException(
@@ -44,24 +43,31 @@ async def evaluate_answer(request: EvaluationRequest):
             detail="Transcript cannot be empty",
         )
 
-    # 1. Technical score — semantic similarity
-    technical = compute_technical_score(request.transcript, request.expectedAnswer)
+    # 1. Retrieve RAG documentation context
+    topic = request.topic or "React"
+    context = retrieve_context(request.transcript, topic, top_k=5)
 
-    # 2. Concept detection — relevance score
-    concept_result = detect_concepts(request.transcript, request.expectedConcepts)
-    relevance = concept_result["relevance"]
+    # 2. Run Gemini RAG-grounded evaluation
+    rag_result = evaluate_with_rag(
+        question=request.expectedAnswer,
+        answer=request.transcript,
+        context=context,
+        expected_concepts=request.expectedConcepts
+    )
 
-    # 3. Communication analysis
+    # 3. Communication analysis (local linguistic analysis)
     comm_result = analyze_communication(request.transcript)
 
     return EvaluationResponse(
-        technical=technical,
+        technical=rag_result.get("technical", 70),
         communication=comm_result["communication"],
-        relevance=relevance,
+        relevance=rag_result.get("relevance", 70),
         concepts=ConceptResult(
-            detected=concept_result["detected"],
-            missed=concept_result["missed"],
+            detected=rag_result.get("concepts", {}).get("detected", []),
+            missed=rag_result.get("concepts", {}).get("missed", request.expectedConcepts),
         ),
         fillerWords=comm_result["fillerWords"],
         speakingSpeed=comm_result["speakingSpeed"],
+        weakConcepts=rag_result.get("weakConcepts", []),
+        feedback=rag_result.get("feedback", "")
     )

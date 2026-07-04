@@ -69,6 +69,16 @@ const answerSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+
+    weakConcepts: {
+      type: [String],
+      default: [],
+    },
+
+    feedback: {
+      type: String,
+      default: "",
+    },
   },
   { _id: false }
 );

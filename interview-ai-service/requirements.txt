@@ -4,3 +4,6 @@ python-multipart==0.0.9
 faster-whisper==1.2.1
 sentence-transformers==3.0.1
 spacy>=3.7.0,<3.8.0
+qdrant-client==1.9.0
+google-generativeai==0.8.3
+python-dotenv==1.0.1

@@ -1,6 +1,46 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import * as notificationService from "../../services/notificationService";
+<<<<<<< Updated upstream
+=======
+import { RootState } from "../../store";
+
+export interface AppNotification {
+  _id: string;
+  type: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  metadata?: Record<string, any>;
+  createdAt: string;
+}
+
+export interface PaginationData {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
+export interface NotificationsState {
+  items: AppNotification[];
+  unreadCount: number;
+  loading: boolean;
+  socketStatus: "idle" | "connected" | "disconnected" | "error" | "reconnecting";
+  pagination: PaginationData;
+  error: string | null;
+  
+  // Transient rollback states for optimistic updates
+  _rollbackUnreadIds?: string[] | null;
+  _rollbackDeletedItem?: AppNotification | null;
+  _rollbackSnapshot?: {
+    items: AppNotification[];
+    unreadCount: number;
+    pagination: PaginationData;
+  } | null;
+  _rollbackBulkDeletedItems?: AppNotification[] | null;
+}
+>>>>>>> Stashed changes
 
 // Helper to convert async errors to readable messages
 const toErrorMessage = (error, fallback) =>
