@@ -924,7 +924,6 @@ const RecruiterApplicantsPage = () => {
                 }
               >
                 {isAnyFilterActive && (
-                  // @ts-expect-error TODO: Fix pervasive types
                   <Button 
                     onClick={handleResetFilters}
                     className="mt-4 bg-blue-600 hover:bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]"
@@ -1189,7 +1188,6 @@ const RecruiterApplicantsPage = () => {
                               )}
 
                               <div className="pt-4 flex gap-3">
-                                {/* @ts-expect-error TODO: Fix pervasive types */}
                                 <Button 
                                   className="bg-blue-600 hover:bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]"
                                   leftIcon={<MessageSquare size={18} />}
@@ -1225,7 +1223,6 @@ const RecruiterApplicantsPage = () => {
                   Showing <span className="text-slate-900 dark:text-white">{(page - 1) * 20 + 1}</span> to <span className="text-slate-900 dark:text-white">{Math.min(page * 20, totalCount)}</span> of <span className="text-slate-900 dark:text-white">{totalCount}</span> candidates
                 </div>
                 <div className="flex gap-2">
-                  {/* @ts-expect-error TODO: Fix pervasive types */}
                   <Button
                     variant="outline"
                     size="sm"
@@ -1235,7 +1232,6 @@ const RecruiterApplicantsPage = () => {
                   >
                     Previous
                   </Button>
-                  {/* @ts-expect-error TODO: Fix pervasive types */}
                   <Button
                     variant="outline"
                     size="sm"

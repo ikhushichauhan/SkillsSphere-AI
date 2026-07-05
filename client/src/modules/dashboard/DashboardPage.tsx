@@ -137,7 +137,6 @@ const DashboardPage = () => {
                   <Menu size={18} />
                 </button>
 
-                {/* @ts-expect-error TODO: Fix pervasive types */}
                 <Button
                   variant="outline"
                   size="md"

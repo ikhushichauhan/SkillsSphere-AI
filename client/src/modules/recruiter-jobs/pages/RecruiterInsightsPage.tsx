@@ -173,7 +173,6 @@ const RecruiterInsightsPage = ({ jobId: propJobId }) => {
             title="No job found"
             description="The selected job could not be loaded."
             action={
-              // @ts-expect-error TODO: Fix pervasive types
               <Button
                 variant="primary"
                 className="bg-blue-600 hover:bg-blue-500 mt-4"
@@ -228,7 +227,6 @@ const RecruiterInsightsPage = ({ jobId: propJobId }) => {
               className="flex flex-col gap-4 rounded-3xl border border-gray-100 dark:border-white/5 bg-white dark:bg-[#121214] p-4 shadow-sm lg:flex-row lg:flex-wrap lg:items-end"
             >
               <div className="relative w-full lg:max-w-sm">
-                {/* @ts-expect-error TODO: Fix pervasive types */}
                 <Input
                   id="candidate-search"
                   placeholder="Search by name, email, notes..."
@@ -276,7 +274,6 @@ const RecruiterInsightsPage = ({ jobId: propJobId }) => {
                 <label className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                   Min Score
                 </label>
-                {/* @ts-expect-error TODO: Fix pervasive types */}
                 <Input
                   id="min-score"
                   type="number"
@@ -290,7 +287,6 @@ const RecruiterInsightsPage = ({ jobId: propJobId }) => {
               </div>
 
               <div className="flex gap-2">
-                {/* @ts-expect-error TODO: Fix pervasive types */}
                 <Button
                   type="submit"
                   variant="primary"
@@ -298,7 +294,6 @@ const RecruiterInsightsPage = ({ jobId: propJobId }) => {
                 >
                   Apply Filters
                 </Button>
-                {/* @ts-expect-error TODO: Fix pervasive types */}
                 <Button
                   type="button"
                   variant="secondary"
@@ -318,7 +313,6 @@ const RecruiterInsightsPage = ({ jobId: propJobId }) => {
             </form>
 
             {candidates.length === 0 ? (
-              // @ts-expect-error TODO: Fix pervasive types
               <EmptyState
                 icon={<Briefcase size={48} className="text-slate-600" />}
                 title="No ranked candidates found"

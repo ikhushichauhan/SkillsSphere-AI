@@ -208,7 +208,6 @@ const DragDropUpload = ({ onFileUpload, disabled = false, isUploading = false, u
               title="Browse file"
               aria-label="Browse resume file"
             />
-            {/* @ts-expect-error TODO: Fix pervasive types */}
             <Button
               type="button"
               variant="primary"

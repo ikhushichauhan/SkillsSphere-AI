@@ -74,7 +74,6 @@ const ForgotPassword = () => {
           </p>
 
           <div className="mb-6">
-            {/* @ts-expect-error TODO: Fix pervasive types */}
             <Input
               id="email"
               type="email"
@@ -90,7 +89,6 @@ const ForgotPassword = () => {
             />
           </div>
 
-          {/* @ts-expect-error TODO: Fix pervasive types */}
           <Button
             type="submit"
             fullWidth

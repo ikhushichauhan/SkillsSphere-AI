@@ -103,10 +103,8 @@ const VersionComparisonModal = ({ isOpen, onClose, versions }) => {
               <div className="p-6 rounded-2xl bg-gray-50 dark:bg-slate-800/40 border border-gray-200 dark:border-white/5 min-h-[120px]">
                 {addedSkills.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {addedSkills.map(skill => (
-                      // @ts-expect-error TODO: Fix pervasive types
+                    {addedSkills.map((skill: any) => (
                       <span key={skill} className="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20 uppercase">
-                        {/* @ts-expect-error TODO: Fix pervasive types */}
                         {skill}
                       </span>
                     ))}
@@ -128,12 +126,9 @@ const VersionComparisonModal = ({ isOpen, onClose, versions }) => {
               <div className="p-6 rounded-2xl bg-gray-50 dark:bg-slate-800/40 border border-gray-200 dark:border-white/5 min-h-[120px]">
                 {resolvedGaps.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {resolvedGaps.map(skill => (
-                      // @ts-expect-error TODO: Fix pervasive types
+                    {resolvedGaps.map((skill: any) => (
                       <span key={skill} className="px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-bold border border-blue-500/20 uppercase flex items-center gap-1.5">
                         <ArrowRight size={12} />
-                        {/* @ts-expect-error TODO: Fix pervasive types */}
-                        {/* @ts-expect-error TODO: Fix pervasive types */}
                         {skill}
                       </span>
                     ))}
@@ -189,7 +184,7 @@ const VersionComparisonModal = ({ isOpen, onClose, versions }) => {
                   <AlertCircle size={16} /> Remaining Priorities
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {v2.missingSkills?.slice(0, 5).map(skill => (
+                  {v2.missingSkills?.slice(0, 5).map((skill: any) => (
                     <span key={skill} className="px-2 py-1 rounded-md bg-red-500/5 text-red-400/70 text-[10px] font-bold border border-red-500/10 uppercase">
                       {skill}
                     </span>
@@ -209,7 +204,6 @@ const VersionComparisonModal = ({ isOpen, onClose, versions }) => {
 
         {/* Footer */}
         <div className="px-8 py-6 border-t border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-slate-950/50 flex justify-end">
-          {/* @ts-expect-error TODO: Fix pervasive types */}
           <Button variant="primary" onClick={onClose} className="px-10">
             Done Reviewing
           </Button>

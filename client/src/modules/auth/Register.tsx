@@ -122,7 +122,6 @@ const Register = () => {
     const email = formData.email.trim().toLowerCase();
 
     const resultAction = await dispatch(
-      // @ts-expect-error TODO: Fix pervasive types
       registerUser({
         name: formData.name.trim(),
         email,
@@ -182,7 +181,6 @@ const Register = () => {
           </h2>
 
           <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-5">
-            {/* @ts-expect-error TODO: Fix pervasive types */}
             <Input
               id="name"
               label="Full Name"
@@ -195,7 +193,6 @@ const Register = () => {
               autoComplete="name"
             />
 
-            {/* @ts-expect-error TODO: Fix pervasive types */}
             <Input
               id="email"
               type="email"
@@ -210,7 +207,6 @@ const Register = () => {
             />
 
             <div className="flex flex-col gap-1">
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Input
                 id="password"
                 type="password"
@@ -258,7 +254,6 @@ const Register = () => {
               )}
             </div>
 
-            {/* @ts-expect-error TODO: Fix pervasive types */}
             <Input
               id="confirmPassword"
               type="password"
@@ -278,7 +273,6 @@ const Register = () => {
             )}
           </div>
 
-          {/* @ts-expect-error TODO: Fix pervasive types */}
           <Button
             type="submit"
             fullWidth

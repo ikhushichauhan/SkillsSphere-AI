@@ -299,7 +299,6 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* @ts-expect-error TODO: Fix pervasive types */}
         <Input
           id="title"
           label="Job Title"
@@ -311,7 +310,6 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
           disabled={isFormSubmitting}
           required
         />
-        {/* @ts-expect-error TODO: Fix pervasive types */}
         <Select
           id="status"
           label="Status"
@@ -326,7 +324,6 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* @ts-expect-error TODO: Fix pervasive types */}
         <Select
           id="jobLevel"
           label="Job Level"
@@ -338,7 +335,6 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
           disabled={isFormSubmitting}
           required
         />
-        {/* @ts-expect-error TODO: Fix pervasive types */}
         <Input
           id="experienceRequired"
           label="Years of Experience Required"
@@ -461,7 +457,6 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
       <div className="border-t border-gray-200 dark:border-white/10 pt-6">
         <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-4">Location</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* @ts-expect-error TODO: Fix pervasive types */}
           <Input
             id="location.city"
             label="City"
@@ -472,7 +467,6 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
             disabled={isFormSubmitting}
             required
           />
-          {/* @ts-expect-error TODO: Fix pervasive types */}
           <Input
             id="location.state"
             label="State"
@@ -483,7 +477,6 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
             disabled={isFormSubmitting}
             required
           />
-          {/* @ts-expect-error TODO: Fix pervasive types */}
           <Input
             id="location.country"
             label="Country"
@@ -513,7 +506,6 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
       <div className="border-t border-gray-200 dark:border-white/10 pt-6">
         <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-4">Salary</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* @ts-expect-error TODO: Fix pervasive types */}
           <Input
             id="salary.min"
             label="Minimum"
@@ -525,7 +517,6 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
             disabled={isFormSubmitting}
             required
           />
-          {/* @ts-expect-error TODO: Fix pervasive types */}
           <Input
             id="salary.max"
             label="Maximum"
@@ -537,7 +528,6 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
             disabled={isFormSubmitting}
             required
           />
-          {/* @ts-expect-error TODO: Fix pervasive types */}
           <Select
             id="salary.currency"
             label="Currency"
@@ -564,7 +554,6 @@ const JobPostingForm = ({ onSubmit, initialData = {}, isLoading = false, fieldEr
       </div>
 
       <div className="flex justify-end pt-4">
-        {/* @ts-expect-error TODO: Fix pervasive types */}
         <Button
           type="submit"
           variant="primary"

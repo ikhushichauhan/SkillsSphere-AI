@@ -7,16 +7,12 @@ import reducer, {
   setSocketStatus,
 } from "./notificationsSlice";
 
-const notification = (overrides = {}) => ({
-  // @ts-expect-error TODO: Fix pervasive types
+const notification = (overrides: any = {}) => ({
   _id: overrides._id || "notification-1",
-  // @ts-expect-error TODO: Fix pervasive types
   title: overrides.title || "Notification",
-  // @ts-expect-error TODO: Fix pervasive types
   message: overrides.message || "Message",
-  // @ts-expect-error TODO: Fix pervasive types
   isRead: overrides.isRead ?? false,
-  // @ts-expect-error TODO: Fix pervasive types
+  type: overrides.type || "info",
   createdAt: overrides.createdAt || new Date().toISOString(),
 });
 
@@ -46,7 +42,7 @@ describe("notificationsSlice", () => {
     };
 
     const nextState = reducer(
-      previousState,
+      previousState as any,
       // @ts-expect-error TODO: Fix pervasive types
       getNotifications.pending("request-1", { page: 1, limit: 10, isRead: true }),
     );
@@ -71,7 +67,6 @@ describe("notificationsSlice", () => {
           },
         },
         "request-1",
-        // @ts-expect-error TODO: Fix pervasive types
         { page: 1, limit: 10 },
       ),
     );
@@ -85,9 +80,9 @@ describe("notificationsSlice", () => {
   });
 
   it("stores socket reconnect status for the page banner", () => {
-    const nextState = reducer(undefined, setSocketStatus("reconnecting"));
+    const nextState = reducer(undefined, setSocketStatus("disconnected"));
 
-    expect(nextState.socketStatus).toBe("reconnecting");
+    expect(nextState.socketStatus).toBe("disconnected");
   });
 
   it("preserves rollback data across overlapping markAllAsRead requests", () => {
@@ -95,7 +90,7 @@ describe("notificationsSlice", () => {
       items: [
         notification({ _id: "n1", isRead: false }),
         notification({ _id: "n2", isRead: false }),
-      ],
+      ] as any,
       unreadCount: 2,
       loading: false,
       socketStatus: "connected",
@@ -104,15 +99,13 @@ describe("notificationsSlice", () => {
     };
 
     // First markAllAsRead dispatch
-    const afterFirstPending = reducer(previousState, markAllAsRead.pending("request-1"));
-    // @ts-expect-error TODO: Fix pervasive types
+    const afterFirstPending = reducer(previousState as any, markAllAsRead.pending("request-1"));
     expect(afterFirstPending._rollbackUnreadIds).toEqual(["n1", "n2"]);
     expect(afterFirstPending.unreadCount).toBe(0);
 
     // Second markAllAsRead dispatch before the first resolves
     const afterSecondPending = reducer(afterFirstPending, markAllAsRead.pending("request-2"));
     // Rollback data from request 1 must not be overwritten with an empty array
-    // @ts-expect-error TODO: Fix pervasive types
     expect(afterSecondPending._rollbackUnreadIds).toEqual(["n1", "n2"]);
 
     // First request fails - rollback should restore both items as unread
@@ -122,13 +115,12 @@ describe("notificationsSlice", () => {
     );
     expect(afterRejected.items.every((item) => item.isRead === false)).toBe(true);
     expect(afterRejected.unreadCount).toBe(2);
-    // @ts-expect-error TODO: Fix pervasive types
     expect(afterRejected._rollbackUnreadIds).toBe(null);
   });
 
   it("clears rollback tracking when markAllAsRead succeeds", () => {
     const previousState = {
-      items: [notification({ _id: "n1", isRead: false })],
+      items: [notification({ _id: "n1", isRead: false })] as any,
       unreadCount: 1,
       loading: false,
       socketStatus: "connected",
@@ -137,8 +129,7 @@ describe("notificationsSlice", () => {
       _rollbackUnreadIds: ["n1"],
     };
 
-    const nextState = reducer(previousState, markAllAsRead.fulfilled(null, "request-1"));
-    // @ts-expect-error TODO: Fix pervasive types
+    const nextState = reducer(previousState as any, markAllAsRead.fulfilled(null, "request-1"));
     expect(nextState._rollbackUnreadIds).toBe(null);
   });
 });

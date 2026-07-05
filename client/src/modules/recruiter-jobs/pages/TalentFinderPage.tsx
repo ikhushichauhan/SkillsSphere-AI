@@ -497,7 +497,6 @@ const TalentFinderPage = () => {
             ) : error ? (
               <ErrorState description={error} onRetry={fetchCandidatesDirectory} />
             ) : candidates.length === 0 ? (
-              // @ts-expect-error TODO: Fix pervasive types
               <EmptyState
                 icon={<User size={52} className="text-gray-300 dark:text-slate-700 animate-pulse" />}
                 title="No Candidates Found"
@@ -845,7 +844,6 @@ const TalentFinderPage = () => {
             {/* Standard Pagination Foot Controls Panel */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center gap-4 pt-6 pb-12">
-                {/* @ts-expect-error TODO: Fix pervasive types */}
                 <Button
                   disabled={page === 1}
                   onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
@@ -858,7 +856,6 @@ const TalentFinderPage = () => {
                 <span className="text-xs font-black text-gray-500 dark:text-slate-400 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-white/5 select-none shadow-inner">
                   Page {page} / {totalPages}
                 </span>
-                {/* @ts-expect-error TODO: Fix pervasive types */}
                 <Button
                   disabled={page === totalPages}
                   onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
