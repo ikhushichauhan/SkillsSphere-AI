@@ -1,8 +1,9 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "pipeline": {
+  "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "env": ["VITE_API_URL", "VITE_SOCKET_URL"],
       "outputs": ["dist/**", ".next/**", "build/**"]
     },
     "lint": {},

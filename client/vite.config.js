@@ -62,6 +62,13 @@ export default defineConfig({
       "/socket.io": {
         target: "http://localhost:5000",
         ws: true,
+        configure: (proxy) => {
+          proxy.on("error", (err) => {
+            if (err.code !== "ECONNABORTED") {
+              console.error("Vite proxy error:", err);
+            }
+          });
+        },
       },
     },
   },

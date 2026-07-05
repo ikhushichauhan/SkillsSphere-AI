@@ -27,16 +27,18 @@ function spawnProc(label, cmd, args, cwd) {
   // eslint-disable-next-line no-console
   console.log(`\n[${label}] ${cmd} ${args.join(" ")}`);
 
-  const useShell = process.platform === "win32" && (
-    cmd.endsWith(".cmd") ||
-    cmd.endsWith(".bat") ||
-    cmd === "npm" ||
-    cmd === "npm.cmd"
-  );
-  const child = spawn(cmd, args, {
+  let finalCmd = cmd;
+  let finalArgs = args;
+
+  if (process.platform === "win32" && (cmd.endsWith(".cmd") || cmd.endsWith(".bat") || cmd === "npm" || cmd === "npm.cmd")) {
+    finalCmd = "cmd.exe";
+    finalArgs = ["/c", cmd, ...args];
+  }
+
+  const child = spawn(finalCmd, finalArgs, {
     cwd,
     stdio: "inherit",
-    shell: useShell,
+    shell: false,
     env: { ...process.env },
   });
 

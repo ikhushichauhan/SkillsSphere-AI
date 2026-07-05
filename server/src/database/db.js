@@ -36,8 +36,8 @@ const connectDB = async () => {
     return;
   }
 
-  if (mongoUri.startsWith("mongodb+srv://") && process.platform === "win32") {
-    dns.setServers(["8.8.8.8", "8.8.4.4"]);
+  if (mongoUri.startsWith("mongodb+srv://")) {
+    // Fix for MongoDB Atlas DNS resolution hanging in Alpine Linux & Windows
     dns.setDefaultResultOrder("ipv4first");
   }
 
@@ -48,7 +48,7 @@ const connectDB = async () => {
       minPoolSize: 2,
     });
     isConnected = true;
-    logger.info(`MongoDB Connected Successfully! : ${conn.connection.host}`);
+    logger.info("MongoDB Connected Successfully!");
 
     // Seed data if collections are empty
     try {

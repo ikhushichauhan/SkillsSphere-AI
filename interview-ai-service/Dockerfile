@@ -1,4 +1,4 @@
-# interview-ai-service/Dockerfile
+# interview-ai-service/Dockerfile — Production Python AI service
 FROM python:3.10-slim
 
 WORKDIR /app
@@ -6,18 +6,17 @@ WORKDIR /app
 # Install system dependencies (ffmpeg is required for audio processing)
 RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt ./
+# Copy the service files
+COPY . .
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Download the required spaCy model
 RUN python -m spacy download en_core_web_sm
 
-# Copy the rest of the application
-COPY . .
+# Hugging Face Spaces mandates port 7860
+EXPOSE 7860
 
-# Expose the service port
-EXPOSE 8000
-
-# Run the service via uvicorn
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the service via uvicorn on port 7860
+CMD ["sh", "-c", "python -m uvicorn main:app --host 0.0.0.0 --port 7860"]

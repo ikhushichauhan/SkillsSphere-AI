@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: skillssphere-server
+    env: docker
+    dockerContext: .
+    dockerfilePath: ./server/Dockerfile
+    region: ohio
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "true"
+      - key: PORT
+        value: "5000"
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: OAUTH_STATE_SECRET
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        generateValue: true
+      - key: FILE_URL_SIGNING_SECRET
+        generateValue: true
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: skillssphere-redis
+          property: connectionString
+      - key: FRONTEND_URL
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_CALLBACK_URL
+        sync: false
+      - key: INTERVIEW_AI_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+
+  - type: redis
+    name: skillssphere-redis
+    region: ohio
+    plan: free
+    ipAllowList: [] # Default prevents external access for security

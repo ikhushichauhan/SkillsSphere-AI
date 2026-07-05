@@ -45,15 +45,15 @@ const logger = winston.createLogger({
   ]
 });
 
-// If not in production, log to the `console` with colors
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: combine(
-      colorize(),
-      timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-      consoleFormat
-    )
-  }));
-}
+// Always log to console. In PaaS environments (like Render/Docker), standard out is required.
+logger.add(new winston.transports.Console({
+  format: process.env.NODE_ENV === 'production' 
+    ? combine(timestamp(), winston.format.json())
+    : combine(
+        colorize(),
+        timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+        consoleFormat
+      )
+}));
 
 export default logger;

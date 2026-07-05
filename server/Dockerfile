@@ -1,17 +1,16 @@
-# server/Dockerfile
-FROM node:18-alpine
+# server/Dockerfile — Production-ready Node.js backend
+FROM node:22-alpine
 
 WORKDIR /app
 
-# Copy package files and install dependencies
-COPY package*.json ./
-RUN npm install
-
-# Copy the rest of the application
+# Copy the entire monorepo (since server depends on ai-ml workspace)
 COPY . .
 
-# Expose the server port
-EXPOSE 5000
+# Install dependencies for all workspaces (needed for local module links)
+RUN npm ci --omit=dev
 
-# Run the dev server
-CMD ["npm", "run", "dev"]
+# Render assigns PORT dynamically
+EXPOSE ${PORT:-5000}
+
+# The index.js is inside the server folder
+CMD ["node", "server/index.js"]

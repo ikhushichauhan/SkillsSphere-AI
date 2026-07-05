@@ -1,8 +1,6 @@
 import express from "express";
-import { getCoverLetters, getCoverLetterById, generateCoverLetter, deleteCoverLetter } from "./controller.js";
+import { getCoverLetters, getCoverLetterById, deleteCoverLetter } from "./controller.js";
 import { protect, authorizeRoles } from "../../middleware/authMiddleware.js";
-import { validateBody } from "../../middleware/validation.js";
-import { generateCoverLetterSchema } from "../../validations/coverLetterValidation.js";
 
 const router = express.Router();
 
@@ -19,37 +17,6 @@ const router = express.Router();
  *         description: Success
  */
 router.get("/", protect, authorizeRoles("student"), getCoverLetters);
-
-/**
- * @openapi
- * /api/cover-letters/generate:
- *   post:
- *     summary: Generate a new personalized cover letter
- *     tags: [CoverLetters]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - resumeId
- *               - jobDescription
- *             properties:
- *               resumeId:
- *                 type: string
- *               jobDescription:
- *                 type: string
- *                 maxLength: 5000
- *     responses:
- *       201:
- *         description: Created
- *       400:
- *         description: Bad request
- */
-router.post("/generate", protect, authorizeRoles("student"), validateBody(generateCoverLetterSchema), generateCoverLetter);
 
 /**
  * @openapi

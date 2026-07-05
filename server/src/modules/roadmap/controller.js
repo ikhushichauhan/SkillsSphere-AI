@@ -80,7 +80,7 @@ export const syncRoadmap = asyncHandler(async (req, res) => {
     // 2. Fallback: Basic string mapping if AI fails or times out
     logger.warn("AI Roadmap generation failed, falling back to basic mapping. Reason:", aiResult.error);
     roadmapData = topics.map(topic => {
-      const topicName = typeof topic === "string" ? topic : topic.text;
+      const topicName = typeof topic === "string" ? topic : (topic?.text || topic?.topicName || "Unknown Topic");
       const type = typeof topic === "string" ? "learning" : topic.type;
       return {
         topicName,
@@ -93,7 +93,7 @@ export const syncRoadmap = asyncHandler(async (req, res) => {
 
   if (progress) {
     // If roadmap exists, we merge (don't overwrite completed topics)
-    const existingTopics = new Map(progress.roadmap.map(t => [t.topicName, t]));
+    const existingTopics = new Map((progress.roadmap || []).map(t => [t.topicName, t]));
     
     progress.targetRole = targetRole;
     progress.roadmap = roadmapData.map(topic => {

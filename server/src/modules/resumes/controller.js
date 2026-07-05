@@ -96,7 +96,6 @@ const buildLegacyBreakdown = (safePipeline, jobSkills, parsedData, jobDescriptio
   });
   return evaluatorBreakdown;
 };
-
 export const uploadResume = asyncHandler(async (req, res, next) => {
   if (!req.file) {
     return next(new AppError("No file uploaded", 400));
@@ -109,6 +108,17 @@ export const uploadResume = asyncHandler(async (req, res, next) => {
     return next(new AppError("Maximum limit of 10 resumes reached. Please delete an existing version to upload a new one.", 400));
   }
 
+  // Persist the uploaded resume metadata to the database
+  const savedResume = await controllerDependencies.upsertResume(req.user._id, {
+    file: {
+      originalName: req.file.originalname,
+      storedName: req.file.filename,
+      path: req.file.path,
+      size: `${(req.file.size / 1024).toFixed(2)} KB`,
+      mimeType: req.file.mimetype,
+    },
+  });
+
   // Build signed file URL for the uploaded resume
   const resumePath = `/api/files/resumes/${req.file.filename}`;
   const expiresAt = Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60); // 7 days from now
@@ -117,6 +127,7 @@ export const uploadResume = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Resume uploaded successfully",
+    resumeId: savedResume._id,
     file: {
       originalName: req.file.originalname,
       storedName: req.file.filename,
@@ -126,7 +137,6 @@ export const uploadResume = asyncHandler(async (req, res, next) => {
     },
   });
 });
-
 const normalizeJobSkills = (rawSkills) => {
   if (rawSkills === undefined || rawSkills === null || rawSkills === "") {
     return [];

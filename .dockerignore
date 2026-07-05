@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+__pycache__/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Environment files (secrets injected via Railway)
+.env
+.env.*
+!.env.example
+
+# Version control
+.git/
+.github/
+
+# Editor and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Documentation (not needed in images)
+*.md
+!README.md
+docs/
+LICENSE
+
+# Test files
+*.test.*
+*.spec.*
+__tests__/
+tests/
+test/
+
+# Development tooling
+.eslintrc*
+.prettierrc*
+.markdownlint*
+.pre-commit*
+.secrets*
+turbo.json
+playwright.config.*
+vitest.config.*
+jest.config.*
+
+# Logs
+logs/
+*.log
+
+# Python cache
+*.pyc
+.pytest_cache/
+hf-cache/

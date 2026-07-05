@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { io } from "socket.io-client";
+import { SOCKET_URL } from "../../config/env";
 import { useToast } from "./toast/ToastProvider";
 import logger from "../../utils/logger";
 
@@ -41,7 +42,7 @@ const SocketNotificationListener = () => {
       return undefined;
     }
 
-    socketRef.current = io("/", {
+    socketRef.current = io(SOCKET_URL, {
       transports: ["websocket"],
       path: "/socket.io",
       auth: { token },
