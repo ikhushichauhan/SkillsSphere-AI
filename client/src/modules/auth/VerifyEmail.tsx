@@ -161,7 +161,6 @@ const VerifyEmail = () => {
     }
 
     const resultAction = await dispatch(
-      // @ts-expect-error TODO: Fix pervasive types
       verifyEmail({
         email: normalizedEmail,
         otp: otpValue,
@@ -184,7 +183,6 @@ const VerifyEmail = () => {
 
     if (!validateEmailField()) return;
 
-    // @ts-expect-error TODO: Fix pervasive types
     const resultAction = await dispatch(resendOtp({ email: normalizedEmail }));
 
     if (resendOtp.fulfilled.match(resultAction)) {
@@ -227,7 +225,6 @@ const VerifyEmail = () => {
             </p>
 
             <div className="mb-5">
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Input
                 id="email"
                 type="email"
@@ -301,7 +298,6 @@ const VerifyEmail = () => {
               )}
             </div>
 
-            {/* @ts-expect-error TODO: Fix pervasive types */}
             <Button
               type="submit"
               fullWidth

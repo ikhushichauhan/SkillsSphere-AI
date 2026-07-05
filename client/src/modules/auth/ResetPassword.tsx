@@ -137,7 +137,6 @@ const ResetPassword = () => {
               Your password has been updated successfully. You can now log in
               with your new password.
             </p>
-            {/* @ts-expect-error TODO: Fix pervasive types */}
             <Button
               fullWidth
               className="rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 border-none font-bold text-[15px] hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.6)] transition-all duration-300"
@@ -167,7 +166,6 @@ const ResetPassword = () => {
             </p>
 
             <div className="flex flex-col gap-4 mb-5">
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Input
                 id="email"
                 type="email"
@@ -180,7 +178,6 @@ const ResetPassword = () => {
                 disabled={loading}
               />
 
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Input
                 id="otp"
                 type="text"
@@ -195,7 +192,6 @@ const ResetPassword = () => {
                 maxLength={6}
               />
 
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Input
                 id="newPassword"
                 type="password"
@@ -210,7 +206,6 @@ const ResetPassword = () => {
                 autoComplete="new-password"
               />
 
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Input
                 id="confirmPassword"
                 type="password"
@@ -226,7 +221,6 @@ const ResetPassword = () => {
             </div>
 
             {/* Submit Button */}
-            {/* @ts-expect-error TODO: Fix pervasive types */}
             <Button
               type="submit"
               fullWidth

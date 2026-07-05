@@ -51,7 +51,6 @@ export default function CompareView({ jobId, resumeSource, onBack }) {
         </div>
       ) : data ? (
         <>
-          {/* @ts-expect-error TODO: Fix pervasive types */}
           <MatchScoreCard score={data.matchScore} />
 
           <div className="bg-white dark:bg-white/10 backdrop-blur-lg border border-gray-200 dark:border-white/20 p-5 rounded-2xl shadow-xl text-gray-900 dark:text-white">

@@ -66,14 +66,12 @@ const ComponentDemo = () => {
               <p className="text-slate-500 text-sm mt-1">
                 Account created for <strong>{formData.email}</strong>
               </p>
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Button variant="outline" size="sm" className="mt-6" onClick={handleReset}>
                 Start over
               </Button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Input
                 id="reg-name"
                 label="Full Name"
@@ -84,7 +82,6 @@ const ComponentDemo = () => {
                 error={errors.fullName}
                 required
               />
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Input
                 id="reg-email"
                 label="Email Address"
@@ -96,7 +93,6 @@ const ComponentDemo = () => {
                 error={errors.email}
                 required
               />
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Input
                 id="reg-password"
                 label="Password"
@@ -110,7 +106,6 @@ const ComponentDemo = () => {
                 helperText={!errors.password ? "Use at least 8 characters." : undefined}
                 required
               />
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Select
                 id="reg-role"
                 label="I am a…"
@@ -122,7 +117,6 @@ const ComponentDemo = () => {
                 placeholder="Select your role"
                 required
               />
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Button
                 type="submit"
                 variant="primary"

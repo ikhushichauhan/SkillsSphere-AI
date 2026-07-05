@@ -14,7 +14,7 @@ vi.mock("react-redux", () => ({
 }));
 
 const setReduxState = (state) => {
-  reactRedux.useSelector.mockReturnValue({
+  (reactRedux.useSelector as any).mockReturnValue({
     sessions: [],
     pagination: { page: 1, pages: 1, total: 0 },
     analytics: null,

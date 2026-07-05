@@ -195,7 +195,6 @@ const RecruiterJobsPage = () => {
               Back to Dashboard
             </Link>
             <Link to="/recruiter/jobs/new">
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Button
                 variant="primary"
                 leftIcon={<Plus size={18} />}
@@ -229,7 +228,6 @@ const RecruiterJobsPage = () => {
 
         <div className="flex flex-col gap-4 rounded-3xl border border-gray-100 dark:border-white/5 bg-white dark:bg-[#121214] p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div className="relative w-full sm:max-w-md">
-            {/* @ts-expect-error TODO: Fix pervasive types */}
             <Input
               id="search-jobs"
               placeholder="Search by title or location..."
@@ -281,7 +279,6 @@ const RecruiterJobsPage = () => {
             description={emptyDescription}
             action={
               hasActiveFilters ? (
-                // @ts-expect-error TODO: Fix pervasive types
                 <Button
                   variant="primary"
                   className="bg-blue-600 hover:bg-blue-500 mt-4"
@@ -291,7 +288,6 @@ const RecruiterJobsPage = () => {
                 </Button>
               ) : (
                 <Link to="/recruiter/jobs/new">
-                  {/* @ts-expect-error TODO: Fix pervasive types */}
                   <Button
                     variant="primary"
                     className="bg-blue-600 hover:bg-blue-500 mt-4"

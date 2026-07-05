@@ -62,7 +62,6 @@ const Login = () => {
     setErrors({});
 
     const resultAction = await dispatch(
-      // @ts-expect-error TODO: Fix pervasive types
       loginUser({
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
@@ -109,7 +108,6 @@ const Login = () => {
           </h2>
 
           <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-5">
-            {/* @ts-expect-error TODO: Fix pervasive types */}
             <Input
               id="email"
               type="email"
@@ -123,7 +121,6 @@ const Login = () => {
               autoComplete="email"
             />
 
-            {/* @ts-expect-error TODO: Fix pervasive types */}
             <Input
               id="password"
               type="password"
@@ -156,7 +153,6 @@ const Login = () => {
           </div>
 
           {/* Button */}
-          {/* @ts-expect-error TODO: Fix pervasive types */}
           <Button
             type="submit"
             fullWidth

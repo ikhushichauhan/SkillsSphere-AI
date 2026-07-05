@@ -209,7 +209,6 @@ const OnboardingPage = () => {
             </div>
 
             <div className="flex-1 space-y-4 w-full">
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Input
                 id="name"
                 label="Full Name"
@@ -223,7 +222,6 @@ const OnboardingPage = () => {
                 disabled={isSubmitting || isUploadingPhoto}
               />
 
-              {/* @ts-expect-error TODO: Fix pervasive types */}
               <Input
                 id="email"
                 type="email"
@@ -269,7 +267,6 @@ const OnboardingPage = () => {
           </div>
 
           {/* Submit Action */}
-          {/* @ts-expect-error TODO: Fix pervasive types */}
           <Button
             type="submit"
             fullWidth
