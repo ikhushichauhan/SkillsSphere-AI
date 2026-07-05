@@ -23,7 +23,7 @@ export interface NotificationsState {
   items: AppNotification[];
   unreadCount: number;
   loading: boolean;
-  socketStatus: "idle" | "connected" | "disconnected" | "error";
+  socketStatus: "idle" | "connected" | "disconnected" | "error" | "reconnecting";
   pagination: PaginationData;
   error: string | null;
   
