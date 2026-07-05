@@ -38,6 +38,7 @@ export interface NotificationsState {
   _rollbackBulkDeletedItems?: AppNotification[] | null;
 }
 
+// Ensure no stray characters here
 // Helper to convert async errors to readable messages
 const toErrorMessage = (error: unknown, fallback: string) =>
   (error as Error)?.message || fallback || "An unexpected error occurred.";
