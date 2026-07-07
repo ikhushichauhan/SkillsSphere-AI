@@ -10,6 +10,7 @@
   ],
   "type": "module",
   "scripts": {
+    "rag:ingest": "python interview-ai-service/rag/ingestion.py",
     "install-all": "node scripts/install-all.js",
     "predev": "node scripts/verify-python-env.js",
     "dev": "node scripts/dev-all.js",
