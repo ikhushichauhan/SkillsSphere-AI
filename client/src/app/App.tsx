@@ -40,6 +40,7 @@ const InterviewLobby = lazy(() => import("../modules/mock-interview/pages/Interv
 const InterviewSession = lazy(() => import("../modules/mock-interview/pages/InterviewSession"));
 const InterviewResults = lazy(() => import("../modules/mock-interview/pages/InterviewResults"));
 const InterviewHistory = lazy(() => import("../modules/mock-interview/pages/InterviewHistory"));
+const AnalyticsDashboard = lazy(() => import("../modules/mock-interview/pages/AnalyticsDashboard"));
 const BookmarkedQuestions = lazy(() => import("../modules/mock-interview/pages/BookmarkedQuestions"));
 const TutorInterviewConsole = lazy(() => import("../modules/mock-interview/pages/TutorInterviewConsole"));
 const TutorInterviewsList = lazy(() => import("../modules/mock-interview/pages/TutorInterviewsList"));
@@ -296,6 +297,14 @@ function App() {
           element={
             <ProtectedRoute requiredRole="student">
               <ErrorBoundary><InterviewLobby /></ErrorBoundary>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mock-interview/analytics"
+          element={
+            <ProtectedRoute requiredRole="student">
+              <AnalyticsDashboard />
             </ProtectedRoute>
           }
         />

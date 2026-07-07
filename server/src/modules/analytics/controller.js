@@ -243,3 +243,125 @@ export const getAuditStats = async (req, res, next) => {
     return next(new AppError("Failed to fetch audit stats", 500));
   }
 };
+
+/**
+ * Fetch comprehensive historical mock interview analytics for a specific student.
+ */
+export const getInterviewAnalytics = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    // Fetch all completed interviews for the user, sorted by oldest to newest
+    const interviews = await InterviewSession.find({ 
+      userId, 
+      status: "completed" 
+    }).sort({ startedAt: 1 }).lean();
+
+    if (!interviews || interviews.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          overallScoreProgress: [],
+          strengthAreas: [],
+          weakConcepts: [],
+          history: []
+        }
+      });
+    }
+
+    // 1. Progress Trends (Overall, Technical, Communication over time)
+    const overallScoreProgress = interviews.map(session => {
+      const date = new Date(session.startedAt || session.createdAt).toLocaleDateString();
+      
+      // Calculate average technical and communication for this session
+      let techSum = 0, commSum = 0, relSum = 0;
+      let count = 0;
+      
+      if (session.answers && session.answers.length > 0) {
+        session.answers.forEach(a => {
+          if (a.scores) {
+            techSum += a.scores.technical || 0;
+            commSum += a.scores.communication || 0;
+            relSum += a.scores.relevance || 0;
+            count++;
+          }
+        });
+      }
+
+      const technical = count > 0 ? Math.round(techSum / count) : 0;
+      const communication = count > 0 ? Math.round(commSum / count) : 0;
+      const relevance = count > 0 ? Math.round(relSum / count) : 0;
+
+      return {
+        date,
+        topic: session.topic,
+        overall: session.overallScore || 0,
+        technical,
+        communication,
+        relevance
+      };
+    });
+
+    // 2. Strengths and Weaknesses Aggregation
+    const detectedConcepts = {};
+    const missedConcepts = {};
+
+    interviews.forEach(session => {
+      // session-level weak concepts (from new RAG logic)
+      if (session.weakConcepts && session.weakConcepts.length > 0) {
+        session.weakConcepts.forEach(c => {
+          missedConcepts[c] = (missedConcepts[c] || 0) + 1;
+        });
+      }
+
+      if (session.answers && session.answers.length > 0) {
+        session.answers.forEach(a => {
+          if (a.concepts) {
+            (a.concepts.detected || []).forEach(c => {
+              detectedConcepts[c] = (detectedConcepts[c] || 0) + 1;
+            });
+            (a.concepts.missed || []).forEach(c => {
+              missedConcepts[c] = (missedConcepts[c] || 0) + 1;
+            });
+          }
+          if (a.weakConcepts && a.weakConcepts.length > 0) {
+            a.weakConcepts.forEach(c => {
+              missedConcepts[c] = (missedConcepts[c] || 0) + 1;
+            });
+          }
+        });
+      }
+    });
+
+    const strengthAreas = Object.entries(detectedConcepts)
+      .map(([concept, count]) => ({ concept, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    const weakConcepts = Object.entries(missedConcepts)
+      .map(([concept, count]) => ({ concept, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        overallScoreProgress,
+        strengthAreas,
+        weakConcepts,
+        history: interviews.map(i => ({
+          _id: i._id,
+          topic: i.topic,
+          difficulty: i.difficulty,
+          date: i.startedAt || i.createdAt,
+          overallScore: i.overallScore,
+          duration: i.duration
+        })).reverse() // newest first for history table
+      }
+    });
+
+  } catch (error) {
+    logger.error("Error in getInterviewAnalytics:", error);
+    return next(new AppError("Failed to fetch interview analytics", 500));
+  }
+};
