@@ -86,3 +86,10 @@ export const getBookmarkedQuestions = async () => {
     token: getToken(),
   });
 };
+
+export const getInterviewAnalytics = async () => {
+  return apiRequest("/api/analytics/interview-dashboard", {
+    method: "GET",
+    token: getToken(),
+  });
+};

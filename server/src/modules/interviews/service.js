@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import {
   transcribeAudio,
   evaluateAnswer,
+  generateQuestions,
 } from "../../integrations/aiInterviewService.js";
 import redisClient from "../../config/redis.js";
 import Notification from "../../database/models/Notification.js";
@@ -67,13 +68,50 @@ const selectQuestions = async (topic, difficulty, userId, count = 5) => {
  * Create a new interview session with pre-selected questions.
  */
 export const createSession = async ({ userId, topic, difficulty, persona }) => {
-  // Verify the topic exists in our question bank
+  // Verify the topic exists in our question bank (as a safety check that it's a valid topic)
   const topicExists = await QuestionBank.exists({ topic });
   if (!topicExists) {
     throw new AppError(`Topic "${topic}" is not available`, 400);
   }
 
-  const questions = await selectQuestions(topic, difficulty, userId);
+  // Get question texts from user's recent sessions to avoid repeats
+  const recentSessions = await InterviewSession.find({
+    userId,
+    topic,
+  })
+    .sort({ createdAt: -1 })
+    .limit(3)
+    .select("answers.questionId")
+    .populate("answers.questionId", "questionText")
+    .lean();
+
+  const previouslyAsked = recentSessions
+    .flatMap((s) => s.answers.map((a) => a.questionId?.questionText))
+    .filter(Boolean);
+
+  let generatedQuestions = [];
+  try {
+    const aiResponse = await generateQuestions(topic, difficulty, previouslyAsked);
+    generatedQuestions = aiResponse.questions || [];
+  } catch (error) {
+    logger.warn(`Failed to dynamically generate questions: ${error.message}. Falling back to question bank.`);
+  }
+
+  let questions = [];
+  
+  if (generatedQuestions.length >= 5) {
+    // Save generated questions to QuestionBank so they get an _id
+    const docs = generatedQuestions.map(q => ({
+      topic,
+      difficulty,
+      questionText: q.questionText,
+      expectedAnswer: q.expectedAnswer,
+      expectedConcepts: q.expectedConcepts || []
+    }));
+    questions = await QuestionBank.insertMany(docs);
+  } else {
+    questions = await selectQuestions(topic, difficulty, userId);
+  }
 
   // Pre-populate the answers array with question info (scores filled in later)
   const answers = questions.map((q) => ({
@@ -86,7 +124,7 @@ export const createSession = async ({ userId, topic, difficulty, persona }) => {
     },
   }));
 
- const session = await InterviewSession.create({
+  const session = await InterviewSession.create({
     userId,
     topic,
     difficulty,
@@ -95,7 +133,7 @@ export const createSession = async ({ userId, topic, difficulty, persona }) => {
     currentQuestionIndex: 0,
     startedAt: new Date(),
     ...(persona && { persona }),
-});
+  });
 
   return session;
 };

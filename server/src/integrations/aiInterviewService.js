@@ -276,6 +276,46 @@ export const evaluateAnswer = async (
 };
 
 /**
+ * Dynamically generate progressive interview questions using the AI service.
+ *
+ * @param {string} topic - The topic of the interview (e.g. 'React').
+ * @param {string} difficulty - The difficulty level (e.g. 'Intermediate').
+ * @param {string[]} previously_asked_questions - List of previously asked questions to avoid.
+ * @returns {Promise<object>} Generated questions from the AI service.
+ */
+export const generateQuestions = async (topic, difficulty, previously_asked_questions = []) => {
+  const available = await isServiceAvailable();
+
+  if (!available) {
+    logger.warn(
+      "[aiInterviewService] ⚠️ Python service unavailable, cannot dynamically generate questions"
+    );
+    throw new Error("AI service unavailable for question generation");
+  }
+
+  try {
+    const res = await fetchWithRetry(
+      "/api/generate-questions",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic,
+          difficulty,
+          previously_asked_questions,
+        }),
+      },
+      15000 // Generating text can take a bit longer
+    );
+
+    return res.json();
+  } catch (err) {
+    logger.error(`[aiInterviewService] ⚠️ Question generation failed: ${err.message}`);
+    throw err;
+  }
+};
+
+/**
  * Get the current connection status of the Python AI service.
  * Useful for health check endpoints and debugging.
  *
