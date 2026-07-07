@@ -64,7 +64,10 @@ async def routes():
     }
 
 
+from routers.interview import router as interview_router
+
 # Register routers
 app.include_router(transcription_router, prefix="/api")
 app.include_router(evaluation_router, prefix="/api")
+app.include_router(interview_router, prefix="/api")
 
